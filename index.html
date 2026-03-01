@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dansk Fugleviden</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="start-content">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 10C30 10 15 30 15 50C15 70 30 90 50 90C55 90 60 85 58 80C56 75 60 72 65 72C70 72 75 68 75 60C75 35 65 10 50 10Z" fill="currentColor" opacity="0.2"/>
+            <path d="M25 45C25 45 35 25 55 20C55 20 45 35 50 50C55 65 40 75 30 65C20 55 25 45 25 45Z" fill="currentColor" opacity="0.4"/>
+            <circle cx="38" cy="42" r="3" fill="currentColor"/>
+            <path d="M20 48L10 45L22 50Z" fill="currentColor" opacity="0.6"/>
+          </svg>
+        </div>
+        <h1 class="title">Dansk Fugleviden</h1>
+        <p class="subtitle">Test din viden om Danmarks fugle</p>
+      </div>
+
+      <div class="settings-card">
+        <div class="setting-group">
+          <label class="setting-label">Sværhedsgrad</label>
+          <div class="toggle-group" id="difficulty-toggle">
+            <button class="toggle-btn" data-value="easy">Lette fugle</button>
+            <button class="toggle-btn active" data-value="common">Almindelige fugle</button>
+            <button class="toggle-btn" data-value="all">Alle fugle</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">Quiz-type</label>
+          <div class="toggle-group" id="mode-toggle">
+            <button class="toggle-btn active" data-value="photo">Gæt fugl fra foto</button>
+            <button class="toggle-btn" data-value="name">Gæt fra navn</button>
+            <button class="toggle-btn" data-value="mixed">Blandet</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">Antal spørgsmål</label>
+          <div class="toggle-group" id="count-toggle">
+            <button class="toggle-btn" data-value="10">10</button>
+            <button class="toggle-btn active" data-value="20">20</button>
+            <button class="toggle-btn" data-value="40">40</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="start-btn" id="start-btn">
+        <span>Start Quiz</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen" class="screen">
+    <div class="quiz-header">
+      <div class="quiz-header-top">
+        <button class="back-btn" id="quit-btn" title="Afslut quiz">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="score-display">
+          <span id="score-text">0 / 0</span>
+        </div>
+        <div class="question-counter">
+          <span id="question-counter-text">1 / 20</span>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Photo mode: show photo, pick name -->
+    <div id="photo-mode" class="quiz-body">
+      <div class="photo-container">
+        <div class="photo-wrapper" id="photo-wrapper">
+          <div class="photo-loading" id="photo-loading">
+            <div class="spinner"></div>
+            <span>Henter billede...</span>
+          </div>
+          <img id="bird-photo" class="bird-photo" alt="Fuglebillede" />
+          <div class="photo-overlay" id="photo-overlay"></div>
+        </div>
+      </div>
+      <div class="question-text">Hvad er dette for en fugl?</div>
+      <div class="options-grid" id="photo-options"></div>
+    </div>
+
+    <!-- Name mode: show name, pick photo -->
+    <div id="name-mode" class="quiz-body" style="display:none">
+      <div class="name-display">
+        <h2 id="bird-name-display" class="bird-name-text"></h2>
+        <p id="bird-sci-display" class="bird-sci-text"></p>
+      </div>
+      <div class="question-text">Hvilken fugl er det?</div>
+      <div class="photo-options-grid" id="name-options"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen" class="screen">
+    <div class="results-content">
+      <div class="results-header">
+        <div class="results-icon" id="results-icon"></div>
+        <h2 class="results-title" id="results-title"></h2>
+        <p class="results-subtitle" id="results-subtitle"></p>
+      </div>
+
+      <div class="results-score-ring">
+        <svg viewBox="0 0 120 120" class="score-ring-svg">
+          <circle cx="60" cy="60" r="52" class="score-ring-bg"/>
+          <circle cx="60" cy="60" r="52" class="score-ring-fill" id="score-ring-fill"/>
+        </svg>
+        <div class="score-ring-text">
+          <span class="score-ring-pct" id="score-pct">0%</span>
+        </div>
+      </div>
+
+      <div class="results-stats">
+        <div class="stat-item correct">
+          <span class="stat-number" id="stat-correct">0</span>
+          <span class="stat-label">Rigtige</span>
+        </div>
+        <div class="stat-item wrong">
+          <span class="stat-number" id="stat-wrong">0</span>
+          <span class="stat-label">Forkerte</span>
+        </div>
+        <div class="stat-item streak">
+          <span class="stat-number" id="stat-streak">0</span>
+          <span class="stat-label">Bedste stime</span>
+        </div>
+      </div>
+
+      <div class="results-missed" id="results-missed" style="display:none">
+        <h3>Fugle at øve mere på:</h3>
+        <div class="missed-list" id="missed-list"></div>
+      </div>
+
+      <div class="results-actions">
+        <button class="start-btn" id="retry-btn">
+          <span>Prøv igen</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 4v6h6M23 20v-6h-6"/>
+            <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
+          </svg>
+        </button>
+        <button class="secondary-btn" id="home-btn">
+          <span>Til forsiden</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="birds.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

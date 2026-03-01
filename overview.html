@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Dansk Fugleviden</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0f1a14;
+      color: #e8f0eb;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1 { text-align: center; margin-bottom: 4px; font-size: 1.8rem; letter-spacing: -0.02em; }
+    .subtitle { text-align: center; color: #6b8b7b; font-size: 0.85rem; margin-bottom: 20px; }
+    .controls {
+      text-align: center; margin-bottom: 16px;
+      display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    }
+    .controls button {
+      padding: 7px 14px; background: #1a2b22; border: 1px solid #2d4a38;
+      border-radius: 8px; color: #9ab3a4; font-family: inherit;
+      font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+    }
+    .controls button:hover { background: #243a2c; color: #e8f0eb; }
+    .controls button.active { background: rgba(74, 222, 128, 0.15); border-color: #22c55e; color: #4ade80; }
+    .controls button.flagged-btn.active { background: rgba(248, 113, 113, 0.15); border-color: #f87171; color: #f87171; }
+    .status { text-align: center; color: #6b8b7b; margin-bottom: 20px; font-size: 0.85rem; }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px; max-width: 1400px; margin: 0 auto;
+    }
+    .card {
+      background: #1a2b22; border: 1px solid #2d4a38; border-radius: 12px;
+      overflow: hidden; transition: all 0.2s; cursor: pointer; position: relative;
+    }
+    .card:hover { border-color: #3a5c48; transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+    .card.failed { border-color: #f87171; }
+    .card.flagged { border-color: #fbbf24; }
+    .card.flagged::after {
+      content: ''; position: absolute; top: 8px; right: 8px;
+      width: 10px; height: 10px; background: #fbbf24; border-radius: 50%; z-index: 5;
+    }
+    .card-img {
+      position: relative; aspect-ratio: 4 / 3; background: #162019; overflow: hidden;
+    }
+    .card-img img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center center;
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .card-img img.loaded { opacity: 1; }
+    .card-img .loading {
+      position: absolute; inset: 0; display: flex; align-items: center;
+      justify-content: center; color: #6b8b7b; font-size: 0.8rem;
+    }
+    .card-img .loading.hidden { display: none; }
+    .card-img .source-badge {
+      position: absolute; bottom: 4px; left: 4px; font-size: 0.6rem;
+      padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.7);
+      color: #9ab3a4; z-index: 2;
+    }
+    .card-img .source-badge.wikipedia { color: #8bc7f0; }
+    .card-img .source-badge.commons { color: #fbbf24; }
+    .card-img .source-badge.override { color: #4ade80; }
+    .card-img .source-badge.failed { color: #f87171; }
+    .card-info { padding: 8px 10px; }
+    .card-da { font-weight: 600; font-size: 0.85rem; margin-bottom: 1px; }
+    .card-en { font-size: 0.72rem; color: #6b8b7b; }
+    .card-sci { font-size: 0.68rem; color: #4a6b5a; font-style: italic; margin-top: 1px; }
+    .card-tags { display: flex; gap: 3px; margin-top: 5px; flex-wrap: wrap; }
+    .tag { font-size: 0.6rem; padding: 1px 5px; border-radius: 3px; background: #243a2c; color: #9ab3a4; }
+    .tag.easy { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+    .tag.common { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    .spinner { width: 24px; height: 24px; border: 2px solid #2d4a38; border-top-color: #4ade80; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    a.back { display: inline-block; margin-bottom: 12px; color: #4ade80; text-decoration: none; font-size: 0.85rem; }
+    a.back:hover { text-decoration: underline; }
+
+    /* === MODAL === */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 1000; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #1a2b22; border: 1px solid #2d4a38; border-radius: 16px;
+      max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid #2d4a38;
+    }
+    .modal-header h2 { font-size: 1.2rem; }
+    .modal-close {
+      width: 32px; height: 32px; background: none; border: 1px solid #2d4a38;
+      border-radius: 8px; color: #9ab3a4; cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .modal-close:hover { background: #243a2c; color: #e8f0eb; }
+    .modal-body { padding: 20px; }
+    .modal-img-container {
+      width: 100%; aspect-ratio: 4 / 3; background: #0f1a14;
+      border-radius: 12px; overflow: hidden; margin-bottom: 16px; position: relative;
+    }
+    .modal-img-container img {
+      width: 100%; height: 100%; object-fit: contain; background: #0a110d;
+    }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .detail-item { background: #162019; border-radius: 8px; padding: 10px 12px; }
+    .detail-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #6b8b7b; margin-bottom: 4px; }
+    .detail-value { font-size: 0.85rem; word-break: break-all; }
+    .detail-value a { color: #4ade80; text-decoration: none; }
+    .detail-value a:hover { text-decoration: underline; }
+    .detail-full { grid-column: 1 / -1; }
+    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .modal-actions button {
+      padding: 8px 16px; border-radius: 8px; font-family: inherit;
+      font-size: 0.8rem; cursor: pointer; transition: all 0.2s; border: 1px solid #2d4a38;
+    }
+    .btn-flag { background: rgba(251, 191, 36, 0.15); border-color: #fbbf24; color: #fbbf24; }
+    .btn-flag:hover { background: rgba(251, 191, 36, 0.25); }
+    .btn-flag.active { background: #fbbf24; color: #0f1a14; }
+    .btn-wiki { background: #1a2b22; color: #8bc7f0; border-color: #2d5a6a; }
+    .btn-wiki:hover { background: #1a3040; }
+    .btn-commons { background: #1a2b22; color: #fbbf24; border-color: #4a4020; }
+    .btn-commons:hover { background: #2a3020; }
+    .btn-copy { background: #1a2b22; color: #9ab3a4; }
+    .btn-copy:hover { background: #243a2c; color: #e8f0eb; }
+
+    @media (max-width: 500px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back">&larr; Tilbage til quiz</a>
+  <h1>Fuglebillede Admin</h1>
+  <p class="subtitle">Klik en fugl for detaljer — kontroller billeder, kilder og data</p>
+  <div class="controls">
+    <button class="active" data-filter="all">Alle <span id="count-all">0</span></button>
+    <button data-filter="easy">Lette <span id="count-easy">0</span></button>
+    <button data-filter="common">Almindelige <span id="count-common">0</span></button>
+    <button data-filter="failed">Fejlede <span id="count-failed">0</span></button>
+    <button data-filter="flagged" class="flagged-btn">Markerede <span id="count-flagged">0</span></button>
+  </div>
+  <div class="status" id="status">Henter billeder...</div>
+  <div class="grid" id="grid"></div>
+
+  <!-- Detail modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title"></h2>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-img-container">
+          <img id="modal-img" />
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Dansk navn</div>
+            <div class="detail-value" id="modal-da"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Engelsk navn</div>
+            <div class="detail-value" id="modal-en"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Videnskabeligt navn</div>
+            <div class="detail-value" id="modal-sci"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Kategori</div>
+            <div class="detail-value" id="modal-cat"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Sværhedsgrad</div>
+            <div class="detail-value" id="modal-difficulty"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Billedkilde</div>
+            <div class="detail-value" id="modal-source"></div>
+          </div>
+          <div class="detail-item detail-full">
+            <div class="detail-label">Billede-URL</div>
+            <div class="detail-value" id="modal-url" style="font-size:0.72rem;"></div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-flag" id="modal-flag">Marker til gennemgang</button>
+          <button class="btn-wiki" id="modal-open-wiki">Wikipedia</button>
+          <button class="btn-commons" id="modal-open-commons">Commons</button>
+          <button class="btn-copy" id="modal-copy-url">Kopier billede-URL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="birds.js"></script>
+  <script>
+    const EASY_BIRDS = new Set([
+      'Turdus merula','Passer domesticus','Parus major','Cyanistes caeruleus',
+      'Erithacus rubecula','Columba palumbus','Pica pica','Corvus cornix',
+      'Cygnus olor','Anas platyrhynchos','Ardea cinerea','Phalacrocorax carbo',
+      'Buteo buteo','Larus argentatus','Chroicocephalus ridibundus',
+      'Haematopus ostralegus','Vanellus vanellus','Dendrocopos major',
+      'Sturnus vulgaris','Hirundo rustica','Phasianus colchicus',
+      'Anser anser','Somateria mollissima','Fulica atra','Fringilla coelebs',
+    ]);
+
+    const BAD_TITLE_WORDS = [
+      'icon','logo','map','range','distribution','egg','eggs',
+      'skull','skeleton','specimen','skin','museum','mwnh',
+      'dead','taxiderm','feather','stamp','drawing','illustration',
+      'diagram','chart','track','footprint','nest','call','song',
+      'mhnt','mnhn','naturalis','clutch','oolog',
+    ];
+
+    const SKIP_WIKIPEDIA_IMAGE = new Set([
+      'Falco subbuteo','Milvus migrans','Uria aalge','Tringa glareola',
+    ]);
+
+    function isBadFilename(name) {
+      const t = (name || '').toLowerCase();
+      return BAD_TITLE_WORDS.some(w => t.includes(w));
+    }
+
+    // Track image source and URL for each species
+    const imageData = new Map(); // sci -> { url, source: 'wikipedia'|'commons'|'failed' }
+
+    async function fetchBirdImage(sci) {
+      // Check manual overrides first
+      if (typeof IMAGE_OVERRIDES !== 'undefined' && IMAGE_OVERRIDES[sci]) {
+        const url = IMAGE_OVERRIDES[sci];
+        imageData.set(sci, { url, source: 'override' });
+        return url;
+      }
+
+      if (!SKIP_WIKIPEDIA_IMAGE.has(sci)) {
+        try {
+          const wpUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(sci)}&prop=pageimages&piprop=thumbnail&pithumbsize=800&format=json&origin=*&redirects=1`;
+          const resp = await fetch(wpUrl);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.query && data.query.pages) {
+              const page = Object.values(data.query.pages)[0];
+              if (page && page.thumbnail && page.thumbnail.source) {
+                const src = page.thumbnail.source;
+                const fname = decodeURIComponent(src.split('/').pop()).toLowerCase();
+                if (!isBadFilename(fname)) {
+                  imageData.set(sci, { url: src, source: 'wikipedia' });
+                  return src;
+                }
+              }
+            }
+          }
+        } catch {}
+      }
+
+      try {
+        const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(sci)}&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=800&format=json&origin=*`;
+        const resp = await fetch(url);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.query && data.query.pages) {
+            const pages = Object.values(data.query.pages)
+              .filter(p => {
+                const t = (p.title || '').toLowerCase();
+                if (!t.endsWith('.jpg') && !t.endsWith('.jpeg') && !t.endsWith('.png')) return false;
+                return !isBadFilename(t);
+              })
+              .sort((a, b) => (a.index || 0) - (b.index || 0));
+            if (pages.length > 0 && pages[0].imageinfo && pages[0].imageinfo[0]) {
+              const src = pages[0].imageinfo[0].thumburl || pages[0].imageinfo[0].url;
+              imageData.set(sci, { url: src, source: 'commons' });
+              return src;
+            }
+          }
+        }
+      } catch {}
+
+      imageData.set(sci, { url: null, source: 'failed' });
+      return null;
+    }
+
+    // --- Flagging (persisted to localStorage) ---
+    const FLAG_KEY = 'bird_admin_flags';
+    function loadFlags() {
+      try { return new Set(JSON.parse(localStorage.getItem(FLAG_KEY) || '[]')); }
+      catch { return new Set(); }
+    }
+    function saveFlags() {
+      localStorage.setItem(FLAG_KEY, JSON.stringify([...flaggedBirds]));
+    }
+    let flaggedBirds = loadFlags();
+
+    const grid = document.getElementById('grid');
+    const statusEl = document.getElementById('status');
+    let currentFilter = 'all';
+    let cards = []; // { el, sci, bird }
+    let failedCount = 0;
+
+    function updateCounts() {
+      document.getElementById('count-all').textContent = BIRDS.length;
+      document.getElementById('count-easy').textContent = BIRDS.filter(b => EASY_BIRDS.has(b.sci)).length;
+      document.getElementById('count-common').textContent = BIRDS.filter(b => b.common).length;
+      document.getElementById('count-failed').textContent = failedCount;
+      document.getElementById('count-flagged').textContent = flaggedBirds.size;
+    }
+
+    function matchesFilter(card) {
+      if (currentFilter === 'easy') return EASY_BIRDS.has(card.sci);
+      if (currentFilter === 'common') return card.bird.common;
+      if (currentFilter === 'failed') return card.el.classList.contains('failed');
+      if (currentFilter === 'flagged') return flaggedBirds.has(card.sci);
+      return true;
+    }
+
+    function renderCards() {
+      cards.forEach(c => { c.el.style.display = matchesFilter(c) ? '' : 'none'; });
+    }
+
+    document.querySelectorAll('.controls button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderCards();
+      });
+    });
+
+    // --- Modal ---
+    const overlay = document.getElementById('modal-overlay');
+    let currentModalSci = null;
+
+    function openModal(bird) {
+      currentModalSci = bird.sci;
+      const data = imageData.get(bird.sci) || { url: null, source: 'failed' };
+      const isEasy = EASY_BIRDS.has(bird.sci);
+
+      document.getElementById('modal-title').textContent = bird.da;
+      document.getElementById('modal-da').textContent = bird.da;
+      document.getElementById('modal-en').textContent = bird.en;
+      document.getElementById('modal-sci').textContent = bird.sci;
+      document.getElementById('modal-cat').textContent = bird.cat;
+
+      let diff = [];
+      if (isEasy) diff.push('Let');
+      if (bird.common) diff.push('Almindelig');
+      if (!isEasy && !bird.common) diff.push('Alle fugle');
+      document.getElementById('modal-difficulty').textContent = diff.join(', ');
+
+      const sourceLabels = { wikipedia: 'Wikipedia (pageimage)', commons: 'Wikimedia Commons', override: 'Manuel override', failed: 'Ingen kilde fundet' };
+      document.getElementById('modal-source').textContent = sourceLabels[data.source] || data.source;
+
+      const img = document.getElementById('modal-img');
+      if (data.url) {
+        img.src = data.url;
+        img.style.display = '';
+        document.getElementById('modal-url').innerHTML = `<a href="${data.url}" target="_blank">${data.url}</a>`;
+      } else {
+        img.style.display = 'none';
+        document.getElementById('modal-url').textContent = 'Ingen URL';
+      }
+
+      // Flag button state
+      const flagBtn = document.getElementById('modal-flag');
+      if (flaggedBirds.has(bird.sci)) {
+        flagBtn.classList.add('active');
+        flagBtn.textContent = 'Markeret';
+      } else {
+        flagBtn.classList.remove('active');
+        flagBtn.textContent = 'Marker til gennemgang';
+      }
+
+      overlay.classList.add('open');
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      currentModalSci = null;
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    document.getElementById('modal-flag').addEventListener('click', () => {
+      if (!currentModalSci) return;
+      if (flaggedBirds.has(currentModalSci)) {
+        flaggedBirds.delete(currentModalSci);
+      } else {
+        flaggedBirds.add(currentModalSci);
+      }
+      saveFlags();
+      // Update card
+      const card = cards.find(c => c.sci === currentModalSci);
+      if (card) card.el.classList.toggle('flagged', flaggedBirds.has(currentModalSci));
+      // Update modal button
+      const flagBtn = document.getElementById('modal-flag');
+      flagBtn.classList.toggle('active', flaggedBirds.has(currentModalSci));
+      flagBtn.textContent = flaggedBirds.has(currentModalSci) ? 'Markeret' : 'Marker til gennemgang';
+      updateCounts();
+    });
+
+    document.getElementById('modal-open-wiki').addEventListener('click', () => {
+      if (currentModalSci) window.open(`https://en.wikipedia.org/wiki/${encodeURIComponent(currentModalSci)}`, '_blank');
+    });
+
+    document.getElementById('modal-open-commons').addEventListener('click', () => {
+      if (currentModalSci) window.open(`https://commons.wikimedia.org/w/index.php?search=${encodeURIComponent(currentModalSci)}&title=Special:MediaSearch&type=image`, '_blank');
+    });
+
+    document.getElementById('modal-copy-url').addEventListener('click', () => {
+      const data = imageData.get(currentModalSci);
+      if (data && data.url) {
+        navigator.clipboard.writeText(data.url);
+        const btn = document.getElementById('modal-copy-url');
+        btn.textContent = 'Kopieret!';
+        setTimeout(() => { btn.textContent = 'Kopier billede-URL'; }, 1500);
+      }
+    });
+
+    // --- Init ---
+    async function init() {
+      BIRDS.forEach(bird => {
+        const card = document.createElement('div');
+        card.className = 'card' + (flaggedBirds.has(bird.sci) ? ' flagged' : '');
+        const isEasy = EASY_BIRDS.has(bird.sci);
+
+        card.innerHTML = `
+          <div class="card-img">
+            <div class="loading"><div class="spinner"></div></div>
+            <img alt="${bird.da}" />
+            <div class="source-badge"></div>
+          </div>
+          <div class="card-info">
+            <div class="card-da">${bird.da}</div>
+            <div class="card-en">${bird.en}</div>
+            <div class="card-sci">${bird.sci}</div>
+            <div class="card-tags">
+              ${isEasy ? '<span class="tag easy">let</span>' : ''}
+              ${bird.common ? '<span class="tag common">alm.</span>' : ''}
+              <span class="tag">${bird.cat}</span>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener('click', () => openModal(bird));
+        grid.appendChild(card);
+        cards.push({ el: card, sci: bird.sci, bird });
+      });
+
+      updateCounts();
+      renderCards();
+
+      // Load images
+      let loaded = 0;
+      failedCount = 0;
+      const total = BIRDS.length;
+      const concurrency = 6;
+      let index = 0;
+
+      async function loadNext() {
+        if (index >= total) return;
+        const i = index++;
+        const bird = BIRDS[i];
+        const card = cards[i].el;
+        const img = card.querySelector('img');
+        const loading = card.querySelector('.loading');
+        const badge = card.querySelector('.source-badge');
+
+        const url = await fetchBirdImage(bird.sci);
+        const data = imageData.get(bird.sci) || { source: 'failed' };
+
+        if (url) {
+          img.src = url;
+          img.onload = () => { img.classList.add('loaded'); loading.classList.add('hidden'); };
+          img.onerror = () => {
+            loading.innerHTML = '<span style="color:#f87171;font-size:0.7rem">Fejl</span>';
+            card.classList.add('failed');
+            badge.textContent = 'FEJL';
+            badge.className = 'source-badge failed';
+            failedCount++;
+            updateCounts();
+          };
+          badge.textContent = data.source === 'wikipedia' ? 'WP' : data.source === 'override' ? 'OV' : 'CM';
+          badge.className = 'source-badge ' + data.source;
+        } else {
+          loading.innerHTML = '<span style="color:#f87171;font-size:0.7rem">Intet foto</span>';
+          card.classList.add('failed');
+          badge.textContent = 'FEJL';
+          badge.className = 'source-badge failed';
+          failedCount++;
+          updateCounts();
+        }
+
+        loaded++;
+        statusEl.textContent = `Hentet ${loaded} / ${total} billeder` + (failedCount > 0 ? ` (${failedCount} fejlede)` : '');
+        await loadNext();
+      }
+
+      const workers = [];
+      for (let w = 0; w < concurrency; w++) workers.push(loadNext());
+      await Promise.all(workers);
+      statusEl.textContent = `Alle ${total} billeder hentet` + (failedCount > 0 ? ` (${failedCount} fejlede)` : '');
+      updateCounts();
+    }
+
+    init();
+  </script>
+</body>
+</html>

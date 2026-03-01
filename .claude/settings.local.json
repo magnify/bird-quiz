@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open:*)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebSearch",
+      "WebFetch(domain:en.wikipedia.org)",
+      "Bash(python3:*)",
+      "Bash(ls:*)",
+      "Bash(lsof:*)",
+      "Bash(npx serve:*)"
+    ]
+  }
+}
