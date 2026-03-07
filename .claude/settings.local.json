@@ -8,7 +8,20 @@
       "Bash(python3:*)",
       "Bash(ls:*)",
       "Bash(lsof:*)",
-      "Bash(npx serve:*)"
+      "Bash(npx serve:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm install:*)",
+      "Bash(git -C /Users/brianstefanjensen/www/bird-quiz show HEAD:.gitignore)",
+      "Bash(npx next build:*)",
+      "Bash(node --version)",
+      "Bash(nvm ls:*)",
+      "Bash(source:*)",
+      "Bash(nvm install 22)",
+      "Bash(nvm use:*)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(npx shadcn@latest init:*)"
     ]
   }
 }
