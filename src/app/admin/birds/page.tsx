@@ -3,13 +3,7 @@ import BirdGrid from '@/components/admin/BirdGrid'
 
 export default function BirdsPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-        Fugle
-      </h1>
-      <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-        Klik en fugl for detaljer — kontroller billeder, kilder og data
-      </p>
+    <div className="px-4 lg:px-6">
       <BirdGrid birds={STATIC_BIRDS} />
     </div>
   )

@@ -1,61 +1,45 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
-import type { Bird, BirdImage } from '@/lib/supabase/types'
-import { getImageUrl } from '@/lib/images/storage'
-import { fetchBirdImageFromWikipedia } from '@/lib/images/storage'
+import { useState, useCallback } from 'react'
+import type { Bird } from '@/lib/supabase/types'
+
+/**
+ * Resolve a local image path for a bird.
+ * Images are stored at /images/birds/{slug}.jpg where slug is the
+ * lowercased scientific name with spaces replaced by hyphens.
+ */
+function getLocalImageUrl(scientificName: string): string {
+  const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
+  return `/images/birds/${slug}.jpg`
+}
 
 /**
  * Hook for managing bird image URLs.
- * Resolves images from database (BirdImage records) or falls back
- * to Wikipedia/Commons for birds without stored images.
+ * All 221 birds have local images downloaded from iNaturalist (CC-licensed).
+ * Resolves instantly from /images/birds/ — no network fetches needed.
  */
-export function useBirdImages(birdImages: BirdImage[]) {
-  const [imageUrls, setImageUrls] = useState<Map<string, string | null>>(() => {
-    // Pre-populate from database images
-    const map = new Map<string, string | null>()
-    for (const img of birdImages) {
-      if (img.is_primary && (img.status === 'approved' || img.status === 'pending')) {
-        const url = getImageUrl(img)
-        if (url) map.set(img.bird_id, url)
-      }
-    }
-    return map
-  })
-
-  const fetchingRef = useRef(new Set<string>())
+export function useBirdImages() {
+  const [imageUrls, setImageUrls] = useState<Map<string, string | null>>(
+    () => new Map()
+  )
 
   /**
-   * Ensure image URLs are loaded for a set of birds.
-   * If a bird has no database image, fetches from Wikipedia.
+   * Ensure image URLs are populated for a set of birds.
+   * Resolves from local files — instant, no async needed.
    */
-  const ensureImages = useCallback(async (birds: Bird[]) => {
-    const toFetch: Bird[] = []
-    for (const bird of birds) {
-      if (!imageUrls.has(bird.id) && !fetchingRef.current.has(bird.id)) {
-        toFetch.push(bird)
-        fetchingRef.current.add(bird.id)
-      }
-    }
-
-    if (toFetch.length === 0) return
-
-    const results = await Promise.all(
-      toFetch.map(async bird => {
-        const url = await fetchBirdImageFromWikipedia(bird.scientific_name)
-        return { birdId: bird.id, url }
-      })
-    )
-
+  const ensureImages = useCallback((birds: Bird[]) => {
     setImageUrls(prev => {
+      let changed = false
       const next = new Map(prev)
-      for (const { birdId, url } of results) {
-        next.set(birdId, url)
-        fetchingRef.current.delete(birdId)
+      for (const bird of birds) {
+        if (!next.has(bird.id)) {
+          next.set(bird.id, getLocalImageUrl(bird.scientific_name))
+          changed = true
+        }
       }
-      return next
+      return changed ? next : prev
     })
-  }, [imageUrls])
+  }, [])
 
   return { imageUrls, ensureImages }
 }

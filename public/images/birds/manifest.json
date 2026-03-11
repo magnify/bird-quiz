@@ -1,0 +1,898 @@
+{
+  "Turdus merula": {
+    "file": "turdus-merula.jpg",
+    "source": "cached"
+  },
+  "Passer domesticus": {
+    "file": "passer-domesticus.jpg",
+    "source": "cached"
+  },
+  "Passer montanus": {
+    "file": "passer-montanus.jpg",
+    "source": "cached"
+  },
+  "Parus major": {
+    "file": "parus-major.jpg",
+    "source": "cached"
+  },
+  "Cyanistes caeruleus": {
+    "file": "cyanistes-caeruleus.jpg",
+    "source": "cached"
+  },
+  "Periparus ater": {
+    "file": "periparus-ater.jpg",
+    "source": "cached"
+  },
+  "Lophophanes cristatus": {
+    "file": "lophophanes-cristatus.jpg",
+    "source": "cached"
+  },
+  "Aegithalos caudatus": {
+    "file": "aegithalos-caudatus.jpg",
+    "source": "cached"
+  },
+  "Fringilla coelebs": {
+    "file": "fringilla-coelebs.jpg",
+    "source": "cached"
+  },
+  "Chloris chloris": {
+    "file": "chloris-chloris.jpg",
+    "source": "cached"
+  },
+  "Carduelis carduelis": {
+    "file": "carduelis-carduelis.jpg",
+    "source": "cached"
+  },
+  "Spinus spinus": {
+    "file": "spinus-spinus.jpg",
+    "source": "inaturalist",
+    "attribution": "(c) caroline legg, some rights reserved (CC BY)",
+    "license": "cc-by"
+  },
+  "Linaria cannabina": {
+    "file": "linaria-cannabina.jpg",
+    "source": "cached"
+  },
+  "Pyrrhula pyrrhula": {
+    "file": "pyrrhula-pyrrhula.jpg",
+    "source": "cached"
+  },
+  "Coccothraustes coccothraustes": {
+    "file": "coccothraustes-coccothraustes.jpg",
+    "source": "cached"
+  },
+  "Columba palumbus": {
+    "file": "columba-palumbus.jpg",
+    "source": "cached"
+  },
+  "Streptopelia decaocto": {
+    "file": "streptopelia-decaocto.jpg",
+    "source": "cached"
+  },
+  "Pica pica": {
+    "file": "pica-pica.jpg",
+    "source": "cached"
+  },
+  "Corvus cornix": {
+    "file": "corvus-cornix.jpg",
+    "source": "cached"
+  },
+  "Corvus corone": {
+    "file": "corvus-corone.jpg",
+    "source": "cached"
+  },
+  "Corvus frugilegus": {
+    "file": "corvus-frugilegus.jpg",
+    "source": "cached"
+  },
+  "Coloeus monedula": {
+    "file": "coloeus-monedula.jpg",
+    "source": "cached"
+  },
+  "Sturnus vulgaris": {
+    "file": "sturnus-vulgaris.jpg",
+    "source": "cached"
+  },
+  "Prunella modularis": {
+    "file": "prunella-modularis.jpg",
+    "source": "cached"
+  },
+  "Troglodytes troglodytes": {
+    "file": "troglodytes-troglodytes.jpg",
+    "source": "cached"
+  },
+  "Erithacus rubecula": {
+    "file": "erithacus-rubecula.jpg",
+    "source": "cached"
+  },
+  "Cygnus olor": {
+    "file": "cygnus-olor.jpg",
+    "source": "cached"
+  },
+  "Cygnus cygnus": {
+    "file": "cygnus-cygnus.jpg",
+    "source": "inaturalist",
+    "attribution": "(c) Bird Explorers, some rights reserved (CC BY-NC), uploaded by Bird Explorers",
+    "license": "cc-by-nc"
+  },
+  "Cygnus columbianus": {
+    "file": "cygnus-columbianus.jpg",
+    "source": "cached"
+  },
+  "Anser anser": {
+    "file": "anser-anser.jpg",
+    "source": "cached"
+  },
+  "Branta leucopsis": {
+    "file": "branta-leucopsis.jpg",
+    "source": "cached"
+  },
+  "Branta canadensis": {
+    "file": "branta-canadensis.jpg",
+    "source": "cached"
+  },
+  "Anser brachyrhynchus": {
+    "file": "anser-brachyrhynchus.jpg",
+    "source": "cached"
+  },
+  "Anser albifrons": {
+    "file": "anser-albifrons.jpg",
+    "source": "cached"
+  },
+  "Branta bernicla": {
+    "file": "branta-bernicla.jpg",
+    "source": "cached"
+  },
+  "Anas platyrhynchos": {
+    "file": "anas-platyrhynchos.jpg",
+    "source": "cached"
+  },
+  "Anas crecca": {
+    "file": "anas-crecca.jpg",
+    "source": "cached"
+  },
+  "Mareca penelope": {
+    "file": "mareca-penelope.jpg",
+    "source": "cached"
+  },
+  "Anas acuta": {
+    "file": "anas-acuta.jpg",
+    "source": "cached"
+  },
+  "Spatula clypeata": {
+    "file": "spatula-clypeata.jpg",
+    "source": "cached"
+  },
+  "Aythya fuligula": {
+    "file": "aythya-fuligula.jpg",
+    "source": "cached"
+  },
+  "Aythya ferina": {
+    "file": "aythya-ferina.jpg",
+    "source": "cached"
+  },
+  "Bucephala clangula": {
+    "file": "bucephala-clangula.jpg",
+    "source": "cached"
+  },
+  "Somateria mollissima": {
+    "file": "somateria-mollissima.jpg",
+    "source": "cached"
+  },
+  "Melanitta nigra": {
+    "file": "melanitta-nigra.jpg",
+    "source": "cached"
+  },
+  "Melanitta fusca": {
+    "file": "melanitta-fusca.jpg",
+    "source": "cached"
+  },
+  "Clangula hyemalis": {
+    "file": "clangula-hyemalis.jpg",
+    "source": "cached"
+  },
+  "Aythya marila": {
+    "file": "aythya-marila.jpg",
+    "source": "cached"
+  },
+  "Mergus serrator": {
+    "file": "mergus-serrator.jpg",
+    "source": "cached"
+  },
+  "Mergus merganser": {
+    "file": "mergus-merganser.jpg",
+    "source": "cached"
+  },
+  "Mergellus albellus": {
+    "file": "mergellus-albellus.jpg",
+    "source": "cached"
+  },
+  "Spatula querquedula": {
+    "file": "spatula-querquedula.jpg",
+    "source": "cached"
+  },
+  "Tadorna tadorna": {
+    "file": "tadorna-tadorna.jpg",
+    "source": "cached"
+  },
+  "Fulica atra": {
+    "file": "fulica-atra.jpg",
+    "source": "cached"
+  },
+  "Gallinula chloropus": {
+    "file": "gallinula-chloropus.jpg",
+    "source": "cached"
+  },
+  "Rallus aquaticus": {
+    "file": "rallus-aquaticus.jpg",
+    "source": "cached"
+  },
+  "Podiceps cristatus": {
+    "file": "podiceps-cristatus.jpg",
+    "source": "cached"
+  },
+  "Tachybaptus ruficollis": {
+    "file": "tachybaptus-ruficollis.jpg",
+    "source": "cached"
+  },
+  "Podiceps grisegena": {
+    "file": "podiceps-grisegena.jpg",
+    "source": "cached"
+  },
+  "Podiceps nigricollis": {
+    "file": "podiceps-nigricollis.jpg",
+    "source": "cached"
+  },
+  "Ardea cinerea": {
+    "file": "ardea-cinerea.jpg",
+    "source": "cached"
+  },
+  "Phalacrocorax carbo": {
+    "file": "phalacrocorax-carbo.jpg",
+    "source": "cached"
+  },
+  "Botaurus stellaris": {
+    "file": "botaurus-stellaris.jpg",
+    "source": "cached"
+  },
+  "Buteo buteo": {
+    "file": "buteo-buteo.jpg",
+    "source": "cached"
+  },
+  "Buteo lagopus": {
+    "file": "buteo-lagopus.jpg",
+    "source": "cached"
+  },
+  "Accipiter nisus": {
+    "file": "accipiter-nisus.jpg",
+    "source": "cached"
+  },
+  "Accipiter gentilis": {
+    "file": "accipiter-gentilis.jpg",
+    "source": "inaturalist",
+    "attribution": "(c) Luigi Andena, some rights reserved (CC BY-NC), uploaded by Luigi Andena",
+    "license": "cc-by-nc"
+  },
+  "Falco tinnunculus": {
+    "file": "falco-tinnunculus.jpg",
+    "source": "cached"
+  },
+  "Falco columbarius": {
+    "file": "falco-columbarius.jpg",
+    "source": "cached"
+  },
+  "Falco peregrinus": {
+    "file": "falco-peregrinus.jpg",
+    "source": "cached"
+  },
+  "Falco subbuteo": {
+    "file": "falco-subbuteo.jpg",
+    "source": "cached"
+  },
+  "Haliaeetus albicilla": {
+    "file": "haliaeetus-albicilla.jpg",
+    "source": "cached"
+  },
+  "Milvus milvus": {
+    "file": "milvus-milvus.jpg",
+    "source": "cached"
+  },
+  "Milvus migrans": {
+    "file": "milvus-migrans.jpg",
+    "source": "cached"
+  },
+  "Circus aeruginosus": {
+    "file": "circus-aeruginosus.jpg",
+    "source": "cached"
+  },
+  "Circus cyaneus": {
+    "file": "circus-cyaneus.jpg",
+    "source": "cached"
+  },
+  "Pernis apivorus": {
+    "file": "pernis-apivorus.jpg",
+    "source": "cached"
+  },
+  "Pandion haliaetus": {
+    "file": "pandion-haliaetus.jpg",
+    "source": "cached"
+  },
+  "Tyto alba": {
+    "file": "tyto-alba.jpg",
+    "source": "cached"
+  },
+  "Strix aluco": {
+    "file": "strix-aluco.jpg",
+    "source": "cached"
+  },
+  "Asio otus": {
+    "file": "asio-otus.jpg",
+    "source": "cached"
+  },
+  "Asio flammeus": {
+    "file": "asio-flammeus.jpg",
+    "source": "cached"
+  },
+  "Larus argentatus": {
+    "file": "larus-argentatus.jpg",
+    "source": "cached"
+  },
+  "Larus canus": {
+    "file": "larus-canus.jpg",
+    "source": "cached"
+  },
+  "Chroicocephalus ridibundus": {
+    "file": "chroicocephalus-ridibundus.jpg",
+    "source": "cached"
+  },
+  "Larus marinus": {
+    "file": "larus-marinus.jpg",
+    "source": "cached"
+  },
+  "Larus fuscus": {
+    "file": "larus-fuscus.jpg",
+    "source": "cached"
+  },
+  "Rissa tridactyla": {
+    "file": "rissa-tridactyla.jpg",
+    "source": "cached"
+  },
+  "Hydrocoloeus minutus": {
+    "file": "hydrocoloeus-minutus.jpg",
+    "source": "cached"
+  },
+  "Ichthyaetus melanocephalus": {
+    "file": "ichthyaetus-melanocephalus.jpg",
+    "source": "cached"
+  },
+  "Sterna hirundo": {
+    "file": "sterna-hirundo.jpg",
+    "source": "cached"
+  },
+  "Sterna paradisaea": {
+    "file": "sterna-paradisaea.jpg",
+    "source": "cached"
+  },
+  "Sternula albifrons": {
+    "file": "sternula-albifrons.jpg",
+    "source": "cached"
+  },
+  "Thalasseus sandvicensis": {
+    "file": "thalasseus-sandvicensis.jpg",
+    "source": "cached"
+  },
+  "Hydroprogne caspia": {
+    "file": "hydroprogne-caspia.jpg",
+    "source": "cached"
+  },
+  "Chlidonias niger": {
+    "file": "chlidonias-niger.jpg",
+    "source": "cached"
+  },
+  "Uria aalge": {
+    "file": "uria-aalge.jpg",
+    "source": "cached"
+  },
+  "Alca torda": {
+    "file": "alca-torda.jpg",
+    "source": "cached"
+  },
+  "Alle alle": {
+    "file": "alle-alle.jpg",
+    "source": "inaturalist",
+    "attribution": "(c) Christoph Moning, some rights reserved (CC BY), uploaded by Christoph Moning",
+    "license": "cc-by"
+  },
+  "Fratercula arctica": {
+    "file": "fratercula-arctica.jpg",
+    "source": "cached"
+  },
+  "Cepphus grylle": {
+    "file": "cepphus-grylle.jpg",
+    "source": "cached"
+  },
+  "Morus bassanus": {
+    "file": "morus-bassanus.jpg",
+    "source": "cached"
+  },
+  "Fulmarus glacialis": {
+    "file": "fulmarus-glacialis.jpg",
+    "source": "cached"
+  },
+  "Gulosus aristotelis": {
+    "file": "gulosus-aristotelis.jpg",
+    "source": "cached"
+  },
+  "Haematopus ostralegus": {
+    "file": "haematopus-ostralegus.jpg",
+    "source": "cached"
+  },
+  "Vanellus vanellus": {
+    "file": "vanellus-vanellus.jpg",
+    "source": "cached"
+  },
+  "Tringa totanus": {
+    "file": "tringa-totanus.jpg",
+    "source": "cached"
+  },
+  "Tringa nebularia": {
+    "file": "tringa-nebularia.jpg",
+    "source": "cached"
+  },
+  "Tringa ochropus": {
+    "file": "tringa-ochropus.jpg",
+    "source": "cached"
+  },
+  "Tringa glareola": {
+    "file": "tringa-glareola.jpg",
+    "source": "cached"
+  },
+  "Actitis hypoleucos": {
+    "file": "actitis-hypoleucos.jpg",
+    "source": "cached"
+  },
+  "Numenius arquata": {
+    "file": "numenius-arquata.jpg",
+    "source": "cached"
+  },
+  "Numenius phaeopus": {
+    "file": "numenius-phaeopus.jpg",
+    "source": "cached"
+  },
+  "Limosa lapponica": {
+    "file": "limosa-lapponica.jpg",
+    "source": "cached"
+  },
+  "Limosa limosa": {
+    "file": "limosa-limosa.jpg",
+    "source": "cached"
+  },
+  "Recurvirostra avosetta": {
+    "file": "recurvirostra-avosetta.jpg",
+    "source": "cached"
+  },
+  "Calidris pugnax": {
+    "file": "calidris-pugnax.jpg",
+    "source": "cached"
+  },
+  "Calidris alpina": {
+    "file": "calidris-alpina.jpg",
+    "source": "cached"
+  },
+  "Calidris alba": {
+    "file": "calidris-alba.jpg",
+    "source": "cached"
+  },
+  "Calidris canutus": {
+    "file": "calidris-canutus.jpg",
+    "source": "cached"
+  },
+  "Calidris maritima": {
+    "file": "calidris-maritima.jpg",
+    "source": "cached"
+  },
+  "Calidris minuta": {
+    "file": "calidris-minuta.jpg",
+    "source": "cached"
+  },
+  "Gallinago gallinago": {
+    "file": "gallinago-gallinago.jpg",
+    "source": "cached"
+  },
+  "Lymnocryptes minimus": {
+    "file": "lymnocryptes-minimus.jpg",
+    "source": "cached"
+  },
+  "Scolopax rusticola": {
+    "file": "scolopax-rusticola.jpg",
+    "source": "cached"
+  },
+  "Charadrius hiaticula": {
+    "file": "charadrius-hiaticula.jpg",
+    "source": "cached"
+  },
+  "Charadrius dubius": {
+    "file": "charadrius-dubius.jpg",
+    "source": "inaturalist",
+    "attribution": "(c) Геннадий, some rights reserved (CC BY-NC), uploaded by Геннадий",
+    "license": "cc-by-nc"
+  },
+  "Pluvialis apricaria": {
+    "file": "pluvialis-apricaria.jpg",
+    "source": "cached"
+  },
+  "Pluvialis squatarola": {
+    "file": "pluvialis-squatarola.jpg",
+    "source": "cached"
+  },
+  "Arenaria interpres": {
+    "file": "arenaria-interpres.jpg",
+    "source": "cached"
+  },
+  "Phalaropus lobatus": {
+    "file": "phalaropus-lobatus.jpg",
+    "source": "cached"
+  },
+  "Phalaropus fulicarius": {
+    "file": "phalaropus-fulicarius.jpg",
+    "source": "cached"
+  },
+  "Himantopus himantopus": {
+    "file": "himantopus-himantopus.jpg",
+    "source": "cached"
+  },
+  "Dendrocopos major": {
+    "file": "dendrocopos-major.jpg",
+    "source": "cached"
+  },
+  "Dryobates minor": {
+    "file": "dryobates-minor.jpg",
+    "source": "cached"
+  },
+  "Picus viridis": {
+    "file": "picus-viridis.jpg",
+    "source": "cached"
+  },
+  "Dryocopus martius": {
+    "file": "dryocopus-martius.jpg",
+    "source": "cached"
+  },
+  "Columba oenas": {
+    "file": "columba-oenas.jpg",
+    "source": "cached"
+  },
+  "Sitta europaea": {
+    "file": "sitta-europaea.jpg",
+    "source": "cached"
+  },
+  "Certhia familiaris": {
+    "file": "certhia-familiaris.jpg",
+    "source": "cached"
+  },
+  "Certhia brachydactyla": {
+    "file": "certhia-brachydactyla.jpg",
+    "source": "cached"
+  },
+  "Corvus corax": {
+    "file": "corvus-corax.jpg",
+    "source": "cached"
+  },
+  "Garrulus glandarius": {
+    "file": "garrulus-glandarius.jpg",
+    "source": "cached"
+  },
+  "Turdus philomelos": {
+    "file": "turdus-philomelos.jpg",
+    "source": "cached"
+  },
+  "Turdus viscivorus": {
+    "file": "turdus-viscivorus.jpg",
+    "source": "cached"
+  },
+  "Turdus iliacus": {
+    "file": "turdus-iliacus.jpg",
+    "source": "cached"
+  },
+  "Turdus pilaris": {
+    "file": "turdus-pilaris.jpg",
+    "source": "cached"
+  },
+  "Regulus regulus": {
+    "file": "regulus-regulus.jpg",
+    "source": "cached"
+  },
+  "Regulus ignicapilla": {
+    "file": "regulus-ignicapilla.jpg",
+    "source": "cached"
+  },
+  "Cuculus canorus": {
+    "file": "cuculus-canorus.jpg",
+    "source": "cached"
+  },
+  "Hirundo rustica": {
+    "file": "hirundo-rustica.jpg",
+    "source": "cached"
+  },
+  "Delichon urbicum": {
+    "file": "delichon-urbicum.jpg",
+    "source": "cached"
+  },
+  "Riparia riparia": {
+    "file": "riparia-riparia.jpg",
+    "source": "cached"
+  },
+  "Apus apus": {
+    "file": "apus-apus.jpg",
+    "source": "cached"
+  },
+  "Motacilla alba": {
+    "file": "motacilla-alba.jpg",
+    "source": "cached"
+  },
+  "Motacilla flava": {
+    "file": "motacilla-flava.jpg",
+    "source": "cached"
+  },
+  "Motacilla cinerea": {
+    "file": "motacilla-cinerea.jpg",
+    "source": "cached"
+  },
+  "Anthus trivialis": {
+    "file": "anthus-trivialis.jpg",
+    "source": "cached"
+  },
+  "Anthus pratensis": {
+    "file": "anthus-pratensis.jpg",
+    "source": "cached"
+  },
+  "Anthus petrosus": {
+    "file": "anthus-petrosus.jpg",
+    "source": "cached"
+  },
+  "Alauda arvensis": {
+    "file": "alauda-arvensis.jpg",
+    "source": "cached"
+  },
+  "Lullula arborea": {
+    "file": "lullula-arborea.jpg",
+    "source": "cached"
+  },
+  "Galerida cristata": {
+    "file": "galerida-cristata.jpg",
+    "source": "cached"
+  },
+  "Lanius collurio": {
+    "file": "lanius-collurio.jpg",
+    "source": "cached"
+  },
+  "Lanius excubitor": {
+    "file": "lanius-excubitor.jpg",
+    "source": "cached"
+  },
+  "Ficedula hypoleuca": {
+    "file": "ficedula-hypoleuca.jpg",
+    "source": "cached"
+  },
+  "Ficedula parva": {
+    "file": "ficedula-parva.jpg",
+    "source": "cached"
+  },
+  "Muscicapa striata": {
+    "file": "muscicapa-striata.jpg",
+    "source": "cached"
+  },
+  "Phylloscopus trochilus": {
+    "file": "phylloscopus-trochilus.jpg",
+    "source": "cached"
+  },
+  "Phylloscopus collybita": {
+    "file": "phylloscopus-collybita.jpg",
+    "source": "cached"
+  },
+  "Phylloscopus sibilatrix": {
+    "file": "phylloscopus-sibilatrix.jpg",
+    "source": "cached"
+  },
+  "Sylvia atricapilla": {
+    "file": "sylvia-atricapilla.jpg",
+    "source": "cached"
+  },
+  "Sylvia borin": {
+    "file": "sylvia-borin.jpg",
+    "source": "cached"
+  },
+  "Curruca communis": {
+    "file": "curruca-communis.jpg",
+    "source": "cached"
+  },
+  "Curruca curruca": {
+    "file": "curruca-curruca.jpg",
+    "source": "inaturalist",
+    "attribution": "(c) Евгений Гурьевских, some rights reserved (CC BY-NC), uploaded by Евгений Гурьевских",
+    "license": "cc-by-nc"
+  },
+  "Acrocephalus scirpaceus": {
+    "file": "acrocephalus-scirpaceus.jpg",
+    "source": "cached"
+  },
+  "Acrocephalus palustris": {
+    "file": "acrocephalus-palustris.jpg",
+    "source": "cached"
+  },
+  "Acrocephalus schoenobaenus": {
+    "file": "acrocephalus-schoenobaenus.jpg",
+    "source": "cached"
+  },
+  "Acrocephalus arundinaceus": {
+    "file": "acrocephalus-arundinaceus.jpg",
+    "source": "cached"
+  },
+  "Hippolais icterina": {
+    "file": "hippolais-icterina.jpg",
+    "source": "cached"
+  },
+  "Luscinia luscinia": {
+    "file": "luscinia-luscinia.jpg",
+    "source": "cached"
+  },
+  "Phoenicurus phoenicurus": {
+    "file": "phoenicurus-phoenicurus.jpg",
+    "source": "cached"
+  },
+  "Phoenicurus ochruros": {
+    "file": "phoenicurus-ochruros.jpg",
+    "source": "cached"
+  },
+  "Saxicola rubicola": {
+    "file": "saxicola-rubicola.jpg",
+    "source": "cached"
+  },
+  "Oenanthe oenanthe": {
+    "file": "oenanthe-oenanthe.jpg",
+    "source": "cached"
+  },
+  "Ciconia ciconia": {
+    "file": "ciconia-ciconia.jpg",
+    "source": "cached"
+  },
+  "Grus grus": {
+    "file": "grus-grus.jpg",
+    "source": "cached"
+  },
+  "Alcedo atthis": {
+    "file": "alcedo-atthis.jpg",
+    "source": "cached"
+  },
+  "Jynx torquilla": {
+    "file": "jynx-torquilla.jpg",
+    "source": "cached"
+  },
+  "Caprimulgus europaeus": {
+    "file": "caprimulgus-europaeus.jpg",
+    "source": "cached"
+  },
+  "Cinclus cinclus": {
+    "file": "cinclus-cinclus.jpg",
+    "source": "cached"
+  },
+  "Panurus biarmicus": {
+    "file": "panurus-biarmicus.jpg",
+    "source": "cached"
+  },
+  "Remiz pendulinus": {
+    "file": "remiz-pendulinus.jpg",
+    "source": "cached"
+  },
+  "Platalea leucorodia": {
+    "file": "platalea-leucorodia.jpg",
+    "source": "cached"
+  },
+  "Egretta garzetta": {
+    "file": "egretta-garzetta.jpg",
+    "source": "cached"
+  },
+  "Ardea alba": {
+    "file": "ardea-alba.jpg",
+    "source": "cached"
+  },
+  "Phasianus colchicus": {
+    "file": "phasianus-colchicus.jpg",
+    "source": "cached"
+  },
+  "Perdix perdix": {
+    "file": "perdix-perdix.jpg",
+    "source": "cached"
+  },
+  "Coturnix coturnix": {
+    "file": "coturnix-coturnix.jpg",
+    "source": "cached"
+  },
+  "Emberiza citrinella": {
+    "file": "emberiza-citrinella.jpg",
+    "source": "cached"
+  },
+  "Emberiza calandra": {
+    "file": "emberiza-calandra.jpg",
+    "source": "cached"
+  },
+  "Emberiza schoeniclus": {
+    "file": "emberiza-schoeniclus.jpg",
+    "source": "cached"
+  },
+  "Plectrophenax nivalis": {
+    "file": "plectrophenax-nivalis.jpg",
+    "source": "cached"
+  },
+  "Bombycilla garrulus": {
+    "file": "bombycilla-garrulus.jpg",
+    "source": "cached"
+  },
+  "Loxia leucoptera": {
+    "file": "loxia-leucoptera.jpg",
+    "source": "cached"
+  },
+  "Loxia curvirostra": {
+    "file": "loxia-curvirostra.jpg",
+    "source": "cached"
+  },
+  "Loxia pytyopsittacus": {
+    "file": "loxia-pytyopsittacus.jpg",
+    "source": "cached"
+  },
+  "Nucifraga caryocatactes": {
+    "file": "nucifraga-caryocatactes.jpg",
+    "source": "cached"
+  },
+  "Pastor roseus": {
+    "file": "pastor-roseus.jpg",
+    "source": "cached"
+  },
+  "Oriolus oriolus": {
+    "file": "oriolus-oriolus.jpg",
+    "source": "cached"
+  },
+  "Aquila chrysaetos": {
+    "file": "aquila-chrysaetos.jpg",
+    "source": "cached"
+  },
+  "Merops apiaster": {
+    "file": "merops-apiaster.jpg",
+    "source": "cached"
+  },
+  "Upupa epops": {
+    "file": "upupa-epops.jpg",
+    "source": "cached"
+  },
+  "Coracias garrulus": {
+    "file": "coracias-garrulus.jpg",
+    "source": "cached"
+  },
+  "Fringilla montifringilla": {
+    "file": "fringilla-montifringilla.jpg",
+    "source": "cached"
+  },
+  "Ciconia nigra": {
+    "file": "ciconia-nigra.jpg",
+    "source": "cached"
+  },
+  "Anarhynchus alexandrinus": {
+    "file": "anarhynchus-alexandrinus.jpg",
+    "source": "cached"
+  },
+  "Prunella collaris": {
+    "file": "prunella-collaris.jpg",
+    "source": "cached"
+  },
+  "Xema sabini": {
+    "file": "xema-sabini.jpg",
+    "source": "cached"
+  },
+  "Circus macrourus": {
+    "file": "circus-macrourus.jpg",
+    "source": "cached"
+  },
+  "Falco vespertinus": {
+    "file": "falco-vespertinus.jpg",
+    "source": "cached"
+  }
+}

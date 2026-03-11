@@ -49,9 +49,9 @@ export default function QuizResults({
   }
 
   let ringColor = 'var(--accent)'
-  if (pct >= 70) ringColor = 'var(--correct)'
-  else if (pct >= 40) ringColor = 'var(--warning)'
-  else ringColor = 'var(--wrong)'
+  if (pct >= 70) ringColor = 'var(--quiz-correct)'
+  else if (pct >= 40) ringColor = 'var(--quiz-warning)'
+  else ringColor = 'var(--quiz-wrong)'
 
   useEffect(() => {
     const ring = ringRef.current
@@ -81,8 +81,8 @@ export default function QuizResults({
           <p className="results-subtitle">{subtitle}</p>
         </div>
 
-        <div className="results-score-ring">
-          <svg viewBox="0 0 120 120" className="score-ring-svg">
+        <div className="results-score-ring" role="img" aria-label={`Score: ${pct} procent`}>
+          <svg viewBox="0 0 120 120" className="score-ring-svg" aria-hidden="true">
             <circle cx="60" cy="60" r="52" className="score-ring-bg" />
             <circle
               ref={ringRef}

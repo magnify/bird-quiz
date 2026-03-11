@@ -44,12 +44,20 @@ function PhotoOptionCard({
   ].filter(Boolean).join(' ')
 
   return (
-    <div className={classes} onClick={answered ? undefined : onClick}>
+    <div
+      className={classes}
+      onClick={answered ? undefined : onClick}
+      onKeyDown={answered ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      role="button"
+      tabIndex={answered ? -1 : 0}
+      aria-label={bird.name_da}
+      aria-disabled={answered}
+    >
       <div className={`photo-option-loading ${loaded ? 'hidden' : ''}`}>
         {imageUrl ? (
           <div className="spinner" />
         ) : (
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Intet foto</span>
+          <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Intet foto</span>
         )}
       </div>
       {imageUrl && (

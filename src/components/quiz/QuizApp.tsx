@@ -1,7 +1,8 @@
 'use client'
 
+import './quiz.css'
 import { useEffect } from 'react'
-import type { Bird, BirdImage } from '@/lib/supabase/types'
+import type { Bird } from '@/lib/supabase/types'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useBirdImages } from '@/hooks/useBirdImages'
 import QuizSetup from './QuizSetup'
@@ -11,10 +12,9 @@ import QuizResults from './QuizResults'
 interface QuizAppProps {
   birds: Bird[]
   memberships: { bird_id: string; group_id: string }[]
-  birdImages: BirdImage[]
 }
 
-export default function QuizApp({ birds, memberships, birdImages }: QuizAppProps) {
+export default function QuizApp({ birds, memberships }: QuizAppProps) {
   const {
     state,
     currentQ,
@@ -27,7 +27,7 @@ export default function QuizApp({ birds, memberships, birdImages }: QuizAppProps
     goHome,
   } = useQuiz(birds, memberships)
 
-  const { imageUrls, ensureImages } = useBirdImages(birdImages)
+  const { imageUrls, ensureImages } = useBirdImages()
 
   // When a question is displayed, ensure images are loaded for all options
   useEffect(() => {

@@ -1,27 +1,26 @@
 import { STATIC_BIRDS } from '@/lib/data/birds-static'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function ImagesPage() {
-  const total = STATIC_BIRDS.length
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-        Billeder
-      </h1>
-      <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-        Administrer fuglebilleder — godkend, afvis eller erstat billeder
-      </p>
-      <div
-        className="rounded-xl p-8 border text-center"
-        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
-      >
-        <div className="text-4xl mb-3" style={{ color: 'var(--accent)' }}>{total}</div>
-        <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
-          fugle klar til billedhåndtering
-        </div>
-        <div className="text-xs mt-4" style={{ color: 'var(--text-muted)' }}>
-          Fuld billedhåndtering med godkendelse, afvisning og upload kommer i næste fase.
-        </div>
-      </div>
+    <div className="px-4 lg:px-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Billedhåndtering</CardTitle>
+          <CardDescription>
+            Administrer fuglebilleder — godkend, afvis eller erstat billeder
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="py-8 text-center">
+          <div className="text-3xl font-bold tabular-nums mb-2">{STATIC_BIRDS.length}</div>
+          <div className="text-sm text-muted-foreground">
+            fugle klar til billedhåndtering
+          </div>
+          <div className="text-xs text-muted-foreground mt-4">
+            Fuld billedhåndtering med godkendelse, afvisning og upload kommer i næste fase.
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

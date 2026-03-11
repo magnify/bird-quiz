@@ -32,6 +32,7 @@ function ToggleGroup<T extends string>({
             key={opt.value}
             className={`toggle-btn ${value === opt.value ? 'active' : ''}`}
             onClick={() => onChange(opt.value)}
+            aria-pressed={value === opt.value}
           >
             {opt.label}
           </button>

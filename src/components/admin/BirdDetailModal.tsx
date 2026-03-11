@@ -1,11 +1,21 @@
 'use client'
 
 import type { Bird } from '@/lib/supabase/types'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Flag, ExternalLink } from 'lucide-react'
 
 interface ImageData {
   url: string | null
-  source: 'wikipedia' | 'commons' | 'override' | 'failed'
-  status: 'loading' | 'loaded' | 'failed'
+  source: string
+  status: string
 }
 
 interface Props {
@@ -21,146 +31,72 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
   const commonsUrl = `https://commons.wikimedia.org/w/index.php?search=${encodeURIComponent(bird.scientific_name)}&title=Special:MediaSearch&type=image`
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.7)' }}
-      onClick={onClose}
-    >
-      <div
-        className="relative w-full max-w-lg rounded-2xl overflow-hidden"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
-          style={{ background: 'rgba(0,0,0,0.5)', color: 'var(--text-primary)' }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* Image */}
-        <div className="relative" style={{ aspectRatio: '16/10', background: 'var(--bg-secondary)' }}>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
+      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+        <div className="relative bg-muted" style={{ aspectRatio: '16/10' }}>
           {imageData?.url ? (
             <img
               src={imageData.url}
               alt={bird.name_da}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: 'var(--text-muted)' }}>
-              {imageData?.status === 'failed' ? 'Intet billede fundet' : 'Henter...'}
-            </div>
-          )}
-          {/* Source badge */}
-          {imageData && (
-            <div
-              className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded"
-              style={{
-                background: 'rgba(0,0,0,0.7)',
-                color: imageData.source === 'wikipedia' ? '#8bc7f0'
-                  : imageData.source === 'override' ? '#4ade80'
-                  : imageData.source === 'failed' ? '#f87171'
-                  : '#fbbf24',
-              }}
-            >
-              {imageData.source === 'wikipedia' ? 'Wikipedia'
-                : imageData.source === 'override' ? 'Override'
-                : imageData.source === 'failed' ? 'Fejl'
-                : 'Commons'}
+            <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
+              Intet billede
             </div>
           )}
         </div>
 
-        {/* Details */}
-        <div className="p-5">
-          <h2 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>
-            {bird.name_da}
-          </h2>
-          <div className="text-sm mb-0.5" style={{ color: 'var(--text-secondary)' }}>
-            {bird.name_en}
-          </div>
-          <div className="text-sm italic mb-4" style={{ color: '#4a6b5a' }}>
-            {bird.scientific_name}
-          </div>
+        <div className="p-6 space-y-4">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{bird.name_da}</DialogTitle>
+            <DialogDescription>
+              {bird.name_en} — <span className="italic">{bird.scientific_name}</span>
+            </DialogDescription>
+          </DialogHeader>
 
-          {/* Tags */}
-          <div className="flex gap-2 flex-wrap mb-4">
-            <span className="text-xs px-2 py-1 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
-              {bird.category}
-            </span>
-            {bird.is_easy && (
-              <span className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80' }}>
-                Let
-              </span>
-            )}
-            {bird.is_common && (
-              <span className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
-                Almindelig
-              </span>
+          <div className="flex gap-2 flex-wrap">
+            <Badge variant="outline">{bird.category}</Badge>
+            {bird.is_easy ? (
+              <Badge variant="secondary">Let</Badge>
+            ) : bird.is_common ? (
+              <Badge variant="secondary">Almindelig</Badge>
+            ) : (
+              <Badge variant="outline">Svær</Badge>
             )}
           </div>
 
-          {/* Image URL */}
           {imageData?.url && (
-            <div className="mb-4">
-              <div className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>
+            <div>
+              <div className="text-xs font-medium text-muted-foreground mb-1">
                 Billede-URL
               </div>
-              <div
-                className="text-xs p-2 rounded break-all"
-                style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
-              >
+              <div className="text-xs p-2 rounded bg-muted break-all text-muted-foreground">
                 {imageData.url}
               </div>
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-2 flex-wrap">
-            <button
+            <Button
+              variant={isFlagged ? 'destructive' : 'outline'}
+              size="sm"
               onClick={onToggleFlag}
-              className="text-xs px-3 py-2 rounded-lg font-medium cursor-pointer transition-colors"
-              style={{
-                background: isFlagged ? 'rgba(248,113,113,0.15)' : 'var(--bg-secondary)',
-                border: `1px solid ${isFlagged ? '#f87171' : 'var(--border)'}`,
-                color: isFlagged ? '#f87171' : 'var(--text-secondary)',
-              }}
             >
+              <Flag className="size-3.5 mr-1.5" />
               {isFlagged ? 'Fjern markering' : 'Markér billede'}
-            </button>
-            <a
-              href={wikiUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs px-3 py-2 rounded-lg font-medium no-underline transition-colors"
-              style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                color: '#8bc7f0',
-              }}
-            >
+            </Button>
+            <Button variant="outline" size="sm" render={<a href={wikiUrl} target="_blank" rel="noopener noreferrer" />}>
+              <ExternalLink className="size-3.5 mr-1.5" />
               Wikipedia (da)
-            </a>
-            <a
-              href={commonsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs px-3 py-2 rounded-lg font-medium no-underline transition-colors"
-              style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                color: '#fbbf24',
-              }}
-            >
+            </Button>
+            <Button variant="outline" size="sm" render={<a href={commonsUrl} target="_blank" rel="noopener noreferrer" />}>
+              <ExternalLink className="size-3.5 mr-1.5" />
               Wikimedia Commons
-            </a>
+            </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

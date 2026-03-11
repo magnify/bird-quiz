@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import type { QuizQuestion } from '@/lib/quiz/engine'
 
@@ -21,11 +21,19 @@ export default function PhotoMode({
 }: PhotoModeProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
+  const loadedRef = useRef(false)
 
   // Reset image state when question changes
   useEffect(() => {
     setImageLoaded(false)
     setImageFailed(false)
+    loadedRef.current = false
+
+    // Timeout: if image doesn't load within 10s, show failure
+    const timer = setTimeout(() => {
+      if (!loadedRef.current) setImageFailed(true)
+    }, 10000)
+    return () => clearTimeout(timer)
   }, [question.bird.id])
 
   const isCorrectAnswer = selectedOption?.id === question.bird.id
@@ -51,7 +59,7 @@ export default function PhotoMode({
         <div className="photo-wrapper">
           <div className={`photo-loading ${imageLoaded ? 'hidden' : ''}`}>
             {imageFailed ? (
-              <span style={{ color: 'var(--text-muted)' }}>Billede ikke tilgængeligt</span>
+              <span style={{ color: 'var(--quiz-text-muted)' }}>Billede ikke tilgængeligt</span>
             ) : (
               <>
                 <div className="spinner" />
@@ -64,7 +72,7 @@ export default function PhotoMode({
               className={`bird-photo ${imageLoaded ? 'loaded' : ''}`}
               src={imageUrl}
               alt="Fuglebillede"
-              onLoad={() => setImageLoaded(true)}
+              onLoad={() => { loadedRef.current = true; setImageLoaded(true) }}
               onError={() => setImageFailed(true)}
             />
           )}
