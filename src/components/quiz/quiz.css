@@ -182,6 +182,14 @@
   transform: translateY(0);
 }
 
+.version-label {
+  margin-top: 24px;
+  font-size: 0.7rem;
+  color: var(--quiz-text-muted);
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
+
 .secondary-btn {
   display: flex;
   align-items: center;
