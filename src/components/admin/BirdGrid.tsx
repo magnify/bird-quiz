@@ -140,7 +140,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
                   <img
                     src={img.url}
                     alt={bird.name_da}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-[center_35%]"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
