@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 
-type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged'
+type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait'
 
 interface ImageData {
   url: string | null
@@ -19,6 +19,26 @@ function getLocalImageUrl(scientificName: string): string {
   const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
   return `/images/birds/${slug}.jpg`
 }
+
+// Birds with portrait or square images (ratio <= 1.0) that crop poorly
+const PORTRAIT_IMAGES = new Set([
+  'Falco columbarius',
+  'Dryocopus martius',
+  'Certhia familiaris',
+  'Picus viridis',
+  'Aegithalos caudatus',
+  'Falco peregrinus',
+  'Dendrocopos major',
+  'Loxia pytyopsittacus',
+  'Cyanistes caeruleus',
+  'Acrocephalus palustris',
+  'Falco tinnunculus',
+  'Lophophanes cristatus',
+  'Milvus milvus',
+  'Nucifraga caryocatactes',
+  'Remiz pendulinus',
+  'Strix aluco',
+])
 
 const FLAG_KEY = 'bird_admin_flags'
 
@@ -78,6 +98,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
       case 'common': return bird.is_common
       case 'hard': return !bird.is_easy && !bird.is_common
       case 'flagged': return flagged.has(bird.scientific_name)
+      case 'portrait': return PORTRAIT_IMAGES.has(bird.scientific_name)
       default: return true
     }
   })
@@ -87,6 +108,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
     { key: 'easy', label: 'Lette', count: birds.filter(b => b.is_easy).length },
     { key: 'common', label: 'Almindelige', count: birds.filter(b => b.is_common).length },
     { key: 'hard', label: 'Svære', count: birds.filter(b => !b.is_easy && !b.is_common).length },
+    { key: 'portrait', label: 'Billedproblemer', count: PORTRAIT_IMAGES.size },
     { key: 'flagged', label: 'Markerede', count: flagged.size },
   ]
 
@@ -107,7 +129,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
               key={f.key}
               variant={filter === f.key ? 'default' : 'outline'}
               className={`cursor-pointer ${
-                filter === f.key && f.key === 'flagged'
+                filter === f.key && (f.key === 'flagged' || f.key === 'portrait')
                   ? 'bg-destructive/15 text-destructive'
                   : ''
               }`}
@@ -121,7 +143,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
 
       {/* Status */}
       <div className="text-xs mb-4 text-muted-foreground">
-        {birds.length} fugle med lokale billeder
+        {filtered.length} af {birds.length} fugle
       </div>
 
       {/* Grid */}
@@ -129,6 +151,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
         {filtered.map(bird => {
           const img = imageData.get(bird.id)
           const isFlagged = flagged.has(bird.scientific_name)
+          const isPortrait = PORTRAIT_IMAGES.has(bird.scientific_name)
           return (
             <Card
               key={bird.id}
@@ -149,6 +172,9 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
                 )}
                 {isFlagged && (
                   <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-destructive" />
+                )}
+                {isPortrait && (
+                  <div className="absolute top-2 left-2 w-2.5 h-2.5 rounded-full bg-orange-400" />
                 )}
               </div>
               <CardContent className="p-3">
