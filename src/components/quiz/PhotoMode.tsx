@@ -38,25 +38,47 @@ export default function PhotoMode({
 
   const isCorrectAnswer = selectedOption?.id === question.bird.id
 
-  function getButtonClass(opt: Bird): string {
+  function getButtonState(opt: Bird): { className: string; icon: string | null } {
     const classes = ['option-btn']
+    let icon: string | null = null
     if (answered) {
       classes.push('disabled')
       if (opt.id === question.bird.id) {
         classes.push('correct')
+        icon = '✓'
       } else if (selectedOption && opt.id === selectedOption.id) {
         classes.push('wrong')
+        icon = '✗'
       } else {
         classes.push('dimmed')
       }
     }
-    return classes.join(' ')
+    return { className: classes.join(' '), icon }
   }
 
   return (
-    <div id="photo-mode" className="quiz-body">
-      <div className="photo-container">
-        <div className="photo-wrapper">
+    <div id="photo-mode" className="quiz-body quiz-body--immersive">
+      <div className="options-area">
+        <div className="question-text">Hvad er dette for en fugl?</div>
+        <div className="options-grid">
+          {question.options.map(opt => {
+            const { className, icon } = getButtonState(opt)
+            return (
+              <button
+                key={opt.id}
+                className={className}
+                onClick={() => onAnswer(opt)}
+                disabled={answered}
+              >
+                <span className="option-indicator">{icon || ''}</span>
+                <span>{opt.name_da}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      <div className="photo-stage">
+        <div className="photo-stage-inner">
           <div className={`photo-loading ${imageLoaded ? 'hidden' : ''}`}>
             {imageFailed ? (
               <span style={{ color: 'var(--quiz-text-muted)' }}>Billede ikke tilgængeligt</span>
@@ -78,19 +100,6 @@ export default function PhotoMode({
           )}
           <div className={`photo-overlay ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`} />
         </div>
-      </div>
-      <div className="question-text">Hvad er dette for en fugl?</div>
-      <div className="options-grid">
-        {question.options.map(opt => (
-          <button
-            key={opt.id}
-            className={getButtonClass(opt)}
-            onClick={() => onAnswer(opt)}
-            disabled={answered}
-          >
-            {opt.name_da}
-          </button>
-        ))}
       </div>
     </div>
   )

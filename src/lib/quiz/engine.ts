@@ -8,7 +8,7 @@ import type { Bird } from '@/lib/supabase/types'
 import { getWeight, type Weights } from './spaced-repetition'
 import { pickDistractors, buildGroupIndex } from './distractor-selection'
 
-export type Difficulty = 'easy' | 'common' | 'all'
+export type Difficulty = 'easy' | 'common' | 'hard' | 'all'
 export type QuizMode = 'photo' | 'name' | 'mixed'
 
 export interface QuizQuestion {
@@ -83,6 +83,8 @@ export function filterPool(birds: Bird[], difficulty: Difficulty): Bird[] {
       return birds.filter(b => b.is_easy)
     case 'common':
       return birds.filter(b => b.is_common)
+    case 'hard':
+      return birds.filter(b => !b.is_easy && !b.is_common)
     case 'all':
     default:
       return [...birds]
@@ -107,7 +109,7 @@ export function generateQuestions(
   const picked = weightedPick(pool, weights, numQ)
 
   return picked.map(bird => {
-    const distractors = pickDistractors(bird, pool, birdGroups, groupMembers)
+    const distractors = pickDistractors(bird, pool, birds, birdGroups, groupMembers)
 
     let qMode: 'photo' | 'name' = mode === 'mixed'
       ? (Math.random() < 0.5 ? 'photo' : 'name')

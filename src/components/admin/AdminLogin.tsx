@@ -32,7 +32,7 @@ export default function AdminLogin() {
     <div className="flex min-h-dvh items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle>Dansk Fugleviden</CardTitle>
+          <CardTitle>Fugle Quiz</CardTitle>
           <CardDescription>Log ind for at tilgå admin</CardDescription>
         </CardHeader>
         <CardContent>

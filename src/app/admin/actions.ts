@@ -21,7 +21,7 @@ export async function loginAction(password: string): Promise<{ success: boolean 
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    path: '/admin',
+    path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7 days
   })
 
@@ -30,7 +30,13 @@ export async function loginAction(password: string): Promise<{ success: boolean 
 
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies()
-  cookieStore.delete('admin_auth')
+  cookieStore.set('admin_auth', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  })
 }
 
 export async function checkAuth(): Promise<boolean> {

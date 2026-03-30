@@ -3,6 +3,13 @@
  * Completely self-contained. Does not affect admin or shadcn components.
  */
 
+/* Quiz app root container */
+.quiz-app-root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
 :root {
   --quiz-background: #0f1a14;
   --quiz-foreground: #e8f0eb;
@@ -26,6 +33,26 @@
   --quiz-radius-md: 12px;
   --quiz-radius-lg: 16px;
   --quiz-transition: 0.2s ease;
+
+  /* Typography scale (base values) */
+  --quiz-text-xs: 0.7rem;
+  --quiz-text-sm: 0.8rem;
+  --quiz-text-base: 0.9rem;
+  --quiz-text-md: 0.95rem;
+  --quiz-text-lg: 1rem;
+  --quiz-text-xl: 1.3rem;
+  --quiz-text-2xl: 1.6rem;
+  --quiz-text-3xl: 2rem;
+  --quiz-text-4xl: 2.2rem;
+
+  /* Semantic typography tokens (usage-based) */
+  --quiz-title: var(--quiz-text-3xl);
+  --quiz-subtitle: var(--quiz-text-base);
+  --quiz-label: var(--quiz-text-sm);
+  --quiz-button: var(--quiz-text-sm);
+  --quiz-button-primary: var(--quiz-text-lg);
+  --quiz-tooltip: var(--quiz-text-sm);
+  --quiz-version: var(--quiz-text-xs);
 
   /* Shared pill / outline tokens — single source of truth */
   --quiz-border-pill: rgba(255, 255, 255, 0.15);
@@ -74,10 +101,12 @@
 
   /* Layout */
   display: none;
-  min-height: calc(100dvh - 45px); /* Account for persistent header */
+  height: 100%;
   animation: quizFadeIn 0.3s ease;
   color: var(--quiz-foreground);
   background: var(--quiz-background);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .screen::before {
   content: '';
@@ -87,21 +116,21 @@
   z-index: 0;
   background:
     /* large soft orbs */
-    radial-gradient(circle 320px at 15% 25%, rgba(74, 222, 128, 0.07) 0%, transparent 100%),
-    radial-gradient(circle 280px at 80% 15%, rgba(34, 197, 94, 0.05) 0%, transparent 100%),
-    radial-gradient(circle 350px at 60% 75%, rgba(74, 222, 128, 0.06) 0%, transparent 100%),
+    radial-gradient(circle 400px at 15% 25%, rgba(74, 222, 128, 0.12) 0%, transparent 100%),
+    radial-gradient(circle 350px at 80% 15%, rgba(34, 197, 94, 0.10) 0%, transparent 100%),
+    radial-gradient(circle 420px at 60% 75%, rgba(74, 222, 128, 0.11) 0%, transparent 100%),
     /* medium bokeh circles */
-    radial-gradient(circle 120px at 25% 65%, rgba(74, 222, 128, 0.08) 0%, transparent 100%),
-    radial-gradient(circle 100px at 75% 45%, rgba(34, 197, 94, 0.06) 0%, transparent 100%),
-    radial-gradient(circle 140px at 45% 20%, rgba(74, 222, 128, 0.05) 0%, transparent 100%),
-    radial-gradient(circle 90px at 90% 70%, rgba(34, 197, 94, 0.07) 0%, transparent 100%),
+    radial-gradient(circle 150px at 25% 65%, rgba(74, 222, 128, 0.14) 0%, transparent 100%),
+    radial-gradient(circle 130px at 75% 45%, rgba(34, 197, 94, 0.12) 0%, transparent 100%),
+    radial-gradient(circle 170px at 45% 20%, rgba(74, 222, 128, 0.10) 0%, transparent 100%),
+    radial-gradient(circle 120px at 90% 70%, rgba(34, 197, 94, 0.13) 0%, transparent 100%),
     /* small bokeh dots */
-    radial-gradient(circle 50px at 10% 80%, rgba(74, 222, 128, 0.09) 0%, transparent 100%),
-    radial-gradient(circle 40px at 35% 45%, rgba(34, 197, 94, 0.07) 0%, transparent 100%),
-    radial-gradient(circle 55px at 65% 30%, rgba(74, 222, 128, 0.08) 0%, transparent 100%),
-    radial-gradient(circle 35px at 85% 85%, rgba(34, 197, 94, 0.09) 0%, transparent 100%),
-    radial-gradient(circle 45px at 50% 55%, rgba(74, 222, 128, 0.06) 0%, transparent 100%),
-    radial-gradient(circle 30px at 20% 10%, rgba(34, 197, 94, 0.08) 0%, transparent 100%);
+    radial-gradient(circle 70px at 10% 80%, rgba(74, 222, 128, 0.15) 0%, transparent 100%),
+    radial-gradient(circle 60px at 35% 45%, rgba(34, 197, 94, 0.13) 0%, transparent 100%),
+    radial-gradient(circle 75px at 65% 30%, rgba(74, 222, 128, 0.14) 0%, transparent 100%),
+    radial-gradient(circle 55px at 85% 85%, rgba(34, 197, 94, 0.15) 0%, transparent 100%),
+    radial-gradient(circle 65px at 50% 55%, rgba(74, 222, 128, 0.11) 0%, transparent 100%),
+    radial-gradient(circle 50px at 20% 10%, rgba(34, 197, 94, 0.14) 0%, transparent 100%);
 }
 
 .screen > * {
@@ -130,13 +159,13 @@
   align-items: stretch;
   padding: 0;
   overflow: hidden;
+  height: 100%;
 }
 
 .start-layout {
   width: 100%;
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   min-height: 0;
   transition: opacity 0.4s ease;
 }
@@ -146,16 +175,17 @@
   pointer-events: none;
 }
 
-/* Left: mosaic fills its half, bleeds top/bottom */
+/* Left: mosaic takes natural width */
 .start-mosaic-side {
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-/* Right: settings centered */
+/* Right: settings centered in remaining space */
 .start-settings-area {
   display: flex;
   flex-direction: column;
@@ -163,6 +193,45 @@
   justify-content: center;
   padding: 32px 40px;
   gap: 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+.start-floating-nav {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.floating-nav-link {
+  color: var(--quiz-text-secondary);
+  text-decoration: none;
+  font-size: var(--quiz-text-sm);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: color var(--quiz-transition);
+}
+
+.floating-nav-link:hover {
+  color: var(--quiz-foreground);
+}
+
+/* Hide floating nav on mobile */
+@media (max-width: 640px) {
+  .start-floating-nav {
+    display: none;
+  }
+
+  /* Show header on mobile even on start screen */
+  .app-header--transparent {
+    opacity: 1;
+    pointer-events: auto;
+    background: rgba(15, 26, 20, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 .start-hero {
@@ -175,7 +244,7 @@
 
 .title {
   font-family: inherit;
-  font-size: 2rem;
+  font-size: var(--quiz-title);
   font-weight: 700;
   letter-spacing: 0.01em;
   background: linear-gradient(135deg, var(--quiz-foreground) 0%, var(--quiz-accent) 100%);
@@ -185,7 +254,7 @@
 }
 
 .subtitle {
-  font-size: 0.9rem;
+  font-size: var(--quiz-subtitle);
   color: var(--quiz-text-secondary);
   font-weight: 400;
 }
@@ -210,9 +279,11 @@
 /* --- Bird mosaic — staggered columns, bleeds out of viewport --- */
 .mosaic-grid {
   display: flex;
+  flex-direction: row;
   gap: 4px;
   height: 100%;
   justify-content: center;
+  position: relative;
 }
 
 .mosaic-column {
@@ -221,8 +292,34 @@
   gap: 4px;
   /* Each column is 1/6 of viewport width, capped */
   width: min(14vw, 120px);
+  height: auto;
   flex-shrink: 0;
-  will-change: transform;
+  will-change: transform, opacity;
+  opacity: 0;
+  animation: mosaicColumnFadeIn 0.6s ease forwards, mosaicFloat 12s ease-in-out infinite;
+}
+
+.mosaic-column:nth-child(1) { animation-delay: 0s, 0s; }
+.mosaic-column:nth-child(2) { animation-delay: 0.1s, 3s; }
+.mosaic-column:nth-child(3) { animation-delay: 0.2s, 6s; }
+.mosaic-column:nth-child(4) { animation-delay: 0.3s, 9s; }
+
+@keyframes mosaicColumnFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mosaicFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 .mosaic-tile {
@@ -279,7 +376,7 @@
 }
 
 .setting-label {
-  font-size: 0.8rem;
+  font-size: var(--quiz-label);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -301,7 +398,7 @@
   border: 1px solid var(--quiz-border-pill);
   border-radius: 999px;
   color: var(--quiz-text-secondary);
-  font-size: 0.8rem;
+  font-size: var(--quiz-button);
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -344,8 +441,9 @@
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--quiz-border-pill);
+  border: 6px solid transparent;
+  border-top-color: var(--quiz-bg-elevated);
+  margin-top: -1px;
 }
 
 .toggle-btn:hover .toggle-tooltip {
@@ -373,7 +471,7 @@
   border: none;
   border-radius: 999px;
   color: #052e16;
-  font-size: 1rem;
+  font-size: var(--quiz-button-primary);
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
@@ -393,7 +491,7 @@
 }
 
 .version-label {
-  font-size: 0.7rem;
+  font-size: var(--quiz-version);
   color: var(--quiz-text-muted);
   opacity: 0.5;
   letter-spacing: 0.05em;
@@ -443,6 +541,14 @@
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom-color: transparent;
+}
+
+/* Hide header on start screen (desktop) - show floating nav instead */
+@media (min-width: 641px) {
+  .app-header--transparent {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .app-header-inner {
@@ -1279,12 +1385,12 @@ details.results-missed[open] .missed-summary {
 .secondary-page-content {
   max-width: 640px;
   margin: 0 auto;
-  padding: 0 16px 32px;
+  padding: 24px 16px 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
   flex: 1;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 45px);
 }
 
 /* --- Secondary nav bar --- */
@@ -1802,23 +1908,21 @@ details.results-missed[open] .missed-summary {
 
 /* --- Responsive --- */
 @media (max-width: 500px) {
-  .title {
-    font-size: 1.6rem;
+  :root {
+    /* Adjust semantic tokens for mobile */
+    --quiz-title: 1.4rem;
+    --quiz-subtitle: 0.8rem;
+    --quiz-label: 0.7rem;
+    --quiz-button: 0.7rem;
+    --quiz-button-primary: 0.85rem;
+    --quiz-tooltip: 0.65rem;
+    --quiz-version: 0.65rem;
   }
-  .toggle-group {
-    flex-direction: column;
-  }
-  .toggle-btn {
-    text-align: center;
-  }
-  .bird-name-text {
-    font-size: 1.6rem;
+  .start-btn {
+    padding: 12px 24px;
   }
   .results-stats {
     gap: 16px;
-  }
-  .stat-number {
-    font-size: 1.3rem;
   }
   .app-header-link {
     display: none;
@@ -1828,15 +1932,56 @@ details.results-missed[open] .missed-summary {
 /* Mobile: stack start layout */
 @media (max-width: 640px) {
   .start-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 180px 1fr;
+    flex-direction: column-reverse;
   }
   .start-mosaic-side {
-    padding: 12px 12px 0;
+    flex: 0 0 auto;
+    height: 120px;
+    padding: 8px 0;
+    opacity: 0.7;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .mosaic-grid {
+    flex-direction: row;
+    height: 100%;
+    width: auto;
+  }
+  .mosaic-column {
+    flex-direction: row;
+    width: auto;
+    height: 100%;
+  }
+  .mosaic-tile {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
   }
   .start-settings-area {
+    flex: 0 0 auto;
     padding: 16px 20px 12px;
     gap: 16px;
+  }
+  .version-label {
+    display: none;
+  }
+  .setting-group:nth-child(1) .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .setting-group:nth-child(2) .toggle-group,
+  .setting-group:nth-child(3) .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .toggle-btn {
+    min-width: 0;
+    padding: 8px 10px;
+  }
+  .toggle-tooltip {
+    font-size: var(--quiz-tooltip);
   }
 }
 

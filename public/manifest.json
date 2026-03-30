@@ -1,6 +1,6 @@
 {
-  "name": "Dansk Fugleviden",
-  "short_name": "Fugleviden",
+  "name": "Fugle Quiz",
+  "short_name": "Fugle Quiz",
   "description": "Test din viden om Danmarks fugle",
   "start_url": "/",
   "display": "standalone",

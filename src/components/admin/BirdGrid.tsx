@@ -1,23 +1,20 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import BirdDetailModal from './BirdDetailModal'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { flagBirdImage, unflagBirdImage } from '@/app/actions/birds'
+import { getBirdImageUrl } from '@/lib/images'
 
 type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait'
 
 interface ImageData {
   url: string | null
-  source: 'local'
+  source: 'supabase'
   status: 'loaded'
-}
-
-function getLocalImageUrl(scientificName: string): string {
-  const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
-  return `/images/birds/${slug}.jpg`
 }
 
 // Birds with portrait or square images (ratio <= 1.0) that crop poorly
@@ -40,48 +37,48 @@ const PORTRAIT_IMAGES = new Set([
   'Strix aluco',
 ])
 
-const FLAG_KEY = 'bird_admin_flags'
-
-function loadFlags(): Set<string> {
-  if (typeof window === 'undefined') return new Set()
-  try {
-    return new Set(JSON.parse(localStorage.getItem(FLAG_KEY) || '[]'))
-  } catch {
-    return new Set()
-  }
+interface BirdGridProps {
+  birds: Bird[]
+  initialFlaggedBirdIds: string[]
 }
 
-function saveFlags(flags: Set<string>) {
-  localStorage.setItem(FLAG_KEY, JSON.stringify([...flags]))
-}
-
-export default function BirdGrid({ birds }: { birds: Bird[] }) {
+export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps) {
   const [filter, setFilter] = useState<Filter>('all')
   const [search, setSearch] = useState('')
-  const [flagged, setFlagged] = useState<Set<string>>(new Set())
+  const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set(initialFlaggedBirdIds))
   const [selectedBird, setSelectedBird] = useState<Bird | null>(null)
+  const [imageVersions, setImageVersions] = useState<Map<string, number>>(() => new Map())
 
-  // Build image data map from local files (instant, no fetching)
+  // Build image data map from Supabase Storage URLs with cache-busting
   const imageData = new Map<string, ImageData>(
-    birds.map(b => [b.id, { url: getLocalImageUrl(b.scientific_name), source: 'local', status: 'loaded' }])
+    birds.map(b => {
+      const version = imageVersions.get(b.id)
+      const url = getBirdImageUrl(b.scientific_name) + (version ? `?v=${version}` : '')
+      return [b.id, { url, source: 'supabase', status: 'loaded' }]
+    })
   )
 
-  // Load flags from localStorage
-  useEffect(() => {
-    setFlagged(loadFlags())
+  const handleImageChanged = useCallback((birdId: string) => {
+    setImageVersions(prev => {
+      const next = new Map(prev)
+      next.set(birdId, Date.now())
+      return next
+    })
   }, [])
 
   const toggleFlag = useCallback((birdId: string) => {
-    setFlagged(prev => {
+    setFlaggedIds(prev => {
       const next = new Set(prev)
-      const sci = birds.find(b => b.id === birdId)?.scientific_name
-      if (!sci) return prev
-      if (next.has(sci)) next.delete(sci)
-      else next.add(sci)
-      saveFlags(next)
+      if (next.has(birdId)) {
+        next.delete(birdId)
+        unflagBirdImage(birdId)
+      } else {
+        next.add(birdId)
+        flagBirdImage(birdId, 'needs_replacement')
+      }
       return next
     })
-  }, [birds])
+  }, [])
 
   // Filter birds
   const filtered = birds.filter(bird => {
@@ -97,7 +94,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
       case 'easy': return bird.is_easy
       case 'common': return bird.is_common
       case 'hard': return !bird.is_easy && !bird.is_common
-      case 'flagged': return flagged.has(bird.scientific_name)
+      case 'flagged': return flaggedIds.has(bird.id)
       case 'portrait': return PORTRAIT_IMAGES.has(bird.scientific_name)
       default: return true
     }
@@ -109,7 +106,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
     { key: 'common', label: 'Almindelige', count: birds.filter(b => b.is_common).length },
     { key: 'hard', label: 'Svære', count: birds.filter(b => !b.is_easy && !b.is_common).length },
     { key: 'portrait', label: 'Billedproblemer', count: PORTRAIT_IMAGES.size },
-    { key: 'flagged', label: 'Markerede', count: flagged.size },
+    { key: 'flagged', label: 'Markerede', count: flaggedIds.size },
   ]
 
   return (
@@ -150,7 +147,7 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
         {filtered.map(bird => {
           const img = imageData.get(bird.id)
-          const isFlagged = flagged.has(bird.scientific_name)
+          const isFlagged = flaggedIds.has(bird.id)
           const isPortrait = PORTRAIT_IMAGES.has(bird.scientific_name)
           return (
             <Card
@@ -201,9 +198,10 @@ export default function BirdGrid({ birds }: { birds: Bird[] }) {
         <BirdDetailModal
           bird={selectedBird}
           imageData={imageData.get(selectedBird.id) || null}
-          isFlagged={flagged.has(selectedBird.scientific_name)}
+          isFlagged={flaggedIds.has(selectedBird.id)}
           onToggleFlag={() => toggleFlag(selectedBird.id)}
           onClose={() => setSelectedBird(null)}
+          onImageChanged={() => handleImageChanged(selectedBird.id)}
         />
       )}
     </>

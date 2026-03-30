@@ -10,6 +10,7 @@ import {
   BarChart3,
   ClipboardList,
   ArrowLeft,
+  LogOut,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -24,6 +25,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
+import { logoutAction } from '@/app/admin/actions'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Oversigt', icon: Home },
@@ -53,7 +55,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <SidebarHeader className="px-4 py-4">
           <Link href="/admin" className="flex items-center gap-2 no-underline">
             <span className="font-semibold text-sm text-sidebar-foreground">
-              Dansk Fugleviden
+              Fugle Quiz
             </span>
           </Link>
         </SidebarHeader>
@@ -87,6 +89,18 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               <SidebarMenuButton render={<Link href="/" />} tooltip="Tilbage til quiz">
                 <ArrowLeft className="size-4" />
                 <span>Tilbage til quiz</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Log ud"
+                onClick={async () => {
+                  await logoutAction()
+                  window.location.reload()
+                }}
+              >
+                <LogOut className="size-4" />
+                <span>Log ud</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

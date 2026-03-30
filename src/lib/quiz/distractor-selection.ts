@@ -77,23 +77,26 @@ export function getSimilarBirdIds(
 
 /**
  * Pick 3 distractors for a given bird.
- * Priority: 1) similar-looking birds, 2) same genus, 3) random from pool.
+ * Priority: 1) similar-looking birds (all), 2) same genus (all), 3) random from pool.
+ * Steps 1 & 2 search ALL birds so distractors are always plausible,
+ * even when the difficulty-filtered pool is small.
  */
 export function pickDistractors(
   correctBird: Bird,
   pool: Bird[],
+  allBirds: Bird[],
   birdGroups: Map<string, string[]>,
   groupMembers: Map<string, string[]>
 ): Bird[] {
   const used = new Set<string>([correctBird.id])
   const distractors: Bird[] = []
-  const poolById = new Map(pool.map(b => [b.id, b]))
+  const allById = new Map(allBirds.map(b => [b.id, b]))
 
-  // 1) Similar birds (from visual similarity groups)
+  // 1) Similar birds (from visual similarity groups — search ALL birds)
   const similarIds = getSimilarBirdIds(correctBird.id, birdGroups, groupMembers)
   const similarBirds = shuffle(
     [...similarIds]
-      .map(id => poolById.get(id))
+      .map(id => allById.get(id))
       .filter((b): b is Bird => b !== undefined && !used.has(b.id))
   )
   for (const s of similarBirds) {
@@ -102,11 +105,11 @@ export function pickDistractors(
     distractors.push(s)
   }
 
-  // 2) Same genus (taxonomically related)
+  // 2) Same genus (taxonomically related — search ALL birds)
   if (distractors.length < 3) {
     const genus = correctBird.scientific_name.split(' ')[0]
     const genusBirds = shuffle(
-      pool.filter(b => b.scientific_name.startsWith(genus + ' ') && !used.has(b.id))
+      allBirds.filter(b => b.scientific_name.startsWith(genus + ' ') && !used.has(b.id))
     )
     for (const g of genusBirds) {
       if (distractors.length >= 3) break
@@ -115,7 +118,7 @@ export function pickDistractors(
     }
   }
 
-  // 3) Random from pool
+  // 3) Random from difficulty pool (keeps difficulty-appropriate feel)
   if (distractors.length < 3) {
     const remaining = shuffle(pool.filter(b => !used.has(b.id)))
     for (const r of remaining) {

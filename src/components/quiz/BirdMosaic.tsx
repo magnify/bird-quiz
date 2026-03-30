@@ -25,6 +25,11 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
   const containerRef = useRef<HTMLDivElement>(null)
   const [rowsNeeded, setRowsNeeded] = useState(12)
 
+  // Stable random offsets - only generated once
+  const stableOffsets = useRef<number[]>(
+    Array.from({ length: COLUMN_COUNT }, () => Math.round(-30 + Math.random() * 35))
+  )
+
   // Measure container to calculate rows needed
   useEffect(() => {
     const el = containerRef.current
@@ -42,7 +47,7 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
 
   const totalTiles = COLUMN_COUNT * rowsNeeded
 
-  const { columns, offsets } = useMemo(() => {
+  const columns = useMemo(() => {
     const pool = shuffle(birds)
     const picked: Bird[] = []
     const usedIds = new Set<string>()
@@ -82,12 +87,7 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
       cols.push(shuffled.slice(start, start + rowsNeeded))
     }
 
-    // Random vertical offset per column — percentage-based for responsive
-    const columnOffsets = Array.from({ length: COLUMN_COUNT }, () =>
-      Math.round(-30 + Math.random() * 35)
-    )
-
-    return { columns: cols, offsets: columnOffsets }
+    return cols
   }, [birds, highlightBirdId, totalTiles, rowsNeeded])
 
   const [loadedIds, setLoadedIds] = useState<Set<string>>(() => new Set())
@@ -106,7 +106,7 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
         <div
           key={colIdx}
           className="mosaic-column"
-          style={{ transform: `translateY(${offsets[colIdx]}%)` }}
+          style={{ transform: `translateY(${stableOffsets.current[colIdx]}%)` }}
         >
           {col.map((bird, rowIdx) => {
             const url = getBirdImageUrl(bird.scientific_name)

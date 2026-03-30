@@ -75,6 +75,11 @@ export default function QuizSetup({
         </div>
 
         <div className="start-settings-area">
+          <nav className="start-floating-nav">
+            <a href="/resultater" className="floating-nav-link">Resultater</a>
+            <a href="/rangliste" className="floating-nav-link">Rangliste</a>
+          </nav>
+
           <div className="start-hero">
             <h1 className="title">Fugle Quiz</h1>
             <p className="subtitle">Test din viden om Danmarks fugle</p>
@@ -123,7 +128,7 @@ export default function QuizSetup({
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
-            <div className="version-label">v0.2.0</div>
+            <div className="version-label">v0.3.0</div>
           </div>
         </div>
       </div>

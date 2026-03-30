@@ -13,20 +13,12 @@ import QuizSetup from './QuizSetup'
 import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
 import AuthModal from './AuthModal'
+import QuizHeader from './QuizHeader'
 
 interface QuizAppProps {
   birds: Bird[]
   memberships: { bird_id: string; group_id: string }[]
 }
-
-const LogoSvg = () => (
-  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 10C30 10 15 30 15 50C15 70 30 90 50 90C55 90 60 85 58 80C56 75 60 72 65 72C70 72 75 68 75 60C75 35 65 10 50 10Z" fill="currentColor" opacity="0.2"/>
-    <path d="M25 45C25 45 35 25 55 20C55 20 45 35 50 50C55 65 40 75 30 65C20 55 25 45 25 45Z" fill="currentColor" opacity="0.4"/>
-    <circle cx="38" cy="42" r="3" fill="currentColor"/>
-    <path d="M20 48L10 45L22 50Z" fill="currentColor" opacity="0.6"/>
-  </svg>
-)
 
 function QuizAppInner({ birds, memberships }: QuizAppProps) {
   const {
@@ -176,74 +168,49 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         </div>
       )}
 
-      {/* Persistent header — transparent on start screen, logo hidden on start */}
-      <div className={`app-header ${isStart ? 'app-header--transparent' : ''}`}>
-        <div className="app-header-inner">
-          {!isStart ? (
-            <button
-              className="app-header-left"
-              onClick={handleLogoClick}
-              aria-label={state.screen === 'quiz' ? 'Afslut quiz' : 'Fugle Quiz'}
-            >
-              <span className="app-header-logo">
-                <LogoSvg />
-              </span>
-              <span className="app-header-title">Fugle Quiz</span>
-            </button>
-          ) : (
-            <div className="app-header-left" />
-          )}
-
-          <div className="app-header-center">
-            {state.screen === 'quiz' && (
-              <>
-                <span className="question-counter">
-                  {state.currentQuestion + 1}/{state.questions.length}
-                </span>
-                <span className="header-dot">&middot;</span>
-                <span className="score-display-item score-display-score">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  {state.score}
-                </span>
-                <span className="header-dot">&middot;</span>
+      {/* Persistent header */}
+      <QuizHeader
+        transparent={isStart}
+        showProgress={state.screen === 'quiz'}
+        progress={progress}
+        currentQuestion={state.currentQuestion + 1}
+        totalQuestions={state.questions.length}
+        onLogoClick={isStart ? undefined : handleLogoClick}
+        logoLabel={state.screen === 'quiz' ? 'Afslut quiz' : 'Fugle Quiz'}
+        centerContent={
+            <>
+              {state.screen === 'quiz' && (
+                <>
+                  <span className="question-counter">
+                    {state.currentQuestion + 1}/{state.questions.length}
+                  </span>
+                  <span className="header-dot">&middot;</span>
+                  <span className="score-display-item score-display-score">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {state.score}
+                  </span>
+                  <span className="header-dot">&middot;</span>
+                  <span className="score-display-item score-display-points">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    {state.points}
+                  </span>
+                </>
+              )}
+              {state.screen === 'results' && (
                 <span className="score-display-item score-display-points">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                   </svg>
-                  {state.points}
+                  {state.points} point
                 </span>
-              </>
-            )}
-            {state.screen === 'results' && (
-              <span className="score-display-item score-display-points">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-                {state.points} point
-              </span>
-            )}
-          </div>
-
-          <div className="app-header-right">
-            <a className="app-header-link" href="/resultater">Resultater</a>
-            <a className="app-header-link" href="/rangliste">Rangliste</a>
-          </div>
-        </div>
-        {state.screen === 'quiz' && (
-          <div
-            className="progress-bar-container"
-            role="progressbar"
-            aria-valuenow={state.currentQuestion + 1}
-            aria-valuemin={1}
-            aria-valuemax={state.questions.length}
-            aria-label={`Spørgsmål ${state.currentQuestion + 1} af ${state.questions.length}`}
-          >
-            <div className="progress-bar" style={{ width: `${progress}%` }} />
-          </div>
-        )}
-      </div>
+              )}
+            </>
+          }
+        />
 
       {/* Screens */}
       {(state.screen === 'start' || state.screen === 'transitioning') && (

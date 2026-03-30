@@ -68,6 +68,9 @@ function PhotoOptionCard({
           onLoad={() => setLoaded(true)}
         />
       )}
+      {(isCorrect || (isSelected && !isCorrect)) && (
+        <div className="photo-option-badge">{isCorrect ? '✓' : '✗'}</div>
+      )}
       <div className="photo-option-label">{bird.name_da}</div>
     </div>
   )

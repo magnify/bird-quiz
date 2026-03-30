@@ -45,6 +45,7 @@ export interface Database {
           is_active?: boolean
           updated_at?: string
         }
+        Relationships: []
       }
       similarity_groups: {
         Row: {
@@ -70,6 +71,7 @@ export interface Database {
           name_en?: string
           updated_at?: string
         }
+        Relationships: []
       }
       bird_similarity_group: {
         Row: {
@@ -84,6 +86,7 @@ export interface Database {
           bird_id?: string
           group_id?: string
         }
+        Relationships: []
       }
       bird_images: {
         Row: {
@@ -124,6 +127,7 @@ export interface Database {
           flag_reason?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -160,6 +164,7 @@ export interface Database {
           best_streak?: number
           updated_at?: string
         }
+        Relationships: []
       }
       user_bird_weights: {
         Row: {
@@ -189,16 +194,19 @@ export interface Database {
           last_seen_at?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       quiz_sessions: {
         Row: {
           id: string
           user_id: string | null
           guest_id: string | null
+          guest_name: string | null
           difficulty: string
           mode: string
           question_count: number
           score: number | null
+          points: number | null
           duration_ms: number | null
           completed: boolean
           created_at: string
@@ -208,21 +216,27 @@ export interface Database {
           id?: string
           user_id?: string | null
           guest_id?: string | null
+          guest_name?: string | null
           difficulty: string
           mode: string
           question_count: number
           score?: number | null
+          points?: number | null
           duration_ms?: number | null
           completed?: boolean
           created_at?: string
           completed_at?: string | null
         }
         Update: {
+          user_id?: string | null
+          guest_name?: string | null
           score?: number | null
+          points?: number | null
           duration_ms?: number | null
           completed?: boolean
           completed_at?: string | null
         }
+        Relationships: []
       }
       quiz_answers: {
         Row: {
@@ -251,6 +265,7 @@ export interface Database {
           is_correct?: boolean
           response_time_ms?: number | null
         }
+        Relationships: []
       }
       bird_difficulty_stats: {
         Row: {
@@ -279,6 +294,7 @@ export interface Database {
           most_confused_with?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       audit_log: {
         Row: {
@@ -302,6 +318,7 @@ export interface Database {
           created_at?: string
         }
         Update: Record<string, never>
+        Relationships: []
       }
       distractor_overrides: {
         Row: {
@@ -323,6 +340,7 @@ export interface Database {
         Update: {
           rule?: string
         }
+        Relationships: []
       }
       subscriptions: {
         Row: {
@@ -358,6 +376,7 @@ export interface Database {
           current_period_end?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       payment_events: {
         Row: {
@@ -379,13 +398,23 @@ export interface Database {
         Update: {
           processed?: boolean
         }
+        Relationships: []
       }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       refresh_bird_difficulty_stats: {
         Args: Record<string, never>
         Returns: undefined
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

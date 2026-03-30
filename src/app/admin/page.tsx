@@ -1,4 +1,4 @@
-import { STATIC_BIRDS, SIMILARITY_GROUPS_RAW } from '@/lib/data/birds-static'
+import { getBirds, getSimilarityGroups } from '@/lib/data/birds'
 import {
   Card,
   CardContent,
@@ -16,12 +16,13 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
-export default function AdminDashboard() {
-  const birds = STATIC_BIRDS
+export default async function AdminDashboard() {
+  const { birds } = await getBirds()
+  const groups = await getSimilarityGroups()
   const total = birds.length
   const easy = birds.filter(b => b.is_easy).length
   const common = birds.filter(b => b.is_common).length
-  const groupCount = Object.keys(SIMILARITY_GROUPS_RAW).length
+  const groupCount = groups.length
   const categories = birds.reduce((acc, b) => {
     acc[b.category] = (acc[b.category] || 0) + 1
     return acc
