@@ -1,30 +1,59 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Bird } from '@/lib/supabase/types'
+import { getGuestName, setGuestName } from '@/lib/identity/guest'
+import { updateSessionName } from '@/app/actions/quiz'
 
 interface QuizResultsProps {
   score: number
   totalQuestions: number
   bestStreak: number
+  points: number
   missed: Bird[]
   imageUrls: Map<string, string | null>
   onRetry: () => void
-  onHome: () => void
+  sessionId: string | null
 }
 
 export default function QuizResults({
   score,
   totalQuestions,
   bestStreak,
+  points,
   missed,
   imageUrls,
   onRetry,
-  onHome,
+  sessionId,
 }: QuizResultsProps) {
   const ringRef = useRef<SVGCircleElement>(null)
   const pct = Math.round((score / totalQuestions) * 100)
   const circumference = 2 * Math.PI * 52
+  const [name, setName] = useState('')
+  const [nameSaved, setNameSaved] = useState(false)
+
+  // Load existing name and sync to DB
+  useEffect(() => {
+    const existing = getGuestName()
+    if (existing) {
+      setName(existing)
+      setNameSaved(true)
+      // Always sync saved name to this session
+      if (sessionId) {
+        updateSessionName(sessionId, existing)
+      }
+    }
+  }, [sessionId])
+
+  const handleSaveName = () => {
+    if (name.trim()) {
+      setGuestName(name.trim())
+      setNameSaved(true)
+      if (sessionId) {
+        updateSessionName(sessionId, name.trim())
+      }
+    }
+  }
 
   let icon: string
   let title: string
@@ -72,6 +101,20 @@ export default function QuizResults({
     ...new Map(missed.map(b => [b.id, b])).values(),
   ]
 
+  // Share score
+  const handleShare = async () => {
+    const text = `Fugle Quiz: ${score}/${totalQuestions} (${pct}%) — ${points.toLocaleString('da-DK')} point! Kan du slå mig? bird-quiz.magnify.dk`
+    if (navigator.share) {
+      try {
+        await navigator.share({ text })
+      } catch {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(text)
+    }
+  }
+
   return (
     <div id="results-screen" className="screen active">
       <div className="results-content">
@@ -112,9 +155,51 @@ export default function QuizResults({
           </div>
         </div>
 
+        {points > 0 && (
+          <div className="results-points">
+            <span className="points-value">{points.toLocaleString('da-DK')}</span>
+            <span className="points-label">point</span>
+          </div>
+        )}
+
+        {!nameSaved && sessionId && (
+          <div className="results-name-prompt">
+            <p className="name-prompt-text">Gem dit navn til ranglisten:</p>
+            <div className="name-input-row">
+              <input
+                type="text"
+                className="name-input"
+                placeholder="Dit navn"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSaveName()}
+                maxLength={30}
+              />
+              <button className="name-save-btn" onClick={handleSaveName} disabled={!name.trim()}>
+                Gem
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="results-actions">
+          <button className="start-btn" onClick={onRetry}>
+            <span>Prøv igen</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 4v6h6M23 20v-6h-6" />
+              <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
+            </svg>
+          </button>
+          <button className="secondary-btn" onClick={handleShare}>
+            <span>Del dit resultat</span>
+          </button>
+        </div>
+
         {uniqueMissed.length > 0 && (
-          <div className="results-missed">
-            <h3>Fugle at øve mere på:</h3>
+          <details className="results-missed">
+            <summary className="missed-summary">
+              Fugle at øve mere på ({uniqueMissed.length})
+            </summary>
             <div className="missed-list">
               {uniqueMissed.map(bird => (
                 <div key={bird.id} className="missed-item">
@@ -132,21 +217,8 @@ export default function QuizResults({
                 </div>
               ))}
             </div>
-          </div>
+          </details>
         )}
-
-        <div className="results-actions">
-          <button className="start-btn" onClick={onRetry}>
-            <span>Prøv igen</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 4v6h6M23 20v-6h-6" />
-              <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
-            </svg>
-          </button>
-          <button className="secondary-btn" onClick={onHome}>
-            <span>Til forsiden</span>
-          </button>
-        </div>
       </div>
     </div>
   )
