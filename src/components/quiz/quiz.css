@@ -196,6 +196,13 @@
   height: 100%;
 }
 
+@media (max-width: 640px) {
+  #start-screen {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
 .start-layout {
   width: 100%;
   flex: 1;
@@ -231,14 +238,7 @@
   min-width: 0;
 }
 
-.start-floating-nav {
-  position: fixed;
-  top: var(--quiz-gap-xl);
-  right: var(--quiz-gap-2xl);
-  display: flex;
-  gap: var(--quiz-gap-xl);
-  z-index: 100;
-}
+/* Floating nav removed - using header nav on all pages now */
 
 /* Unified navigation link (used in floating nav, header nav, secondary pages) */
 .secondary-nav-link {
@@ -259,21 +259,77 @@
   color: var(--quiz-accent);
 }
 
-/* Hide floating nav on mobile - keep header instead */
+/* Mobile bottom navigation */
+.mobile-bottom-nav {
+  display: none;
+}
+
 @media (max-width: 640px) {
-  .start-floating-nav {
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(15, 26, 20, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--quiz-border);
+    padding: var(--quiz-gap-xs) 0;
+    display: flex;
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--quiz-gap-xs) var(--quiz-gap-sm);
+    text-decoration: none;
+    color: var(--quiz-text-muted);
+    transition: color var(--quiz-transition);
+  }
+
+  .mobile-nav-item:active {
+    opacity: 0.7;
+  }
+
+  .mobile-nav-item.active {
+    color: var(--quiz-accent);
+  }
+
+  .mobile-nav-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .mobile-nav-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* Adjust screens to account for bottom nav */
+  #start-screen,
+  #secondary-screen,
+  #my-results-screen,
+  #leaderboard-screen {
+    padding-bottom: 60px;
+  }
+}
+
+/* Hide header on ALL mobile screens - use bottom nav instead */
+@media (max-width: 640px) {
+  .app-header {
     display: none;
   }
 
-  /* Show header on mobile start screen with dark background */
-  .app-header--transparent {
-    opacity: 1;
-    pointer-events: auto;
-    background: var(--quiz-background);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-bottom: 1px solid var(--quiz-border);
-  }
+  /* Floating nav removed */
 }
 
 .start-hero {
@@ -326,6 +382,8 @@
   height: 100%;
   justify-content: center;
   position: relative;
+  z-index: 110;
+  position: relative;
 }
 
 .mosaic-column {
@@ -336,15 +394,14 @@
   width: min(14vw, 120px);
   height: auto;
   flex-shrink: 0;
-  will-change: transform, opacity;
   opacity: 0;
-  animation: mosaicColumnFadeIn 0.6s ease forwards, mosaicFloat 12s ease-in-out infinite;
+  animation: mosaicColumnFadeIn 0.6s ease forwards;
 }
 
-.mosaic-column:nth-child(1) { animation-delay: 0s, 0s; }
-.mosaic-column:nth-child(2) { animation-delay: 0.1s, 3s; }
-.mosaic-column:nth-child(3) { animation-delay: 0.2s, 6s; }
-.mosaic-column:nth-child(4) { animation-delay: 0.3s, 9s; }
+.mosaic-column:nth-child(1) { animation-delay: 0s; }
+.mosaic-column:nth-child(2) { animation-delay: 0.1s; }
+.mosaic-column:nth-child(3) { animation-delay: 0.2s; }
+.mosaic-column:nth-child(4) { animation-delay: 0.3s; }
 
 @keyframes mosaicColumnFadeIn {
   from {
@@ -352,15 +409,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes mosaicFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
   }
 }
 
@@ -585,13 +633,6 @@
   border-bottom-color: transparent;
 }
 
-/* Hide header on start screen (desktop) - show floating nav instead */
-@media (min-width: 641px) {
-  .app-header--transparent {
-    display: none;
-  }
-}
-
 .app-header-inner {
   display: flex;
   align-items: center;
@@ -611,6 +652,12 @@
   border: none;
   font-family: inherit;
   padding: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.app-header-left:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
 }
 
 .app-header-logo {
@@ -813,9 +860,19 @@
   position: relative;
   width: 100%;
   max-height: 100%;
-  aspect-ratio: 4 / 3;
   border-radius: var(--quiz-radius-lg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--quiz-gap-md);
+  padding: var(--quiz-padding-md);
+}
+
+/* Photo mode: maintain aspect ratio for image */
+.quiz-body--photo .photo-stage-inner {
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  gap: 0;
 }
 
 .photo-stage .bird-photo {
@@ -1005,8 +1062,25 @@
 /* --- Name mode --- */
 .name-display {
   text-align: center;
-  padding: var(--quiz-padding-xl) var(--quiz-padding-md) var(--quiz-gap-sm);
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--quiz-gap-xs);
+}
+
+/* Name mode: options-area contains question + bird name */
+.quiz-body--name .options-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--quiz-gap-lg);
+}
+
+.quiz-body--name .question-text {
+  text-align: center;
+  padding: 0;
 }
 
 .bird-name-text {
@@ -1029,10 +1103,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--quiz-gap-md);
-  padding: 0 var(--quiz-padding-md);
-  max-width: 600px;
-  margin: 0 auto;
   width: 100%;
+  flex: 1;
 }
 
 .photo-option {
@@ -1924,43 +1996,22 @@ details.results-missed[open] .missed-summary {
   .results-stats {
     gap: var(--quiz-padding-md);
   }
-  .secondary-nav-link {
-    display: none;
-  }
+  /* Floating nav removed */
 }
 
 /* Mobile: stack start layout */
 @media (max-width: 640px) {
   .start-layout {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
   .start-mosaic-side {
-    flex: 0 0 auto;
-    height: 120px;
-    padding: var(--quiz-gap-sm) 0;
-    opacity: 0.7;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  .mosaic-grid {
-    flex-direction: row;
-    height: 100%;
-    width: auto;
-  }
-  .mosaic-column {
-    flex-direction: row;
-    width: auto;
-    height: 100%;
-  }
-  .mosaic-tile {
-    width: 100px;
-    height: 100px;
-    flex-shrink: 0;
+    display: none;
   }
   .start-settings-area {
-    flex: 0 0 auto;
-    padding: var(--quiz-padding-lg) var(--quiz-gap-xl) var(--quiz-gap-md);
+    flex: 1;
+    padding: var(--quiz-gap-lg) var(--quiz-gap-xl) var(--quiz-gap-md);
     gap: 14px;
+    justify-content: center;
   }
   .version-label {
     display: none;

@@ -141,6 +141,14 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     quitQuiz()
   }, [quitQuiz])
 
+  const handleNavClick = useCallback((href: string) => {
+    if (state.screen === 'quiz') {
+      setShowLeaveModal(true)
+    } else {
+      window.location.href = href
+    }
+  }, [state.screen])
+
   const isStart = state.screen === 'start' || state.screen === 'transitioning'
 
   const progress = state.screen === 'quiz' && state.questions.length > 0
@@ -177,6 +185,8 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         totalQuestions={state.questions.length}
         onLogoClick={isStart ? undefined : handleLogoClick}
         logoLabel={state.screen === 'quiz' ? 'Afslut quiz' : 'Fugle Quiz'}
+        isQuizActive={state.screen === 'quiz'}
+        onNavClick={handleNavClick}
         centerContent={
             <>
               {state.screen === 'quiz' && (
@@ -250,6 +260,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           missed={state.missed}
           imageUrls={imageUrls}
           onRetry={startQuiz}
+          onGoHome={goHome}
           sessionId={state.sessionId}
         />
       )}
@@ -286,8 +297,10 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
 export default function QuizApp({ birds, memberships }: QuizAppProps) {
   return (
-    <AuthProvider>
-      <QuizAppInner birds={birds} memberships={memberships} />
-    </AuthProvider>
+    <div className="quiz-app-root">
+      <AuthProvider>
+        <QuizAppInner birds={birds} memberships={memberships} />
+      </AuthProvider>
+    </div>
   )
 }

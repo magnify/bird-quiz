@@ -3,6 +3,8 @@
 import type { Difficulty, QuizMode } from '@/lib/quiz/engine'
 import type { Bird } from '@/lib/supabase/types'
 import { BirdMosaic } from './BirdMosaic'
+import { Logo } from './Logo'
+import MobileBottomNav from './MobileBottomNav'
 
 interface QuizSetupProps {
   difficulty: Difficulty
@@ -75,12 +77,8 @@ export default function QuizSetup({
         </div>
 
         <div className="start-settings-area">
-          <nav className="start-floating-nav">
-            <a href="/resultater" className="secondary-nav-link">Resultater</a>
-            <a href="/rangliste" className="secondary-nav-link">Rangliste</a>
-          </nav>
-
           <div className="start-hero">
+            <Logo size="large" showText={false} />
             <h1 className="title">Fugle Quiz</h1>
             <p className="subtitle">Test din viden om Danmarks fugle</p>
           </div>
@@ -128,10 +126,12 @@ export default function QuizSetup({
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
-            <div className="version-label">v0.3.1</div>
+            <div className="version-label">v0.4.0</div>
           </div>
         </div>
       </div>
+
+      <MobileBottomNav activePage="home" />
     </div>
   )
 }

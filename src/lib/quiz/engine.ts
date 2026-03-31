@@ -105,21 +105,44 @@ export function generateQuestions(
   const pool = filterPool(birds, difficulty)
   const { birdGroups, groupMembers } = buildGroupIndex(birds, memberships)
 
-  const numQ = Math.min(questionCount, pool.length)
-  const picked = weightedPick(pool, weights, numQ)
+  // For mixed mode: generate BOTH photo AND name questions for each bird
+  // For other modes: generate the requested number of questions
+  const isMixed = mode === 'mixed'
+  const numBirds = isMixed ? Math.min(Math.floor(questionCount / 2), pool.length) : Math.min(questionCount, pool.length)
+  const picked = weightedPick(pool, weights, numBirds)
 
-  return picked.map(bird => {
+  const questions: QuizQuestion[] = []
+
+  picked.forEach(bird => {
     const distractors = pickDistractors(bird, pool, birds, birdGroups, groupMembers)
+    const options = shuffle([bird, ...distractors])
 
-    let qMode: 'photo' | 'name' = mode === 'mixed'
-      ? (Math.random() < 0.5 ? 'photo' : 'name')
-      : mode === 'name' ? 'name' : 'photo'
-
-    return {
-      bird,
-      distractors,
-      options: shuffle([bird, ...distractors]),
-      mode: qMode,
+    if (isMixed) {
+      // Generate BOTH photo and name questions for this bird
+      questions.push({
+        bird,
+        distractors,
+        options: shuffle([bird, ...distractors]), // Fresh shuffle for photo
+        mode: 'photo',
+      })
+      questions.push({
+        bird,
+        distractors,
+        options: shuffle([bird, ...distractors]), // Fresh shuffle for name
+        mode: 'name',
+      })
+    } else {
+      // Single question with the requested mode
+      const qMode: 'photo' | 'name' = mode === 'name' ? 'name' : 'photo'
+      questions.push({
+        bird,
+        distractors,
+        options,
+        mode: qMode,
+      })
     }
   })
+
+  // For mixed mode, shuffle the questions so photo/name don't always alternate predictably
+  return isMixed ? shuffle(questions) : questions
 }

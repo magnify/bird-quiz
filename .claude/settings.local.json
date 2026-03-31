@@ -91,7 +91,9 @@
       "Bash(/Users/brianstefanjensen/.nvm/versions/node/v20.5.1/bin/netlify cache:purge)",
       "Bash(dig:*)",
       "WebFetch(domain:artsnob.webflow.io)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(pnpm build:*)",
+      "WebFetch(domain:netnatur.dk)"
     ]
   }
 }

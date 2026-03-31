@@ -4,6 +4,7 @@ import '../quiz/quiz.css'
 import { useState, useEffect } from 'react'
 import { getLeaderboard, type LeaderboardEntry } from '@/app/actions/leaderboard'
 import QuizHeader from './QuizHeader'
+import MobileBottomNav from './MobileBottomNav'
 
 type Period = 'all' | 'week' | 'month'
 
@@ -114,6 +115,7 @@ export default function Leaderboard() {
         )}
       </div>
     </div>
+      <MobileBottomNav activePage="rangliste" />
     </>
   )
 }

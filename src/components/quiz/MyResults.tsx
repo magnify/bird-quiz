@@ -4,6 +4,7 @@ import '../quiz/quiz.css'
 import { useState, useEffect } from 'react'
 import { loadResults, clearResults, type QuizResult } from '@/lib/quiz/result-history'
 import QuizHeader from './QuizHeader'
+import MobileBottomNav from './MobileBottomNav'
 
 function difficultyLabel(d: string): string {
   if (d === 'easy') return 'Lette'
@@ -162,6 +163,7 @@ export default function MyResults() {
         )}
       </div>
     </div>
+      <MobileBottomNav activePage="resultater" />
     </>
   )
 }

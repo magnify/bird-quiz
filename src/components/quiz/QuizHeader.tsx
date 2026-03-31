@@ -1,13 +1,6 @@
 'use client'
 
-const LogoSvg = () => (
-  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 10C30 10 15 30 15 50C15 70 30 90 50 90C55 90 60 85 58 80C56 75 60 72 65 72C70 72 75 68 75 60C75 35 65 10 50 10Z" fill="currentColor" opacity="0.2"/>
-    <path d="M25 45C25 45 35 25 55 20C55 20 45 35 50 50C55 65 40 75 30 65C20 55 25 45 25 45Z" fill="currentColor" opacity="0.4"/>
-    <circle cx="38" cy="42" r="3" fill="currentColor"/>
-    <path d="M20 48L10 45L22 50Z" fill="currentColor" opacity="0.6"/>
-  </svg>
-)
+import { LogoSvg } from './Logo'
 
 interface QuizHeaderProps {
   transparent?: boolean
@@ -19,6 +12,8 @@ interface QuizHeaderProps {
   activePage?: 'quiz' | 'resultater' | 'rangliste'
   onLogoClick?: () => void
   logoLabel?: string
+  isQuizActive?: boolean
+  onNavClick?: (href: string) => void
 }
 
 export default function QuizHeader({
@@ -31,6 +26,8 @@ export default function QuizHeader({
   activePage = 'quiz',
   onLogoClick,
   logoLabel = 'Fugle Quiz',
+  isQuizActive = false,
+  onNavClick,
 }: QuizHeaderProps) {
   const LogoElement = onLogoClick ? 'button' : 'a'
   const logoProps = onLogoClick
@@ -60,12 +57,24 @@ export default function QuizHeader({
             <a
               href="/resultater"
               className={`secondary-nav-link ${activePage === 'resultater' ? 'active' : ''}`}
+              onClick={(e) => {
+                if (isQuizActive && onNavClick) {
+                  e.preventDefault()
+                  onNavClick('/resultater')
+                }
+              }}
             >
               Resultater
             </a>
             <a
               href="/rangliste"
               className={`secondary-nav-link ${activePage === 'rangliste' ? 'active' : ''}`}
+              onClick={(e) => {
+                if (isQuizActive && onNavClick) {
+                  e.preventDefault()
+                  onNavClick('/rangliste')
+                }
+              }}
             >
               Rangliste
             </a>
