@@ -93,7 +93,8 @@
       "WebFetch(domain:artsnob.webflow.io)",
       "Bash(xargs kill:*)",
       "Bash(pnpm build:*)",
-      "WebFetch(domain:netnatur.dk)"
+      "WebFetch(domain:netnatur.dk)",
+      "Bash(pnpm dev)"
     ]
   }
 }
