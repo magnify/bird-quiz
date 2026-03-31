@@ -57,11 +57,10 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           }
         }}
       >
-        <svg className="mobile-nav-icon" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 10C30 10 15 30 15 50C15 70 30 90 50 90C55 90 60 85 58 80C56 75 60 72 65 72C70 72 75 68 75 60C75 35 65 10 50 10Z" opacity="0.2"/>
-          <path d="M25 45C25 45 35 25 55 20C55 20 45 35 50 50C55 65 40 75 30 65C20 55 25 45 25 45Z" opacity="0.4"/>
-          <circle cx="38" cy="42" r="3"/>
-          <path d="M20 48L10 45L22 50Z" opacity="0.6"/>
+        <svg className="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4"/>
+          <path d="M12 8h.01"/>
         </svg>
         <span className="mobile-nav-label">Om</span>
       </a>
