@@ -483,7 +483,7 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  padding: var(--quiz-gap-sm) 14px;
+  padding: var(--quiz-gap-md) 14px;
   background: transparent;
   border: 1px solid var(--quiz-border-pill);
   border-radius: var(--quiz-radius-pill);
@@ -556,7 +556,7 @@
   justify-content: center;
   gap: var(--quiz-gap-sm);
   width: 100%;
-  padding: 14px 28px;
+  padding: var(--quiz-padding-md) 28px;
   background: linear-gradient(135deg, var(--quiz-accent-dim), var(--quiz-accent-dark));
   border: none;
   border-radius: var(--quiz-radius-pill);
@@ -1367,7 +1367,7 @@
 
 .name-input {
   flex: 1;
-  padding: var(--quiz-gap-sm) var(--quiz-gap-md);
+  padding: var(--quiz-gap-md) var(--quiz-gap-md);
   border-radius: var(--quiz-radius-sm);
   border: 1px solid var(--quiz-border);
   background: var(--quiz-bg-secondary);
@@ -1381,7 +1381,7 @@
 }
 
 .name-save-btn {
-  padding: var(--quiz-gap-sm) var(--quiz-padding-md);
+  padding: var(--quiz-gap-md) var(--quiz-padding-md);
   border-radius: var(--quiz-radius-sm);
   background: var(--quiz-accent);
   color: var(--quiz-text-light);
@@ -1717,7 +1717,7 @@ details.results-missed[open] .missed-summary {
 }
 
 .auth-input {
-  padding: var(--quiz-gap-sm) 14px;
+  padding: var(--quiz-gap-md) 14px;
   border-radius: var(--quiz-radius-sm);
   border: 1px solid var(--quiz-border);
   background: var(--quiz-bg-secondary);
