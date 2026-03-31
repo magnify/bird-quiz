@@ -56,27 +56,20 @@ export default function QuizHeader({
         </div>
 
         <div className="app-header-right">
-          {activePage === 'quiz' ? (
-            <>
-              <a className="app-header-link" href="/resultater">Resultater</a>
-              <a className="app-header-link" href="/rangliste">Rangliste</a>
-            </>
-          ) : (
-            <div className="secondary-nav-tabs">
-              <a
-                href="/resultater"
-                className={`secondary-nav-tab ${activePage === 'resultater' ? 'active' : ''}`}
-              >
-                Resultater
-              </a>
-              <a
-                href="/rangliste"
-                className={`secondary-nav-tab ${activePage === 'rangliste' ? 'active' : ''}`}
-              >
-                Rangliste
-              </a>
-            </div>
-          )}
+          <div className="secondary-nav-tabs">
+            <a
+              href="/resultater"
+              className={`secondary-nav-link ${activePage === 'resultater' ? 'active' : ''}`}
+            >
+              Resultater
+            </a>
+            <a
+              href="/rangliste"
+              className={`secondary-nav-link ${activePage === 'rangliste' ? 'active' : ''}`}
+            >
+              Rangliste
+            </a>
+          </div>
         </div>
       </div>
       {showProgress && (

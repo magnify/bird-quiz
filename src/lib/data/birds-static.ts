@@ -165,7 +165,7 @@ const LEGACY_BIRDS: LegacyBird[] = [
   { da: "Lille flagspætte", en: "Lesser Spotted Woodpecker", sci: "Dryobates minor", cat: "standfugl", common: false },
   { da: "Grønspætte", en: "European Green Woodpecker", sci: "Picus viridis", cat: "standfugl", common: false },
   { da: "Sortspætte", en: "Black Woodpecker", sci: "Dryocopus martius", cat: "standfugl", common: false },
-  { da: "Skovdue", en: "Stock Dove", sci: "Columba oenas", cat: "standfugl", common: false },
+  { da: "Huldue", en: "Stock Dove", sci: "Columba oenas", cat: "standfugl", common: false },
   { da: "Spætmejse", en: "Eurasian Nuthatch", sci: "Sitta europaea", cat: "standfugl", common: true },
   { da: "Træløber", en: "Eurasian Treecreeper", sci: "Certhia familiaris", cat: "standfugl", common: false },
   { da: "Korttået træløber", en: "Short-toed Treecreeper", sci: "Certhia brachydactyla", cat: "standfugl", common: false },
