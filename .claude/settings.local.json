@@ -98,7 +98,8 @@
       "Bash(netlify functions:log:*)",
       "Bash(for issue in 3 4 5)",
       "Bash(do gh issue close $issue --repo magnify/bird-quiz --comment \"✅ Image verified to exist in Supabase Storage. Returns HTTP 200. Likely temporary network issue on mobile.\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(netlify env:list:*)"
     ]
   }
 }
