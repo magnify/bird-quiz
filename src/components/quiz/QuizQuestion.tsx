@@ -37,11 +37,18 @@ function PhotoOptionCard({
 }) {
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
   const handleImageError = useImageErrorHandler('QuizQuestion')
 
   useEffect(() => {
     setLoaded(false)
     setFailed(false)
+
+    // Check if image is already loaded (from cache)
+    const img = imgRef.current
+    if (img?.complete && img.naturalWidth > 0) {
+      setLoaded(true)
+    }
   }, [bird.id])
 
   const classes = [
@@ -73,6 +80,7 @@ function PhotoOptionCard({
       </div>
       {imageUrl && (
         <img
+          ref={imgRef}
           src={imageUrl}
           alt={bird.name_da}
           className={loaded ? 'loaded' : ''}
@@ -110,6 +118,7 @@ export default function QuizQuestion({
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
   const loadedRef = useRef(false)
+  const imgRef = useRef<HTMLImageElement>(null)
   const handleImageError = useImageErrorHandler('QuizQuestion')
 
   // Reset image state when question changes
@@ -117,6 +126,14 @@ export default function QuizQuestion({
     setImageLoaded(false)
     setImageFailed(false)
     loadedRef.current = false
+
+    // Check if image is already loaded (from cache)
+    const img = imgRef.current
+    if (img?.complete && img.naturalWidth > 0) {
+      loadedRef.current = true
+      setImageLoaded(true)
+      return
+    }
 
     // Timeout: if image doesn't load within 10s, show failure
     const timer = setTimeout(() => {
@@ -183,6 +200,7 @@ export default function QuizQuestion({
                 </div>
                 {imageUrls.get(question.bird.id) && (
                   <img
+                    ref={imgRef}
                     className={`bird-photo ${imageLoaded ? 'loaded' : ''} ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`}
                     src={imageUrls.get(question.bird.id)!}
                     alt="Fuglebillede"

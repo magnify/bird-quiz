@@ -126,7 +126,7 @@ export default function QuizSetup({
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
-            <div className="version-label">v0.6.0</div>
+            <div className="version-label">v0.6.1</div>
           </div>
         </div>
       </div>
