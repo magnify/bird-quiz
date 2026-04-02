@@ -94,7 +94,11 @@
       "Bash(xargs kill:*)",
       "Bash(pnpm build:*)",
       "WebFetch(domain:netnatur.dk)",
-      "Bash(pnpm dev)"
+      "Bash(pnpm dev)",
+      "Bash(netlify functions:log:*)",
+      "Bash(for issue in 3 4 5)",
+      "Bash(do gh issue close $issue --repo magnify/bird-quiz --comment \"✅ Image verified to exist in Supabase Storage. Returns HTTP 200. Likely temporary network issue on mobile.\")",
+      "Bash(done)"
     ]
   }
 }

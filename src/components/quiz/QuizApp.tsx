@@ -14,6 +14,7 @@ import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
 import AuthModal from './AuthModal'
 import QuizHeader from './QuizHeader'
+import { ErrorBoundary } from '@/lib/error-tracking/ErrorBoundary'
 
 interface QuizAppProps {
   birds: Bird[]
@@ -178,7 +179,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
       {/* Persistent header */}
       <QuizHeader
-        transparent={isStart}
+        hideLogo={isStart}
         showProgress={state.screen === 'quiz'}
         progress={progress}
         currentQuestion={state.currentQuestion + 1}
@@ -298,9 +299,11 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 export default function QuizApp({ birds, memberships }: QuizAppProps) {
   return (
     <div className="quiz-app-root">
-      <AuthProvider>
-        <QuizAppInner birds={birds} memberships={memberships} />
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <QuizAppInner birds={birds} memberships={memberships} />
+        </AuthProvider>
+      </ErrorBoundary>
     </div>
   )
 }

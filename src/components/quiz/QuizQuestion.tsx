@@ -183,7 +183,7 @@ export default function QuizQuestion({
                 </div>
                 {imageUrls.get(question.bird.id) && (
                   <img
-                    className={`bird-photo ${imageLoaded ? 'loaded' : ''}`}
+                    className={`bird-photo ${imageLoaded ? 'loaded' : ''} ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`}
                     src={imageUrls.get(question.bird.id)!}
                     alt="Fuglebillede"
                     onLoad={() => { loadedRef.current = true; setImageLoaded(true) }}
@@ -193,7 +193,6 @@ export default function QuizQuestion({
                     }}
                   />
                 )}
-                <div className={`photo-overlay ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`} />
               </div>
             </div>
           </>

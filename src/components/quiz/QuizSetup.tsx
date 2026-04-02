@@ -2,9 +2,9 @@
 
 import type { Difficulty, QuizMode } from '@/lib/quiz/engine'
 import type { Bird } from '@/lib/supabase/types'
-import { BirdMosaic } from './BirdMosaic'
 import { Logo } from './Logo'
 import MobileBottomNav from './MobileBottomNav'
+import { BirdMosaic } from './BirdMosaic'
 
 interface QuizSetupProps {
   difficulty: Difficulty
@@ -14,10 +14,10 @@ interface QuizSetupProps {
   onSetMode: (m: QuizMode) => void
   onSetTotalQuestions: (n: number) => void
   onStart: () => void
+  isTransitioning?: boolean
   birds: Bird[]
   firstBirdId: string | null
   onTileRef?: (birdId: string, el: HTMLElement | null) => void
-  isTransitioning?: boolean
 }
 
 function ToggleGroup<T extends string>({
@@ -60,10 +60,10 @@ export default function QuizSetup({
   onSetMode,
   onSetTotalQuestions,
   onStart,
+  isTransitioning,
   birds,
   firstBirdId,
   onTileRef,
-  isTransitioning,
 }: QuizSetupProps) {
   return (
     <div id="start-screen" className="screen active">
@@ -126,7 +126,7 @@ export default function QuizSetup({
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
-            <div className="version-label">v0.4.0</div>
+            <div className="version-label">v0.5.1</div>
           </div>
         </div>
       </div>

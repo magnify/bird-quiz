@@ -3,7 +3,6 @@
 import { LogoSvg } from './Logo'
 
 interface QuizHeaderProps {
-  transparent?: boolean
   centerContent?: React.ReactNode
   showProgress?: boolean
   progress?: number
@@ -14,10 +13,10 @@ interface QuizHeaderProps {
   logoLabel?: string
   isQuizActive?: boolean
   onNavClick?: (href: string) => void
+  hideLogo?: boolean
 }
 
 export default function QuizHeader({
-  transparent = false,
   centerContent,
   showProgress = false,
   progress = 0,
@@ -28,6 +27,7 @@ export default function QuizHeader({
   logoLabel = 'Fugle Quiz',
   isQuizActive = false,
   onNavClick,
+  hideLogo = false,
 }: QuizHeaderProps) {
   const LogoElement = onLogoClick ? 'button' : 'a'
   const logoProps = onLogoClick
@@ -35,18 +35,20 @@ export default function QuizHeader({
     : { href: '/' }
 
   return (
-    <div className={`app-header ${transparent ? 'app-header--transparent' : ''}`}>
+    <div className="app-header">
       <div className="app-header-inner">
-        <LogoElement
-          className="app-header-left"
-          aria-label={logoLabel}
-          {...logoProps}
-        >
-          <span className="app-header-logo">
-            <LogoSvg />
-          </span>
-          <span className="app-header-title">Fugle Quiz</span>
-        </LogoElement>
+        {!hideLogo && (
+          <LogoElement
+            className="app-header-left"
+            aria-label={logoLabel}
+            {...logoProps}
+          >
+            <span className="app-header-logo">
+              <LogoSvg />
+            </span>
+            <span className="app-header-title">Fugle Quiz</span>
+          </LogoElement>
+        )}
 
         <div className="app-header-center">
           {centerContent}

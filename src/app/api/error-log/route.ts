@@ -86,8 +86,8 @@ function createErrorHash(errorLog: ErrorLog): string {
 }
 
 async function createGitHubIssue(errorLog: ErrorLog): Promise<number> {
-  const owner = 'brianstefanjensen'; // Update with your GitHub username
-  const repo = 'bird-quiz'; // Update with your repo name
+  const owner = 'magnify';
+  const repo = 'bird-quiz';
 
   const title = `[Auto] ${errorLog.type}: ${errorLog.message.substring(0, 80)}`;
   const body = formatIssueBody(errorLog);
@@ -124,7 +124,7 @@ async function updateGitHubIssue(
   count: number,
   errorLog: ErrorLog
 ): Promise<void> {
-  const owner = 'brianstefanjensen';
+  const owner = 'magnify';
   const repo = 'bird-quiz';
 
   const comment = `This error has now occurred **${count} times**.\n\nLast seen: ${errorLog.timestamp}\nURL: ${errorLog.url}\nUser Agent: ${errorLog.userAgent}`;
