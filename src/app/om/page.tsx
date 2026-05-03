@@ -17,7 +17,7 @@ export default function OmPage() {
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
               Fugle Quiz er en gratis dansk fuglequiz, der hjælper dig med at lære de danske fugle at kende.
-              Gæt fuglen ud fra billeder og lyd, og se hvordan du klarer dig mod andre.
+              Gæt fuglen ud fra billeder og test din viden.
             </p>
           </div>
 
