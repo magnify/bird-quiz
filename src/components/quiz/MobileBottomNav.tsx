@@ -1,7 +1,7 @@
 'use client'
 
 interface MobileBottomNavProps {
-  activePage?: 'home' | 'resultater' | 'rangliste' | 'om' | 'kaffe'
+  activePage?: 'home' | 'resultater' | 'rangliste' | 'om'
   isQuizActive?: boolean
   onNavClick?: (href: string) => void
 }
@@ -63,25 +63,6 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M12 8h.01"/>
         </svg>
         <span className="mobile-nav-label">Om</span>
-      </a>
-      <a
-        href="/kaffe"
-        className={`mobile-nav-item ${activePage === 'kaffe' ? 'active' : ''}`}
-        onClick={(e) => {
-          if (isQuizActive && onNavClick) {
-            e.preventDefault()
-            onNavClick('/kaffe')
-          }
-        }}
-      >
-        <svg className="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
-          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
-          <line x1="6" y1="2" x2="6" y2="4"/>
-          <line x1="10" y1="2" x2="10" y2="4"/>
-          <line x1="14" y1="2" x2="14" y2="4"/>
-        </svg>
-        <span className="mobile-nav-label">Kaffe</span>
       </a>
     </nav>
   )
