@@ -268,15 +268,17 @@
 @media (max-width: 640px) {
   .mobile-bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: var(--quiz-gap-md);
+    left: var(--quiz-gap-md);
+    right: var(--quiz-gap-md);
     z-index: 100;
-    background: rgba(15, 26, 20, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--quiz-border);
-    padding: var(--quiz-gap-xs) 0;
+    background: color-mix(in srgb, var(--quiz-bg-secondary) 92%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--quiz-border);
+    border-radius: var(--quiz-radius-pill);
+    box-shadow: 0 4px 24px color-mix(in srgb, var(--quiz-background) 40%, transparent);
+    padding: var(--quiz-gap-xs);
     display: flex;
     justify-content: space-around;
     gap: 0;
@@ -291,15 +293,17 @@
     padding: var(--quiz-gap-xs) var(--quiz-gap-sm);
     text-decoration: none;
     color: var(--quiz-text-muted);
-    transition: color var(--quiz-transition);
+    border-radius: var(--quiz-radius-md);
+    transition: color var(--quiz-transition), background-color var(--quiz-transition);
   }
 
-  .mobile-nav-item:active {
-    opacity: 0.7;
+  .mobile-nav-item:hover {
+    color: var(--quiz-accent);
   }
 
   .mobile-nav-item.active {
     color: var(--quiz-accent);
+    background: var(--quiz-accent-glow);
   }
 
   .mobile-nav-icon {
@@ -315,12 +319,12 @@
     letter-spacing: 0;
   }
 
-  /* Adjust screens to account for bottom nav */
+  /* Adjust screens to account for floating pill nav */
   #start-screen,
   #secondary-screen,
   #my-results-screen,
   #leaderboard-screen {
-    padding-bottom: 60px;
+    padding-bottom: 76px;
   }
 }
 
@@ -2068,4 +2072,3 @@ details.results-missed[open] .missed-summary {
     font-size: 0.85rem;
   }
 }
-
