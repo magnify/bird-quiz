@@ -41,7 +41,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
   const [showAuth, setShowAuth] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
 
-  // Zoom transition state
   const tileRefs = useRef<Map<string, HTMLElement>>(new Map())
   const [transitionData, setTransitionData] = useState<{
     imageUrl: string
@@ -57,7 +56,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     }
   }, [])
 
-  // Migrate guest data when user signs in
   useEffect(() => {
     if (user) {
       const guestId = getGuestId()
@@ -67,14 +65,12 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     }
   }, [user])
 
-  // When a question is displayed, ensure images are loaded for all options
   useEffect(() => {
     if (state.screen === 'quiz' && currentQ) {
       ensureImages(currentQ.options)
     }
   }, [state.screen, state.currentQuestion, currentQ, ensureImages])
 
-  // Preload images for the next question
   useEffect(() => {
     if (state.screen === 'quiz') {
       const nextQ = state.questions[state.currentQuestion + 1]
@@ -84,7 +80,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     }
   }, [state.screen, state.currentQuestion, state.questions, ensureImages])
 
-  // Handle transition: when entering transitioning state, start zoom animation
   useEffect(() => {
     if (state.screen === 'transitioning') {
       const firstQ = state.questions[0]
@@ -93,12 +88,10 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         return
       }
 
-      // Ensure images for first two questions
       ensureImages(firstQ.options)
       const secondQ = state.questions[1]
       if (secondQ) ensureImages(secondQ.options)
 
-      // Get the tile rect for the first bird
       const tileEl = tileRefs.current.get(firstQ.bird.id)
       if (tileEl) {
         const rect = tileEl.getBoundingClientRect()
@@ -106,14 +99,12 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         setTransitionData({ imageUrl, startRect: rect })
         setZoomPhase('start')
 
-        // Start the zoom animation
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             setZoomPhase('end')
           })
         })
 
-        // Complete transition after animation
         const timer = setTimeout(() => {
           completeTransition()
           setTransitionData(null)
@@ -122,13 +113,11 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
         return () => clearTimeout(timer)
       } else {
-        // No tile ref — skip animation
         completeTransition()
       }
     }
   }, [state.screen, state.questions, completeTransition, ensureImages])
 
-  // Handle logo click
   const handleLogoClick = useCallback(() => {
     if (state.screen === 'quiz') {
       setShowLeaveModal(true)
@@ -177,7 +166,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         </div>
       )}
 
-      {/* Persistent header */}
       <QuizHeader
         hideLogo={isStart}
         showProgress={state.screen === 'quiz'}
@@ -223,7 +211,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           }
         />
 
-      {/* Screens */}
       {(state.screen === 'start' || state.screen === 'transitioning') && (
         <QuizSetup
           difficulty={state.difficulty}
@@ -262,11 +249,9 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           imageUrls={imageUrls}
           onRetry={startQuiz}
           onGoHome={goHome}
-          sessionId={state.sessionId}
         />
       )}
 
-      {/* Zoom transition overlay */}
       {transitionData && (
         <div className="mosaic-zoom-overlay">
           <img
