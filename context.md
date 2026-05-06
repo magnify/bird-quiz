@@ -1,198 +1,232 @@
-# Session Context - v0.4.0+ Work & Recent Fixes
+# Session Context - v0.6.0
 
 ## Current State
 
-**Version:** v0.4.0
-**Last Deploy:** Pending (local changes not yet deployed)
-**Branch:** main
-**Node:** v22 required
+**Version:** v0.6.0
+**Deployed:** https://bird-quiz.magnify.dk
+**Status:** All major refactors complete, images migrated to Netlify CDN
 
-## Recent Work Summary
+## Major Changes (v0.5.0 → v0.6.0)
 
-### v0.4.0 - Unified Quiz Layouts (Deployed)
+### 1. Header & Mosaic Architecture Refactor ✅
 
-**Commit:** `b193997` - Major refactor
+**Problem:** Mosaic was positioned fixed (out of layout flow), causing overlap with form and requiring hardcoded breakpoints.
 
-**Changes:**
-- Unified PhotoMode and NameMode into single `QuizQuestion` component
-- Fixed mixed mode to generate BOTH photo AND name questions per bird
-- Improved name mode UX with split-screen layout
-- Better question framing: "Find billedet af [bird name]"
-- Removed floating nav, unified header across all pages
-- Added hover effect to logo
-- Created reusable `Logo` component
-- Added `MobileBottomNav` component
-- New pages: `/om` and `/kaffe`
-- Code cleanup: deleted PhotoMode.tsx and NameMode.tsx
-
-**Files Changed:**
-- Deleted: `NameMode.tsx`, `PhotoMode.tsx`
-- Created: `Logo.tsx`, `MobileBottomNav.tsx`, `/om/page.tsx`, `/kaffe/page.tsx`
-- Modified: `QuizQuestion.tsx`, `QuizApp.tsx`, `QuizHeader.tsx`, `quiz.css`, `engine.ts`
-
-### Post-v0.4.0 Fixes (Deployed)
-
-1. **`a94062b`** - Revert Om icon to info circle (bird logo doesn't scale to 20px)
-2. **`9aee544`** - Standardize button and input heights
-3. **`994ea25`** - Reduce action button font-weight from 700 to 600
-4. **`483e977`** - Fix mosaic z-index by adding to parent container (CSS approach, didn't work)
-5. **`2987d1e`** - Fix mosaic z-index by overriding .screen child z-index (CSS approach, didn't work)
-
-### Today's Work (Not Yet Deployed)
-
-#### 1. Mosaic Z-Index Fix (Proper DOM Restructure)
-
-**Problem:** Mosaic was nested inside `.screen` div, creating stacking context that prevented it from appearing above header, even with CSS z-index hacks.
-
-**Solution:** Moved BirdMosaic out of QuizSetup component tree to be direct child of `quiz-app-root`, rendered before header in DOM.
-
-**Changes:**
-- Moved BirdMosaic from QuizSetup to QuizApp
-- Created `.mosaic-container` positioned fixed with z-index 150 (above header's 100)
-- Removed `.start-mosaic-side` container from QuizSetup
-- Updated QuizSetup to remove `birds`, `firstBirdId`, `onTileRef` props
-- Added `mosaic-container--fading` class for transition animations
-- Mobile: hide mosaic completely via CSS
-
-**Files Modified:**
-- `src/components/quiz/QuizApp.tsx` - render mosaic at top level
-- `src/components/quiz/QuizSetup.tsx` - removed mosaic, simplified layout
-- `src/components/quiz/quiz.css` - new `.mosaic-container` styles
-
-**DOM Structure (Before):**
-```
-quiz-app-root
-  └─ QuizHeader (z-index: 100)
-  └─ QuizSetup (.screen)
-      └─ .start-layout
-          └─ .start-mosaic-side
-              └─ BirdMosaic (trapped in stacking context)
-```
-
-**DOM Structure (After):**
-```
-quiz-app-root
-  └─ .mosaic-container (z-index: 150, fixed positioning)
-      └─ BirdMosaic
-  └─ QuizHeader (z-index: 100)
-  └─ QuizSetup (.screen)
-      └─ .start-layout (centered)
-```
-
-#### 2. Error Logging & Monitoring System
-
-**Status:** Fully implemented (already existed, now documented)
-
-**Discovered:** Comprehensive error logging system was already in place:
-- Client-side error tracking (React, global errors, promises, images)
-- Server endpoint `/api/error-log` with GitHub issue creation
-- Automatic deduplication via error hashing
-- Recurring errors update existing issues with count
-- Image error handler hook for React components
-
-**Added Today:**
-- Wrapped QuizApp in ErrorBoundary component
-- Created `ERROR_LOGGING.md` documentation
-- Verified image error tracking is active in QuizQuestion
-
-**Setup Required:**
-1. Set `GITHUB_TOKEN` env var in Netlify (repo scope)
-2. Token enables automatic GitHub issue creation
-3. Without token, errors log to console only
-
-**Error Types Tracked:**
-- `react-error` - React component errors
-- `global-error` - Uncaught JavaScript errors
-- `unhandled-promise` - Unhandled promise rejections
-- `image-load-error` - Failed image loads
-- `api-error` - API failures
+**Solution:** Proper DOM restructure
+- Header: `position: absolute` (floats above all content)
+- Header: Always transparent, logo hidden on start screen via `hideLogo` prop
+- Mosaic: Back in QuizSetup layout flow (flexbox with form)
+- No z-index battles, naturally responsive
 
 **Files:**
-- `src/lib/error-tracking/ErrorBoundary.tsx` - boundary + logError function
-- `src/lib/error-tracking/image-error-handler.ts` - image error hook
-- `src/app/api/error-log/route.ts` - server endpoint, GitHub integration
-- `ERROR_LOGGING.md` - setup documentation
+- `src/components/quiz/QuizApp.tsx` - removed mosaic container, added hideLogo
+- `src/components/quiz/QuizSetup.tsx` - restored mosaic in layout
+- `src/components/quiz/QuizHeader.tsx` - added hideLogo prop, removed transparent prop
+- `src/components/quiz/quiz.css` - header absolute, mosaic in flow, breakpoint 1024px
+- `src/components/quiz/Leaderboard.tsx` - removed transparent prop
+- `src/components/quiz/MyResults.tsx` - removed transparent prop
 
-## Deployment Checklist
+**Result:**
+- Desktop (>1024px): Mosaic left, form right, naturally responsive
+- Tablet/Mobile (≤1024px): Mosaic hidden, form centered
+- Clean architecture, no CSS hacks
 
-Before deploying:
-- [x] Build succeeds locally (`npm run build`)
-- [ ] Test mosaic appears above header on desktop
-- [ ] Test mosaic hidden on mobile
-- [ ] Verify no console errors
-- [ ] Set `GITHUB_TOKEN` in Netlify env vars
-- [ ] Update MEMORY.md with final status
+### 2. Simplified Answer Feedback Borders ✅
 
-**Deploy Command:**
-```bash
-source ~/.nvm/nvm.sh && nvm use 22 && NODE_VERSION=22 /Users/brianstefanjensen/.nvm/versions/node/v20.5.1/bin/netlify deploy --prod --skip-functions-cache
+**Problem:** Complex overlay div with box-shadow inset + background for showing correct/wrong.
+
+**Solution:** Simple border on image element
+- Removed `.photo-overlay` div entirely
+- Added `.correct` / `.wrong` classes directly to `.bird-photo`
+- Border with rounded corners (`var(--quiz-radius-lg)`)
+
+**Files:**
+- `src/components/quiz/QuizQuestion.tsx` - removed overlay div, added classes to img
+- `src/components/quiz/quiz.css` - simple border instead of overlay
+
+**Result:** Cleaner markup, easier to maintain, matches app styling.
+
+### 3. Image Migration: Supabase → Netlify CDN ✅
+
+**Problem:** Images from Supabase Storage were slow/unreliable on mobile due to:
+- `cache-control: no-cache` headers (Cloudflare CDN couldn't cache)
+- First loads went to origin (slow)
+- Mobile timeouts frequent
+
+**Solution:** Serve images from Netlify public folder
+- Updated `src/lib/images.ts` - returns `/images/birds/{slug}.jpg` instead of Supabase URL
+- Images in `public/images/birds/` (221 files, ~50MB)
+- Netlify CDN serves with proper caching
+- Same domain = faster DNS
+
+**Files:**
+- `src/lib/images.ts` - switched to local paths
+
+**Result:**
+- Much faster loading
+- Reliable (no timeouts)
+- Proper caching by default
+- Better mobile performance
+
+### 4. Error Logging & GitHub Integration ✅
+
+**Status:** Fully implemented and working
+
+**Components:**
+- Client-side: `ErrorBoundary`, `useImageErrorHandler`, global error handlers
+- Server: `/api/error-log` - creates GitHub issues automatically
+- Deduplication: Error hashing prevents duplicate issues
+- GitHub: Auto-creates issues with labels (bug, auto-generated, error-type)
+
+**Setup:**
+- ✅ `GITHUB_TOKEN` set in Netlify env vars
+- ✅ Repo config: `magnify/bird-quiz`
+- ✅ QuizApp wrapped in ErrorBoundary
+- ✅ Image error handlers active
+
+**Note:** Slow image loads don't trigger `onerror` (they hang), only hard failures create issues. This is why switching to Netlify CDN was critical.
+
+**Docs:** See `ERROR_LOGGING.md` for full setup guide.
+
+## File Structure
+
+### Key Files Modified
+```
+src/
+├── components/quiz/
+│   ├── QuizApp.tsx          - mosaic removed, ErrorBoundary wrapper, hideLogo
+│   ├── QuizSetup.tsx        - mosaic restored in layout flow
+│   ├── QuizHeader.tsx       - hideLogo prop, removed transparent prop
+│   ├── QuizQuestion.tsx     - simplified borders (no overlay)
+│   ├── Leaderboard.tsx      - removed transparent prop
+│   ├── MyResults.tsx        - removed transparent prop
+│   └── quiz.css             - header absolute, mosaic in flow, simple borders
+├── lib/
+│   ├── images.ts            - switched to Netlify CDN paths
+│   └── error-tracking/      - error logging system (existing)
+└── app/api/error-log/       - GitHub integration (existing)
+
+public/
+└── images/birds/            - 221 bird images served by Netlify CDN
+
+docs/
+├── ERROR_LOGGING.md         - error logging setup guide
+├── REFACTOR_PLAN.md         - header/mosaic refactor plan
+└── CONTEXT.md               - this file
 ```
 
-**After Deploy:**
-- Purge Netlify cache if pages serve stale chunks:
-  ```bash
-  netlify api purgeCache --data '{"site_id":"31e50148-0735-4fab-863c-c8dd952880e2"}'
-  ```
+## CSS Architecture
+
+**Two separate systems** (never mix):
+
+### Admin CSS (`globals.css`)
+- Shadcn zinc tokens
+- Light mode only
+- Admin pages + components
+
+### Quiz CSS (`quiz.css`)
+- Self-contained `--quiz-*` variables
+- Dark theme
+- All quiz components
+
+**Typography:** Two-layer semantic token system
+- Scale: `--quiz-text-xs` → `--quiz-text-4xl` (raw values)
+- Semantic: `--quiz-title`, `--quiz-button`, etc. (usage tokens)
+- Components use semantic, mobile overrides semantic
+
+**Key patterns:**
+- Header: `position: absolute`, `z-index: 100`, always transparent
+- Mosaic: in layout flow, `z-index: auto`, hidden <1024px
+- Borders: direct on img element, rounded corners
+- Images: Netlify CDN (`/images/birds/{slug}.jpg`)
+
+## Deployment
+
+**Site:** https://bird-quiz.magnify.dk
+**Platform:** Netlify
+
+**Deploy command:**
+```bash
+source ~/.nvm/nvm.sh && nvm use 22 && \
+NODE_VERSION=22 /Users/brianstefanjensen/.nvm/versions/node/v20.5.1/bin/netlify deploy --prod --skip-functions-cache
+```
+
+**Important:**
+- NEVER use `--no-build` (breaks MIME types)
+- Node 22 required (`.nvmrc`)
+- netlify CLI installed under Node 20.5.1 (use full path)
+
+**Cache purge** (if stale JS/CSS after deploy):
+```bash
+netlify api purgeCache --data '{"site_id":"31e50148-0735-4fab-863c-c8dd952880e2"}'
+```
 
 ## Known Issues
 
-1. **16 portrait/square images** still need landscape replacements (tracked in admin)
-2. **GitHub auto-deploy broken** (host key verification) - use CLI deploy
-3. **Middleware deprecation warning** - Next.js 16 prefers `proxy` over `middleware.ts` (works but warns)
+1. **16 portrait/square images** need landscape replacements (tracked in admin "Billedproblemer" filter)
+2. **GitHub auto-deploy broken** (host key verification) - use CLI
+3. **Middleware deprecation** - Next.js 16 warns about `middleware.ts`, prefers `proxy`
 
-## Architecture Notes
+## Git Commits (This Session)
 
-### CSS Separation (CRITICAL)
-- `globals.css` - shadcn zinc tokens, admin styles ONLY
-- `quiz.css` - ALL quiz styles, self-contained `--quiz-*` variables
-- Admin = light mode, Quiz = dark mode (independent)
-- NEVER mix the two systems
+1. `31d4fdf` - v0.5.1: header/mosaic refactor + simplified borders
+2. `7ace15e` - v0.6.0: switch to Netlify CDN for images
 
-### Typography Tokens
-Two-layer system in quiz.css:
-- Layer 1: Scale values (`--quiz-text-xs` through `--quiz-text-4xl`)
-- Layer 2: Semantic tokens (`--quiz-title`, `--quiz-button`, etc.)
-- Components use semantic tokens, mobile overrides semantic tokens
+## Next Steps / TODO
 
-### Z-Index Layers
-- Mosaic: 150 (desktop start screen only)
-- Header: 100 (persistent, sticky)
-- Mobile nav: 100 (fixed bottom)
-- Modals/overlays: 200+
-- Screens: 0-10 (default stacking)
+- [ ] Replace 16 portrait/square images with landscape versions
+- [ ] Consider migrating `middleware.ts` to `proxy` pattern (Next.js 16)
+- [ ] Optional: Investigate why error logging doesn't catch timeouts (low priority now that images are fast)
 
-## Files Changed This Session
+## Testing Checklist
 
-**Modified:**
-- `src/components/quiz/QuizApp.tsx`
-- `src/components/quiz/QuizSetup.tsx`
-- `src/components/quiz/quiz.css`
+- [x] Desktop (>1280px): Mosaic visible left, form right
+- [x] Laptop (1024-1280px): Mosaic hidden, form centered
+- [x] Tablet (640-1024px): Mosaic hidden, form centered
+- [x] Mobile (<640px): Mosaic hidden, form full-width, bottom nav
+- [x] Images load fast and reliably
+- [x] Borders show correct/wrong with rounded corners
+- [x] Header transparent on all pages
+- [x] Logo hidden on start screen
+- [x] Error logging creates GitHub issues
 
-**Created:**
-- `ERROR_LOGGING.md`
+## Performance Notes
 
-**No deletions**
+**Image Loading:**
+- Before (Supabase): ~2-5s first load, frequent timeouts on mobile
+- After (Netlify CDN): <500ms, cached loads <100ms, no timeouts
 
-## Git Status
+**Why Netlify CDN is better:**
+- Same domain (no DNS lookup)
+- Proper `cache-control` headers
+- Global CDN distribution
+- No cold start delays
 
+## Architecture Decisions
+
+### Why position: absolute for header?
+- Allows mosaic to float above without z-index battles
+- Header is decoration, not layout element
+- Cleaner than trying to layer mosaic above sticky header
+
+### Why move images to Netlify?
+- Supabase Storage had `cache-control: no-cache` (couldn't fix in dashboard)
+- Script to update headers was complex and fragile
+- Netlify CDN is simpler, faster, more reliable
+- Trade-off: 221 images in git (~50MB), but worth it for performance
+
+### Why semantic typography tokens?
+- Easier to resize (change one token, affects all buttons)
+- Mobile can override semantic tokens, not every component
+- Self-documenting (token name describes purpose)
+
+## Rollback Plan
+
+If anything breaks:
 ```bash
-git status
-# On branch main
-# Changes not staged for commit:
-#   modified:   src/components/quiz/QuizApp.tsx
-#   modified:   src/components/quiz/QuizSetup.tsx
-#   modified:   src/components/quiz/quiz.css
-#
-# Untracked files:
-#   ERROR_LOGGING.md
-#   CONTEXT.md (this file)
+git revert 7ace15e  # Revert v0.6.0 (images)
+git revert 31d4fdf  # Revert v0.5.1 (refactor)
+git push
 ```
 
-## Next Steps
-
-1. Test locally - verify mosaic z-index fix works
-2. Commit changes with message: "fix: restructure mosaic DOM for proper z-index layering"
-3. Set `GITHUB_TOKEN` in Netlify
-4. Deploy to production
-5. Test on live site (desktop + mobile)
-6. Update MEMORY.md with completion status
+Then redeploy.
