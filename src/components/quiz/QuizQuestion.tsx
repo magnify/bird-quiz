@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import type { QuizQuestion as QuizQuestionType } from '@/lib/quiz/engine'
+import type { Manifest, ManifestEntry } from '@/lib/data/manifest'
 import { useImageErrorHandler } from '@/lib/error-tracking/image-error-handler'
 
 interface QuizQuestionProps {
@@ -12,7 +13,16 @@ interface QuizQuestionProps {
   answered: boolean
   selectedOption: Bird | null
   imageUrls: Map<string, string | null>
+  manifest: Manifest
   onAnswer: (bird: Bird) => void
+}
+
+function formatAttribution(entry: ManifestEntry | undefined): string | null {
+  if (!entry) return null
+  const parts: string[] = []
+  if (entry.attribution) parts.push(entry.attribution)
+  if (entry.license) parts.push(entry.license.toUpperCase())
+  return parts.length ? parts.join(' · ') : null
 }
 
 /**
@@ -25,6 +35,7 @@ function PhotoOptionCard({
   isSelected,
   isDimmed,
   answered,
+  attribution,
   onClick,
 }: {
   bird: Bird
@@ -33,6 +44,7 @@ function PhotoOptionCard({
   isSelected: boolean
   isDimmed: boolean
   answered: boolean
+  attribution: string | null
   onClick: () => void
 }) {
   const [loaded, setLoaded] = useState(false)
@@ -94,6 +106,11 @@ function PhotoOptionCard({
       {(isCorrect || (isSelected && !isCorrect)) && (
         <div className="photo-option-badge">{isCorrect ? '✓' : '✗'}</div>
       )}
+      {attribution && (
+        <div className="photo-option-attribution" title={attribution}>
+          {attribution}
+        </div>
+      )}
       <div className="photo-option-label">{bird.name_da}</div>
     </div>
   )
@@ -109,10 +126,12 @@ export default function QuizQuestion({
   answered,
   selectedOption,
   imageUrls,
+  manifest,
   onAnswer,
 }: QuizQuestionProps) {
   const isPhotoMode = question.mode === 'photo'
   const isCorrectAnswer = selectedOption?.id === question.bird.id
+  const photoAttribution = formatAttribution(manifest.get(question.bird.scientific_name))
 
   // Photo mode state
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -211,9 +230,9 @@ export default function QuizQuestion({
                         handleImageError(e)
                       }}
                     />
-                    {imageLoaded && answered && (
+                    {imageLoaded && photoAttribution && (
                       <div className="photo-attribution">
-                        📷 {question.bird.scientific_name}
+                        📷 {photoAttribution}
                       </div>
                     )}
                   </>
@@ -244,6 +263,7 @@ export default function QuizQuestion({
                       isSelected={selectedOption?.id === opt.id}
                       isDimmed={answered && opt.id !== question.bird.id && opt.id !== selectedOption?.id}
                       answered={answered}
+                      attribution={formatAttribution(manifest.get(opt.scientific_name))}
                       onClick={() => onAnswer(opt)}
                     />
                   ))}

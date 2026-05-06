@@ -744,8 +744,8 @@
   transition: width 0.4s ease;
 }
 
-/* --- Leave confirmation modal --- */
-.leave-modal-overlay {
+/* --- Confirm modal (used for leave-quiz, delete-history, etc.) --- */
+.confirm-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -758,7 +758,7 @@
   padding: var(--quiz-padding-md);
 }
 
-.leave-modal {
+.confirm-modal {
   background: var(--quiz-bg-card);
   border: 1px solid var(--quiz-border);
   border-radius: var(--quiz-radius-lg);
@@ -771,23 +771,23 @@
   gap: var(--quiz-gap-xl);
 }
 
-.leave-modal-title {
+.confirm-modal-title {
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--quiz-foreground);
 }
 
-.leave-modal-text {
+.confirm-modal-text {
   font-size: 0.9rem;
   color: var(--quiz-text-muted);
 }
 
-.leave-modal-actions {
+.confirm-modal-actions {
   display: flex;
   gap: var(--quiz-gap-md);
 }
 
-.leave-modal-actions button {
+.confirm-modal-actions button {
   flex: 1;
   padding: var(--quiz-gap-md) var(--quiz-padding-md);
   border-radius: var(--quiz-radius-pill);
@@ -800,25 +800,35 @@
   letter-spacing: 0.03em;
 }
 
-.leave-modal-continue {
+.confirm-modal-cancel {
   background: transparent;
   border: 2px solid var(--quiz-border-pill-strong);
   color: var(--quiz-text-secondary);
 }
 
-.leave-modal-continue:hover {
+.confirm-modal-cancel:hover {
   background: var(--quiz-bg-hover);
   border-color: var(--quiz-border-pill-hover-strong);
   color: var(--quiz-foreground);
 }
 
-.leave-modal-quit {
+.confirm-modal-danger {
   background: var(--quiz-wrong);
   border: 2px solid var(--quiz-wrong);
   color: var(--quiz-text-light);
 }
 
-.leave-modal-quit:hover {
+.confirm-modal-danger:hover {
+  opacity: 0.9;
+}
+
+.confirm-modal-confirm {
+  background: var(--quiz-accent);
+  border: 2px solid var(--quiz-accent);
+  color: var(--quiz-background);
+}
+
+.confirm-modal-confirm:hover {
   opacity: 0.9;
 }
 
@@ -1229,6 +1239,24 @@
 
 .photo-option.answered .photo-option-label {
   opacity: 1;
+}
+
+.photo-option-attribution {
+  position: absolute;
+  top: var(--quiz-gap-xs);
+  left: var(--quiz-gap-xs);
+  right: var(--quiz-gap-xs);
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  border-radius: var(--quiz-radius-sm);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.625rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 /* --- Results screen --- */

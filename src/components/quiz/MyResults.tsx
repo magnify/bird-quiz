@@ -6,6 +6,7 @@ import { loadResults, clearResults, type QuizResult } from '@/lib/quiz/result-hi
 import { getBirdImageUrl } from '@/lib/images'
 import QuizHeader from './QuizHeader'
 import MobileBottomNav from './MobileBottomNav'
+import ConfirmModal from './ConfirmModal'
 
 function difficultyLabel(d: string): string {
   if (d === 'easy') return 'Lette'
@@ -42,17 +43,17 @@ export default function MyResults() {
   const [results, setResults] = useState<QuizResult[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   useEffect(() => {
     setResults(loadResults())
     setLoaded(true)
   }, [])
 
-  const handleClear = () => {
-    if (confirm('Slet al historik?')) {
-      clearResults()
-      setResults([])
-    }
+  const handleClearConfirm = () => {
+    clearResults()
+    setResults([])
+    setShowClearConfirm(false)
   }
 
   // Aggregate stats
@@ -84,6 +85,16 @@ export default function MyResults() {
 
   return (
     <>
+      {showClearConfirm && (
+        <ConfirmModal
+          title="Slet al historik?"
+          text="Dine quizresultater fjernes permanent fra denne enhed."
+          confirmLabel="Slet"
+          variant="danger"
+          onConfirm={handleClearConfirm}
+          onCancel={() => setShowClearConfirm(false)}
+        />
+      )}
       <QuizHeader activePage="resultater" />
       <div id="my-results-screen" className="screen active">
         <div className="secondary-page-content">
@@ -199,7 +210,7 @@ export default function MyResults() {
             </div>
 
             <div className="my-results-footer">
-              <button className="secondary-btn" onClick={handleClear}>
+              <button className="secondary-btn" onClick={() => setShowClearConfirm(true)}>
                 Slet historik
               </button>
             </div>

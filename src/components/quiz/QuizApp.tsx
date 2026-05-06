@@ -9,11 +9,13 @@ import { AuthProvider, useAuth } from '@/lib/auth/AuthProvider'
 import { migrateGuestData } from '@/app/actions/auth'
 import { getGuestId } from '@/lib/identity/guest'
 import { getBirdImageUrl } from '@/lib/images'
+import { fetchManifest, type Manifest } from '@/lib/data/manifest'
 import QuizSetup from './QuizSetup'
 import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
 import AuthModal from './AuthModal'
 import QuizHeader from './QuizHeader'
+import ConfirmModal from './ConfirmModal'
 import { ErrorBoundary } from '@/lib/error-tracking/ErrorBoundary'
 
 interface QuizAppProps {
@@ -40,6 +42,11 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
   const { user } = useAuth()
   const [showAuth, setShowAuth] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
+  const [manifest, setManifest] = useState<Manifest>(new Map())
+
+  useEffect(() => {
+    fetchManifest().then(setManifest)
+  }, [])
 
   // Zoom transition state
   const tileRefs = useRef<Map<string, HTMLElement>>(new Map())
@@ -161,20 +168,15 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
 
       {showLeaveModal && (
-        <div className="leave-modal-overlay" onClick={() => setShowLeaveModal(false)}>
-          <div className="leave-modal" onClick={e => e.stopPropagation()}>
-            <div className="leave-modal-title">Afslut quiz?</div>
-            <div className="leave-modal-text">Din fremgang gemmes ikke.</div>
-            <div className="leave-modal-actions">
-              <button className="leave-modal-continue" onClick={() => setShowLeaveModal(false)}>
-                Fortsæt
-              </button>
-              <button className="leave-modal-quit" onClick={handleLeaveConfirm}>
-                Afslut
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmModal
+          title="Afslut quiz?"
+          text="Din fremgang gemmes ikke."
+          confirmLabel="Afslut"
+          cancelLabel="Fortsæt"
+          variant="danger"
+          onConfirm={handleLeaveConfirm}
+          onCancel={() => setShowLeaveModal(false)}
+        />
       )}
 
       {/* Persistent header */}
@@ -248,6 +250,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           answered={state.answered}
           selectedOption={state.selectedOption}
           imageUrls={imageUrls}
+          manifest={manifest}
           onAnswer={handleAnswer}
         />
       )}
