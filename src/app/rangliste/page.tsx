@@ -1,7 +1,5 @@
-import Leaderboard from '@/components/quiz/Leaderboard'
-
-export const dynamic = 'force-dynamic'
+import { redirect } from 'next/navigation'
 
 export default function RanglistePage() {
-  return <Leaderboard />
+  redirect('/resultater')
 }

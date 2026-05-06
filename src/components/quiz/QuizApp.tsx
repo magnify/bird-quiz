@@ -262,7 +262,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           imageUrls={imageUrls}
           onRetry={startQuiz}
           onGoHome={goHome}
-          sessionId={state.sessionId}
         />
       )}
 

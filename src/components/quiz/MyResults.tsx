@@ -1,8 +1,9 @@
 'use client'
 
 import '../quiz/quiz.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { loadResults, clearResults, type QuizResult } from '@/lib/quiz/result-history'
+import { getBirdImageUrl } from '@/lib/images'
 import QuizHeader from './QuizHeader'
 import MobileBottomNav from './MobileBottomNav'
 
@@ -62,6 +63,25 @@ export default function MyResults() {
   const bestStreak = results.reduce((s, r) => Math.max(s, r.bestStreak), 0)
   const avgPct = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0
 
+  // Weak birds: birds missed 2+ times across all sessions, sorted by miss count
+  const weakBirds = useMemo(() => {
+    const counts = new Map<string, { nameDa: string; nameEn: string; scientificName: string; count: number }>()
+    for (const r of results) {
+      for (const b of r.missed) {
+        const entry = counts.get(b.scientificName)
+        if (entry) {
+          entry.count++
+        } else {
+          counts.set(b.scientificName, { nameDa: b.nameDa, nameEn: b.nameEn, scientificName: b.scientificName, count: 1 })
+        }
+      }
+    }
+    return [...counts.values()]
+      .filter(b => b.count >= 2)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+  }, [results])
+
   return (
     <>
       <QuizHeader activePage="resultater" />
@@ -98,6 +118,30 @@ export default function MyResults() {
               </div>
             </div>
 
+            {weakBirds.length > 0 && (
+              <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
+                <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-md)' }}>Svage fugle</p>
+                <div className="missed-list">
+                  {weakBirds.map(bird => (
+                    <div key={bird.scientificName} className="missed-item">
+                      <img
+                        className="missed-item-thumb"
+                        src={getBirdImageUrl(bird.scientificName)}
+                        alt={bird.nameDa}
+                      />
+                      <div className="missed-item-info">
+                        <div className="missed-item-da">{bird.nameDa}</div>
+                        <div className="missed-item-en">{bird.nameEn}</div>
+                      </div>
+                      <span className="result-card-points" style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                        ×{bird.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="my-results-list">
               {results.map(r => {
                 const pct = Math.round((r.score / r.totalQuestions) * 100)
@@ -124,7 +168,7 @@ export default function MyResults() {
                           {r.points.toLocaleString('da-DK')} pt
                         </span>
                       </div>
-                      <span className="result-card-chevron">{isExpanded ? '\u25B2' : '\u25BC'}</span>
+                      <span className="result-card-chevron">{isExpanded ? '▲' : '▼'}</span>
                     </button>
 
                     {isExpanded && (
