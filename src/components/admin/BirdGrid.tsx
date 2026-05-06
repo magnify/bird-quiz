@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { flagBirdImage, unflagBirdImage } from '@/app/actions/birds'
-import { getBirdImageUrl } from '@/lib/images'
+import { getSupabaseImageUrl } from '@/lib/images'
 
 type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait'
 
@@ -47,38 +47,44 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
   const [search, setSearch] = useState('')
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set(initialFlaggedBirdIds))
   const [selectedBird, setSelectedBird] = useState<Bird | null>(null)
-  const [imageVersions, setImageVersions] = useState<Map<string, number>>(() => new Map())
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  // Build image data map from Supabase Storage URLs with cache-busting
+  // Build image data map from direct Supabase URLs (bypasses all caching)
   const imageData = new Map<string, ImageData>(
     birds.map(b => {
-      const version = imageVersions.get(b.id)
-      const url = getBirdImageUrl(b.scientific_name) + (version ? `?v=${version}` : '')
+      // Admin uses direct Supabase URLs with timestamp - always fresh
+      const url = `${getSupabaseImageUrl(b.scientific_name)}?t=${refreshKey}`
       return [b.id, { url, source: 'supabase', status: 'loaded' }]
     })
   )
 
-  const handleImageChanged = useCallback((birdId: string) => {
-    setImageVersions(prev => {
-      const next = new Map(prev)
-      next.set(birdId, Date.now())
-      return next
-    })
+  const handleImageChanged = useCallback(() => {
+    // Force re-render with fresh timestamp to bypass Supabase CDN cache
+    setRefreshKey(Date.now())
   }, [])
 
-  const toggleFlag = useCallback((birdId: string) => {
+  const toggleFlag = useCallback(async (birdId: string, reason?: string) => {
+    const wasFlagged = flaggedIds.has(birdId)
     setFlaggedIds(prev => {
       const next = new Set(prev)
-      if (next.has(birdId)) {
-        next.delete(birdId)
-        unflagBirdImage(birdId)
-      } else {
-        next.add(birdId)
-        flagBirdImage(birdId, 'needs_replacement')
-      }
+      if (wasFlagged) next.delete(birdId)
+      else next.add(birdId)
       return next
     })
-  }, [])
+    const result = wasFlagged
+      ? await unflagBirdImage(birdId)
+      : await flagBirdImage(birdId, reason || 'needs_replacement')
+    if (!result.ok) {
+      console.error('Flag toggle failed:', result.error)
+      setFlaggedIds(prev => {
+        const next = new Set(prev)
+        if (wasFlagged) next.add(birdId)
+        else next.delete(birdId)
+        return next
+      })
+      alert(`Kunne ikke ${wasFlagged ? 'fjerne markering' : 'markere'}: ${result.error}`)
+    }
+  }, [flaggedIds])
 
   // Filter birds
   const filtered = birds.filter(bird => {
@@ -199,9 +205,9 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
           bird={selectedBird}
           imageData={imageData.get(selectedBird.id) || null}
           isFlagged={flaggedIds.has(selectedBird.id)}
-          onToggleFlag={() => toggleFlag(selectedBird.id)}
+          onToggleFlag={(reason) => toggleFlag(selectedBird.id, reason)}
           onClose={() => setSelectedBird(null)}
-          onImageChanged={() => handleImageChanged(selectedBird.id)}
+          onImageChanged={handleImageChanged}
         />
       )}
     </>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/server'
-import { toSlug, getBirdImageUrl } from '@/lib/images'
+import { toSlug, getSupabaseImageUrl } from '@/lib/images'
 
 const SALT = 'dansk-fugleviden-admin-2026'
 const BUCKET = 'bird-images'
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       throw new Error(uploadError.message)
     }
 
-    return NextResponse.json({ ok: true, path: getBirdImageUrl(scientificName) })
+    return NextResponse.json({ ok: true, path: getSupabaseImageUrl(scientificName) })
   } catch (err) {
     console.error('Crop error:', err)
     const message = err instanceof Error ? err.message : 'Failed to save cropped image'

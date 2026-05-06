@@ -144,6 +144,11 @@ export default function ImageCropEditor({ scientificName, imageUrl, onCropped, o
 
   return (
     <div className="space-y-3">
+      <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 rounded px-3 py-2">
+        <strong>4:3 liggende format</strong> — Billedet vises i denne format i quizzen.
+        Beskær så fuglen fylder godt i rammen.
+      </div>
+
       <ReactCrop
         crop={crop}
         onChange={(c) => setCrop(c)}

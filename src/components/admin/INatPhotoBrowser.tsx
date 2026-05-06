@@ -60,7 +60,8 @@ export default function INatPhotoBrowser({ scientificName, onReplace }: Props) {
 
     try {
       const searchName = encodeURIComponent(query)
-      const url = `https://api.inaturalist.org/v1/observations?taxon_name=${searchName}&photos=true&quality_grade=research&per_page=20&order_by=votes&photo_license=cc-by,cc-by-nc,cc-by-sa,cc-by-nc-sa`
+      // Only fetch CC0 (no attribution required)
+      const url = `https://api.inaturalist.org/v1/observations?taxon_name=${searchName}&photos=true&quality_grade=research&per_page=20&order_by=votes&photo_license=cc0`
       const res = await fetch(url)
       if (!res.ok) throw new Error(`iNaturalist API error: ${res.status}`)
 
@@ -113,6 +114,11 @@ export default function INatPhotoBrowser({ scientificName, onReplace }: Props) {
 
   return (
     <div className="space-y-3">
+      <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 rounded px-3 py-2">
+        <strong>Kun CC0 licens</strong> — ingen kredit påkrævet, fri til kommerciel brug.
+        Foretræklig liggende billeder (grøn L-badge).
+      </div>
+
       <div className="flex gap-2">
         <Input
           value={query}
@@ -143,8 +149,13 @@ export default function INatPhotoBrowser({ scientificName, onReplace }: Props) {
             alt="Valgt billede"
             className="w-full rounded object-contain max-h-64"
           />
-          <div className="text-xs text-muted-foreground break-all">
-            {selected.attribution}
+          <div className="text-xs space-y-1">
+            <div className="text-muted-foreground break-all">
+              {selected.attribution}
+            </div>
+            <div className="text-blue-600 font-medium">
+              Licens: {selected.license.toUpperCase()}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button size="sm" onClick={handleUsePhoto} disabled={replacing}>
@@ -181,7 +192,7 @@ export default function INatPhotoBrowser({ scientificName, onReplace }: Props) {
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute top-1 right-1">
+              <div className="absolute top-1 right-1 flex flex-col gap-1 items-end">
                 <span
                   className={`inline-flex items-center gap-0.5 text-[10px] font-medium px-1 py-0.5 rounded ${
                     photo.isLandscape
@@ -191,6 +202,12 @@ export default function INatPhotoBrowser({ scientificName, onReplace }: Props) {
                 >
                   <ImageIcon className="size-2.5" />
                   {photo.isLandscape ? 'L' : 'P'}
+                </span>
+                <span
+                  className="text-[10px] font-medium px-1 py-0.5 rounded bg-blue-100 text-blue-700"
+                  title="Commercial use OK"
+                >
+                  {photo.license.toUpperCase()}
                 </span>
               </div>
             </button>

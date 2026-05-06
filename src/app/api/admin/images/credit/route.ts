@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { scientificName, attribution } = await request.json()
+    const { scientificName, attribution, license } = await request.json()
     if (!scientificName) {
       return NextResponse.json({ error: 'Missing scientificName' }, { status: 400 })
     }
@@ -68,10 +68,22 @@ export async function POST(request: NextRequest) {
       manifest[scientificName] = { file: `${slug}.jpg`, source: 'unknown' }
     }
 
-    if (attribution) {
-      manifest[scientificName].attribution = attribution
-    } else {
-      delete manifest[scientificName].attribution
+    // Update attribution
+    if (attribution !== undefined) {
+      if (attribution) {
+        manifest[scientificName].attribution = attribution
+      } else {
+        delete manifest[scientificName].attribution
+      }
+    }
+
+    // Update license
+    if (license !== undefined) {
+      if (license) {
+        manifest[scientificName].license = license
+      } else {
+        delete manifest[scientificName].license
+      }
     }
 
     const buffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')

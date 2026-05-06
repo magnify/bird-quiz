@@ -12,10 +12,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Flag, ExternalLink, Crop, Replace, X, Pencil, Check, Loader2 } from 'lucide-react'
+import { Flag, Crop, Replace, X, Pencil, Check, Loader2, Clock } from 'lucide-react'
 import ImageCropEditor from './ImageCropEditor'
 import ImageUploader from './ImageUploader'
 import INatPhotoBrowser from './INatPhotoBrowser'
+import CommonsPhotoBrowser from './CommonsPhotoBrowser'
 
 interface ImageData {
   url: string | null
@@ -27,32 +28,66 @@ interface Props {
   bird: Bird
   imageData: ImageData | null
   isFlagged: boolean
-  onToggleFlag: () => void
+  needsReview?: boolean
+  onToggleFlag: (reason?: string) => void
   onClose: () => void
   onImageChanged?: () => void
+  onApproved?: (scientificName: string) => void
 }
 
-type ReplaceTab = 'upload' | 'inaturalist'
+const FLAG_REASONS: { value: string; label: string }[] = [
+  { value: 'wrong-species', label: 'Forkert art' },
+  { value: 'bad-crop', label: 'Dårlig komposition' },
+  { value: 'low-quality', label: 'Lav kvalitet' },
+  { value: 'licensing', label: 'Licens-problem' },
+  { value: 'other', label: 'Andet' },
+]
 
-export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFlag, onClose, onImageChanged }: Props) {
+type ReplaceTab = 'upload' | 'inaturalist' | 'commons'
+
+export default function BirdDetailModal({ bird, imageData, isFlagged, needsReview = false, onToggleFlag, onClose, onImageChanged, onApproved }: Props) {
   const [cropping, setCropping] = useState(false)
   const [replacing, setReplacing] = useState(false)
-  const [replaceTab, setReplaceTab] = useState<ReplaceTab>('inaturalist')
+  const [replaceTab, setReplaceTab] = useState<ReplaceTab>('commons')
   const [imageUrl, setImageUrl] = useState(imageData?.url ?? null)
 
   const [credit, setCredit] = useState<string | null>(null)
+  const [license, setLicense] = useState<string | null>(null)
   const [editingCredit, setEditingCredit] = useState(false)
+  const [editingLicense, setEditingLicense] = useState(false)
   const [creditDraft, setCreditDraft] = useState('')
+  const [licenseDraft, setLicenseDraft] = useState('')
   const [savingCredit, setSavingCredit] = useState(false)
+  const [savingLicense, setSavingLicense] = useState(false)
+  const [approving, setApproving] = useState(false)
+  const [approved, setApproved] = useState(false)
+  const [pickingReason, setPickingReason] = useState(false)
 
   useEffect(() => {
     fetch(`/api/admin/images/credit?bird=${encodeURIComponent(bird.scientific_name)}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data?.attribution) setCredit(data.attribution)
+        if (data?.license) setLicense(data.license)
       })
       .catch(() => {})
   }, [bird.scientific_name])
+
+  const handleApprove = useCallback(async () => {
+    setApproving(true)
+    try {
+      const res = await fetch('/api/admin/images/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scientificName: bird.scientific_name }),
+      })
+      if (res.ok) {
+        setApproved(true)
+        onApproved?.(bird.scientific_name)
+      }
+    } catch {}
+    setApproving(false)
+  }, [bird.scientific_name, onImageChanged])
 
   const saveCredit = useCallback(async () => {
     setSavingCredit(true)
@@ -65,21 +100,41 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
       if (res.ok) {
         setCredit(creditDraft || null)
         setEditingCredit(false)
+        onImageChanged?.() // Refresh audit status
       }
     } catch {}
     setSavingCredit(false)
-  }, [bird.scientific_name, creditDraft])
+  }, [bird.scientific_name, creditDraft, onImageChanged])
 
-  const wikiUrl = `https://da.wikipedia.org/wiki/${encodeURIComponent(bird.scientific_name.replace(/ /g, '_'))}`
-  const commonsUrl = `https://commons.wikimedia.org/w/index.php?search=${encodeURIComponent(bird.scientific_name)}&title=Special:MediaSearch&type=image`
+  const saveLicense = useCallback(async () => {
+    setSavingLicense(true)
+    try {
+      const res = await fetch('/api/admin/images/credit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scientificName: bird.scientific_name, license: licenseDraft }),
+      })
+      if (res.ok) {
+        setLicense(licenseDraft || null)
+        setEditingLicense(false)
+        onImageChanged?.() // Refresh audit status
+      }
+    } catch {}
+    setSavingLicense(false)
+  }, [bird.scientific_name, licenseDraft, onImageChanged])
+
 
   const handleReplaceSuccess = (newPath: string) => {
-    setImageUrl(newPath + `?t=${Date.now()}`)
+    // API already returns direct Supabase URL with timestamp
+    console.log('[Replace] Success! Setting new image URL:', newPath)
+    setImageUrl(newPath)
     setReplacing(false)
     onImageChanged?.()
   }
 
   const handleUpload = async (file: File, attribution?: string) => {
+    console.log('[Upload] Starting file upload:', { scientificName: bird.scientific_name, fileName: file.name, size: file.size, attribution })
+
     const formData = new FormData()
     formData.append('file', file, file.name)
     formData.append('scientificName', bird.scientific_name)
@@ -90,24 +145,43 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
       body: formData,
     })
 
+    console.log('[Upload] API response status:', res.status)
+
     if (!res.ok) {
       const data = await res.json()
+      console.error('[Upload] API error:', data)
       throw new Error(data.error || 'Upload fejlede')
     }
 
     const data = await res.json()
+    console.log('[Upload] API success:', data)
+
+    // Update credit field if attribution provided
+    if (attribution) {
+      setCredit(attribution)
+      setCreditDraft(attribution)
+    }
+
     handleReplaceSuccess(data.path)
   }
 
-  const handleINatReplace = async (url: string, attribution: string, license: string) => {
+  const handleRemoteReplace = async (opts: {
+    url: string
+    attribution: string
+    license: string
+    source: string
+    sourceUrl?: string
+  }) => {
     const res = await fetch('/api/admin/images/replace', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         scientificName: bird.scientific_name,
-        url,
-        attribution,
-        license,
+        url: opts.url,
+        attribution: opts.attribution,
+        license: opts.license,
+        source: opts.source,
+        source_url: opts.sourceUrl,
       }),
     })
 
@@ -117,14 +191,37 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
     }
 
     const data = await res.json()
+
+    setCredit(opts.attribution)
+    setCreditDraft(opts.attribution)
+    setLicense(opts.license)
+    setLicenseDraft(opts.license)
+
     handleReplaceSuccess(data.path)
   }
+
+  const handleINatReplace = (url: string, attribution: string, license: string) =>
+    handleRemoteReplace({ url, attribution, license, source: 'inaturalist' })
+
+  const handleCommonsReplace = (photo: {
+    fullUrl: string
+    attribution: string
+    license: string
+    descriptionUrl: string
+  }) =>
+    handleRemoteReplace({
+      url: photo.fullUrl,
+      attribution: photo.attribution,
+      license: photo.license,
+      source: 'wikimedia-commons',
+      sourceUrl: photo.descriptionUrl,
+    })
 
   const showNormalView = !cropping && !replacing
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden" showCloseButton={!replacing && !cropping}>
         {cropping && imageUrl ? (
           <div className="p-4">
             <ImageCropEditor
@@ -148,6 +245,16 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
             </div>
 
             <div className="flex gap-1 border-b">
+              <button
+                className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
+                  replaceTab === 'commons'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setReplaceTab('commons')}
+              >
+                Wikimedia
+              </button>
               <button
                 className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
                   replaceTab === 'inaturalist'
@@ -174,6 +281,11 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
               <ImageUploader
                 scientificName={bird.scientific_name}
                 onReplace={handleUpload}
+              />
+            ) : replaceTab === 'commons' ? (
+              <CommonsPhotoBrowser
+                scientificName={bird.scientific_name}
+                onReplace={handleCommonsReplace}
               />
             ) : (
               <INatPhotoBrowser
@@ -249,8 +361,117 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
                   </div>
                 )}
               </div>
+              <div>
+                <div className="text-xs font-medium text-muted-foreground mb-1">Licens</div>
+                {editingLicense ? (
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="text"
+                      value={licenseDraft}
+                      onChange={e => setLicenseDraft(e.target.value)}
+                      placeholder="own, cc0, cc-by, etc."
+                      className="text-xs h-8"
+                      autoFocus
+                      onKeyDown={e => e.key === 'Enter' && saveLicense()}
+                    />
+                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveLicense} disabled={savingLicense}>
+                      {savingLicense ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setEditingLicense(false)}>
+                      <X className="size-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    className="text-xs p-2 rounded bg-muted text-muted-foreground flex items-center justify-between cursor-pointer hover:bg-muted/80"
+                    onClick={() => { setLicenseDraft(license || ''); setEditingLicense(true) }}
+                  >
+                    <span>{license || 'Ingen licens'}</span>
+                    <Pencil className="size-3 opacity-50" />
+                  </div>
+                )}
+              </div>
             </div>
           )}
+
+          {showNormalView && (() => {
+            const status: 'flagged' | 'review' | 'approved' =
+              isFlagged ? 'flagged' : (needsReview && !approved) ? 'review' : 'approved'
+
+            const setApproved = async () => {
+              if (isFlagged) onToggleFlag()
+              if (needsReview && !approved) await handleApprove()
+            }
+
+            return (
+              <div className="space-y-2">
+                <div className="text-xs font-medium text-muted-foreground">Status</div>
+                <div className="flex gap-1 p-1 rounded-md border bg-muted/40 w-fit">
+                  <Button
+                    variant={status === 'approved' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-7"
+                    onClick={setApproved}
+                    disabled={approving || status === 'approved'}
+                  >
+                    {approving ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <Check className="size-3.5 mr-1.5" />}
+                    Godkendt
+                  </Button>
+                  <Button
+                    variant={status === 'review' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="h-7"
+                    disabled
+                    title="Sættes automatisk ved bulk-erstatning"
+                  >
+                    <Clock className="size-3.5 mr-1.5" />
+                    Afventer
+                  </Button>
+                  <Button
+                    variant={status === 'flagged' ? 'destructive' : 'ghost'}
+                    size="sm"
+                    className="h-7"
+                    onClick={() => setPickingReason(v => !v)}
+                  >
+                    <Flag className="size-3.5 mr-1.5" />
+                    Markeret
+                  </Button>
+                </div>
+                {status === 'review' && (
+                  <div className="text-xs text-muted-foreground">
+                    Auto-erstattet — klik Godkendt for at bekræfte
+                  </div>
+                )}
+                {pickingReason && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <span className="text-xs text-muted-foreground self-center mr-1">Årsag:</span>
+                    {FLAG_REASONS.map(r => (
+                      <Button
+                        key={r.value}
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => {
+                          onToggleFlag(r.value)
+                          setPickingReason(false)
+                        }}
+                      >
+                        {r.label}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setPickingReason(false)}
+                    >
+                      Annullér
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
           <div className="flex gap-2 flex-wrap">
             {showNormalView && imageUrl && (
@@ -283,22 +504,6 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, onToggleFl
                 Tilføj billede
               </Button>
             )}
-            <Button
-              variant={isFlagged ? 'destructive' : 'outline'}
-              size="sm"
-              onClick={onToggleFlag}
-            >
-              <Flag className="size-3.5 mr-1.5" />
-              {isFlagged ? 'Fjern markering' : 'Markér billede'}
-            </Button>
-            <Button variant="outline" size="sm" render={<a href={wikiUrl} target="_blank" rel="noopener noreferrer" />}>
-              <ExternalLink className="size-3.5 mr-1.5" />
-              Wikipedia (da)
-            </Button>
-            <Button variant="outline" size="sm" render={<a href={commonsUrl} target="_blank" rel="noopener noreferrer" />}>
-              <ExternalLink className="size-3.5 mr-1.5" />
-              Wikimedia Commons
-            </Button>
           </div>
         </div>
       </DialogContent>

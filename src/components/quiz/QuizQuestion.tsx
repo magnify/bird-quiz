@@ -199,17 +199,24 @@ export default function QuizQuestion({
                   )}
                 </div>
                 {imageUrls.get(question.bird.id) && (
-                  <img
-                    ref={imgRef}
-                    className={`bird-photo ${imageLoaded ? 'loaded' : ''} ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`}
-                    src={imageUrls.get(question.bird.id)!}
-                    alt="Fuglebillede"
-                    onLoad={() => { loadedRef.current = true; setImageLoaded(true) }}
-                    onError={(e) => {
-                      setImageFailed(true)
-                      handleImageError(e)
-                    }}
-                  />
+                  <>
+                    <img
+                      ref={imgRef}
+                      className={`bird-photo ${imageLoaded ? 'loaded' : ''} ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`}
+                      src={imageUrls.get(question.bird.id)!}
+                      alt="Fuglebillede"
+                      onLoad={() => { loadedRef.current = true; setImageLoaded(true) }}
+                      onError={(e) => {
+                        setImageFailed(true)
+                        handleImageError(e)
+                      }}
+                    />
+                    {imageLoaded && answered && (
+                      <div className="photo-attribution">
+                        📷 {question.bird.scientific_name}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

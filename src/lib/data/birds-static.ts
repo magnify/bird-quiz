@@ -53,7 +53,7 @@ const LEGACY_BIRDS: LegacyBird[] = [
   { da: "Stær", en: "Common Starling", sci: "Sturnus vulgaris", cat: "standfugl", common: true },
   { da: "Jernspurv", en: "Dunnock", sci: "Prunella modularis", cat: "standfugl", common: true },
   { da: "Gærdesmutte", en: "Eurasian Wren", sci: "Troglodytes troglodytes", cat: "standfugl", common: true },
-  { da: "Rødkælk", en: "European Robin", sci: "Erithacus rubecula", cat: "standfugl", common: true },
+  { da: "Rødhals", en: "European Robin", sci: "Erithacus rubecula", cat: "standfugl", common: true },
   { da: "Knopsvane", en: "Mute Swan", sci: "Cygnus olor", cat: "standfugl", common: true },
   { da: "Sangsvane", en: "Whooper Swan", sci: "Cygnus cygnus", cat: "trækfugl", common: false },
   { da: "Pibesvane", en: "Tundra Swan", sci: "Cygnus columbianus", cat: "trækfugl", common: false },

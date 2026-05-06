@@ -888,6 +888,24 @@
   opacity: 1;
 }
 
+/* Photo attribution overlay - bottom left corner */
+.photo-attribution {
+  position: absolute;
+  bottom: var(--quiz-padding-sm);
+  left: var(--quiz-padding-sm);
+  background: rgba(0, 0, 0, 0.65);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--quiz-text-xs);
+  padding: 4px 8px;
+  border-radius: var(--quiz-radius-sm);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .photo-stage-inner .photo-loading {
   position: absolute;
   inset: 0;

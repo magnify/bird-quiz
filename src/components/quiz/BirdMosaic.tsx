@@ -106,7 +106,7 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
         <div
           key={colIdx}
           className="mosaic-column"
-          style={{ transform: `translateY(${stableOffsets.current[colIdx]}%)` }}
+          style={/* dynamic */ { transform: `translateY(${stableOffsets.current[colIdx]}%)` }}
         >
           {col.map((bird, rowIdx) => {
             const url = getBirdImageUrl(bird.scientific_name)

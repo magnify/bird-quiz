@@ -10,6 +10,34 @@ interface Props {
   onReplace: (file: File, attribution?: string) => Promise<void>
 }
 
+const MAX_DIMENSION = 2000
+const JPEG_QUALITY = 0.85
+const RESIZE_THRESHOLD_BYTES = 2 * 1024 * 1024
+
+async function downscaleIfLarge(file: File): Promise<File> {
+  if (file.size < RESIZE_THRESHOLD_BYTES) return file
+
+  const bitmap = await createImageBitmap(file)
+  const longEdge = Math.max(bitmap.width, bitmap.height)
+  if (longEdge <= MAX_DIMENSION && file.size < RESIZE_THRESHOLD_BYTES) return file
+
+  const scale = Math.min(1, MAX_DIMENSION / longEdge)
+  const w = Math.round(bitmap.width * scale)
+  const h = Math.round(bitmap.height * scale)
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(bitmap, 0, 0, w, h)
+  bitmap.close()
+
+  const blob = await new Promise<Blob | null>(resolve =>
+    canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY),
+  )
+  if (!blob) throw new Error('Kunne ikke komprimere billede')
+  return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
+}
+
 export default function ImageUploader({ scientificName, onReplace }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -33,7 +61,8 @@ export default function ImageUploader({ scientificName, onReplace }: Props) {
     setError(null)
 
     try {
-      await onReplace(file, attribution || undefined)
+      const prepared = await downscaleIfLarge(file)
+      await onReplace(prepared, attribution || undefined)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload fejlede')
     } finally {
@@ -51,6 +80,11 @@ export default function ImageUploader({ scientificName, onReplace }: Props) {
 
   return (
     <div className="space-y-3">
+      <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 rounded px-3 py-2">
+        <strong>Anbefalet:</strong> Liggende billede i 4:3 format (1200×900px eller større).
+        Efter upload kan du beskære billedet.
+      </div>
+
       <input
         ref={inputRef}
         type="file"

@@ -80,7 +80,7 @@ export default function QuizHeader({
           aria-valuemax={totalQuestions}
           aria-label={`Spørgsmål ${currentQuestion} af ${totalQuestions}`}
         >
-          <div className="progress-bar" style={{ width: `${progress}%` }} />
+          <div className="progress-bar" style={/* dynamic */ { width: `${progress}%` }} />
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/server'
-import { toSlug, getBirdImageUrl } from '@/lib/images'
+import { toSlug, getSupabaseImageUrl } from '@/lib/images'
 
 const SALT = 'dansk-fugleviden-admin-2026'
 const BUCKET = 'bird-images'
@@ -21,6 +21,7 @@ interface ManifestEntry {
   source: string
   attribution?: string
   license?: string
+  source_url?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
     let source: string
     let attribution: string | undefined
     let license: string | undefined
+    let sourceUrl: string | undefined
 
     if (contentType.includes('multipart/form-data')) {
       // Upload mode: FormData with file + scientificName
@@ -49,24 +51,27 @@ export async function POST(request: NextRequest) {
       attribution = (formData.get('attribution') as string) || undefined
       source = 'upload'
     } else {
-      // iNaturalist mode: JSON with url + scientificName + attribution + license
+      // Remote mode: JSON with url + scientificName + attribution + license (+ optional source, source_url)
       const body = await request.json()
       scientificName = body.scientificName
       const url = body.url as string
       attribution = body.attribution as string | undefined
       license = body.license as string | undefined
+      sourceUrl = body.source_url as string | undefined
+      source = (body.source as string) || 'inaturalist'
 
       if (!url || !scientificName) {
         return NextResponse.json({ error: 'Missing url or scientificName' }, { status: 400 })
       }
 
       // Download image server-side (avoids CORS)
-      const res = await fetch(url)
+      const res = await fetch(url, {
+        headers: source === 'wikimedia-commons' ? { 'User-Agent': 'bird-quiz/1.0 (https://bird-quiz.magnify.dk)' } : {},
+      })
       if (!res.ok) {
         return NextResponse.json({ error: `Failed to download image: ${res.status}` }, { status: 502 })
       }
       imageBuffer = Buffer.from(await res.arrayBuffer())
-      source = 'inaturalist'
     }
 
     const slug = toSlug(scientificName)
@@ -86,10 +91,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Upload the replacement image
+    // Upload the replacement image with no-cache header to prevent CDN caching issues
     const { error: uploadError } = await storage.upload(`${slug}.jpg`, imageBuffer, {
       upsert: true,
       contentType: 'image/jpeg',
+      cacheControl: 'public, max-age=0, must-revalidate', // Prevent stale cache after replacement
     })
 
     if (uploadError) {
@@ -109,6 +115,7 @@ export async function POST(request: NextRequest) {
       source,
       ...(attribution && { attribution }),
       ...(license && { license }),
+      ...(sourceUrl && { source_url: sourceUrl }),
     }
 
     const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
@@ -117,7 +124,10 @@ export async function POST(request: NextRequest) {
       contentType: 'application/json',
     })
 
-    return NextResponse.json({ ok: true, path: getBirdImageUrl(scientificName) })
+    // Return direct Supabase URL for admin (bypasses caching)
+    const directUrl = getSupabaseImageUrl(scientificName)
+    const cacheBustedUrl = `${directUrl}?t=${Date.now()}`
+    return NextResponse.json({ ok: true, path: cacheBustedUrl })
   } catch (err) {
     console.error('Replace error:', err)
     const message = err instanceof Error ? err.message : 'Failed to replace image'
