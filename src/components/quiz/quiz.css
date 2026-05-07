@@ -310,7 +310,7 @@ body:has(.screen.active) {
     padding: var(--quiz-gap-xs) var(--quiz-gap-sm);
     text-decoration: none;
     color: var(--quiz-text-muted);
-    border-radius: var(--quiz-radius-md);
+    border-radius: var(--quiz-radius-pill);
     transition: color var(--quiz-transition), background-color var(--quiz-transition);
   }
 
@@ -673,8 +673,9 @@ body:has(.screen.active) {
 }
 
 /* Start screen: shift the whole header grid to the right of the mosaic so
-   the centered nav pill aligns with the form column instead of the viewport. */
-@media (min-width: 641px) {
+   the centered nav pill aligns with the form column instead of the viewport.
+   Only above 1024px — below that, mosaic is hidden and form is viewport-centered. */
+@media (min-width: 1025px) {
   .app-header[data-align="form"] .app-header-inner {
     padding-left: var(--mosaic-width);
   }
