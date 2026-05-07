@@ -182,6 +182,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
       {/* Persistent header */}
       <QuizHeader
         hideLogo={isStart}
+        alignToForm={isStart}
         showProgress={state.screen === 'quiz'}
         progress={progress}
         currentQuestion={state.currentQuestion + 1}

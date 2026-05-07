@@ -104,7 +104,25 @@ export default function MyResults() {
           <div className="leaderboard-loading">Indlæser...</div>
         ) : totalGames === 0 ? (
           <div className="my-results-empty">
-            <p className="my-results-empty-text">Ingen resultater endnu.</p>
+            <svg
+              className="my-results-empty-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 3v18h18" />
+              <path d="M18 17V9" />
+              <path d="M13 17V5" />
+              <path d="M8 17v-3" />
+            </svg>
+            <h2 className="my-results-empty-title">Ingen resultater endnu</h2>
+            <p className="my-results-empty-text">
+              Tag din første quiz for at følge din score, dine svage fugle og din historik.
+            </p>
             <div className="my-results-empty-actions">
               <a href="/" className="start-quiz-link">Spil en quiz &rarr;</a>
             </div>

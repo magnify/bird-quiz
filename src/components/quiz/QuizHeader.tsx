@@ -14,6 +14,7 @@ interface QuizHeaderProps {
   isQuizActive?: boolean
   onNavClick?: (href: string) => void
   hideLogo?: boolean
+  alignToForm?: boolean
 }
 
 export default function QuizHeader({
@@ -28,6 +29,7 @@ export default function QuizHeader({
   isQuizActive = false,
   onNavClick,
   hideLogo = false,
+  alignToForm = false,
 }: QuizHeaderProps) {
   const LogoElement = onLogoClick ? 'button' : 'a'
   const logoProps = onLogoClick
@@ -35,7 +37,7 @@ export default function QuizHeader({
     : { href: '/' }
 
   return (
-    <div className="app-header">
+    <div className="app-header" {...(alignToForm ? { 'data-align': 'form' } : {})}>
       <div className="app-header-inner">
         {!hideLogo && (
           <LogoElement
