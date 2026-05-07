@@ -10,6 +10,23 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
   return (
     <nav className="mobile-bottom-nav">
       <a
+        href="/"
+        className={`mobile-nav-item ${activePage === 'home' ? 'active' : ''}`}
+        onClick={(e) => {
+          if (isQuizActive && onNavClick) {
+            e.preventDefault()
+            onNavClick('/')
+          }
+        }}
+      >
+        <svg className="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 11l3-8 3 8"/>
+          <path d="M5 14c0-2 2-4 7-4s7 2 7 4-2 6-7 6-7-4-7-6z"/>
+          <circle cx="14" cy="13" r="0.5" fill="currentColor"/>
+        </svg>
+        <span className="mobile-nav-label">Quiz</span>
+      </a>
+      <a
         href="/resultater"
         className={`mobile-nav-item ${activePage === 'resultater' ? 'active' : ''}`}
         onClick={(e) => {
