@@ -20,9 +20,8 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
         }}
       >
         <svg className="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 11l3-8 3 8"/>
-          <path d="M5 14c0-2 2-4 7-4s7 2 7 4-2 6-7 6-7-4-7-6z"/>
-          <circle cx="14" cy="13" r="0.5" fill="currentColor"/>
+          <path d="M3 12l9-9 9 9"/>
+          <path d="M5 10v10a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V10"/>
         </svg>
         <span className="mobile-nav-label">Quiz</span>
       </a>
