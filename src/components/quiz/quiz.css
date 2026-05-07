@@ -241,15 +241,20 @@
 
 /* Floating nav removed - using header nav on all pages now */
 
-/* Unified navigation link (used in floating nav, header nav, secondary pages) */
+/* Pill nav (desktop header) — mirrors mobile-bottom-nav visual language */
 .secondary-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--quiz-gap-xs) var(--quiz-gap-lg);
   color: var(--quiz-text-muted);
   text-decoration: none;
   font-size: var(--quiz-text-sm);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  transition: color var(--quiz-transition);
+  border-radius: var(--quiz-radius-pill);
+  transition: color var(--quiz-transition), background-color var(--quiz-transition);
 }
 
 .secondary-nav-link:hover {
@@ -258,6 +263,7 @@
 
 .secondary-nav-link.active {
   color: var(--quiz-accent);
+  background: var(--quiz-accent-glow);
 }
 
 /* Mobile bottom navigation */
@@ -633,16 +639,26 @@
 }
 
 .app-header-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: var(--quiz-padding-xs) var(--quiz-padding-md);
   gap: var(--quiz-gap-md);
 }
 
-/* When logo is hidden, keep nav on right */
-.app-header-inner:not(:has(.app-header-left)) {
-  justify-content: flex-end;
+.app-header-left {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.app-header-center {
+  grid-column: 2;
+  justify-self: center;
+}
+
+.app-header-right {
+  grid-column: 3;
+  justify-self: end;
 }
 
 .app-header-left {
@@ -1674,11 +1690,16 @@ details.results-missed[open] .missed-summary {
 }
 
 .secondary-nav-tabs {
-  display: flex;
-  gap: var(--quiz-gap-xl);
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--quiz-gap-xs);
+  padding: var(--quiz-gap-xs);
+  background: color-mix(in srgb, var(--quiz-bg-secondary) 92%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--quiz-border);
+  border-radius: var(--quiz-radius-pill);
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--quiz-background) 40%, transparent);
 }
 
 .leaderboard-filters {

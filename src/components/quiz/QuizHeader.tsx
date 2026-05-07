@@ -51,37 +51,40 @@ export default function QuizHeader({
         )}
 
         <div className="app-header-center">
-          {centerContent}
+          {centerContent ? (
+            centerContent
+          ) : (
+            <div className="secondary-nav-tabs">
+              <a
+                href="/"
+                className={`secondary-nav-link ${activePage === 'quiz' ? 'active' : ''}`}
+                onClick={(e) => {
+                  if (isQuizActive && onNavClick) {
+                    e.preventDefault()
+                    onNavClick('/')
+                  }
+                }}
+              >
+                Quiz
+              </a>
+              <a
+                href="/resultater"
+                className={`secondary-nav-link ${activePage === 'resultater' ? 'active' : ''}`}
+                onClick={(e) => {
+                  if (isQuizActive && onNavClick) {
+                    e.preventDefault()
+                    onNavClick('/resultater')
+                  }
+                }}
+              >
+                Resultater
+              </a>
+            </div>
+          )}
         </div>
 
-        <div className="app-header-right">
-          <div className="secondary-nav-tabs">
-            <a
-              href="/"
-              className={`secondary-nav-link ${activePage === 'quiz' ? 'active' : ''}`}
-              onClick={(e) => {
-                if (isQuizActive && onNavClick) {
-                  e.preventDefault()
-                  onNavClick('/')
-                }
-              }}
-            >
-              Quiz
-            </a>
-            <a
-              href="/resultater"
-              className={`secondary-nav-link ${activePage === 'resultater' ? 'active' : ''}`}
-              onClick={(e) => {
-                if (isQuizActive && onNavClick) {
-                  e.preventDefault()
-                  onNavClick('/resultater')
-                }
-              }}
-            >
-              Resultater
-            </a>
-          </div>
-        </div>
+        <div className="app-header-right" aria-hidden="true" />
+
       </div>
       {showProgress && (
         <div

@@ -191,39 +191,36 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         isQuizActive={state.screen === 'quiz'}
         onNavClick={handleNavClick}
         centerContent={
+          state.screen === 'quiz' ? (
             <>
-              {state.screen === 'quiz' && (
-                <>
-                  <span className="question-counter">
-                    {state.currentQuestion + 1}/{state.questions.length}
-                  </span>
-                  <span className="header-dot">&middot;</span>
-                  <span className="score-display-item score-display-score">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    {state.score}
-                  </span>
-                  <span className="header-dot">&middot;</span>
-                  <span className="score-display-item score-display-points">
-                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                    </svg>
-                    {state.points}
-                  </span>
-                </>
-              )}
-              {state.screen === 'results' && (
-                <span className="score-display-item score-display-points">
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                  </svg>
-                  {state.points} point
-                </span>
-              )}
+              <span className="question-counter">
+                {state.currentQuestion + 1}/{state.questions.length}
+              </span>
+              <span className="header-dot">&middot;</span>
+              <span className="score-display-item score-display-score">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {state.score}
+              </span>
+              <span className="header-dot">&middot;</span>
+              <span className="score-display-item score-display-points">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                {state.points}
+              </span>
             </>
-          }
-        />
+          ) : state.screen === 'results' ? (
+            <span className="score-display-item score-display-points">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {state.points} point
+            </span>
+          ) : undefined
+        }
+      />
 
       {/* Screens */}
       {(state.screen === 'start' || state.screen === 'transitioning') && (
