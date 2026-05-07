@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react'
 import type { Bird } from '@/lib/supabase/types'
+import { getBirdImageUrl } from '@/lib/images'
+import MissedBirdsCarousel from './MissedBirdsCarousel'
 
 interface QuizResultsProps {
   score: number
@@ -153,28 +155,19 @@ export default function QuizResults({
         </div>
 
         {uniqueMissed.length > 0 && (
-          <details className="results-missed">
-            <summary className="missed-summary">
-              Fugle at øve mere på ({uniqueMissed.length})
-            </summary>
-            <div className="missed-list">
-              {uniqueMissed.map(bird => (
-                <div key={bird.id} className="missed-item">
-                  {imageUrls.get(bird.id) && (
-                    <img
-                      className="missed-item-thumb"
-                      src={imageUrls.get(bird.id)!}
-                      alt={bird.name_da}
-                    />
-                  )}
-                  <div className="missed-item-info">
-                    <div className="missed-item-da">{bird.name_da}</div>
-                    <div className="missed-item-en">{bird.name_en}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </details>
+          <div className="results-missed">
+            <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-md)' }}>
+              Fugle du missede ({uniqueMissed.length})
+            </p>
+            <MissedBirdsCarousel
+              items={uniqueMissed.map(b => ({
+                key: b.id,
+                nameDa: b.name_da,
+                nameEn: b.name_en,
+                imageUrl: imageUrls.get(b.id) ?? getBirdImageUrl(b.scientific_name),
+              }))}
+            />
+          </div>
         )}
       </div>
     </div>

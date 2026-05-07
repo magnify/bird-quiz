@@ -7,6 +7,7 @@ import { getBirdImageUrl } from '@/lib/images'
 import QuizHeader from './QuizHeader'
 import MobileBottomNav from './MobileBottomNav'
 import ConfirmModal from './ConfirmModal'
+import MissedBirdsCarousel from './MissedBirdsCarousel'
 
 function difficultyLabel(d: string): string {
   if (d === 'easy') return 'Lette'
@@ -131,25 +132,18 @@ export default function MyResults() {
 
             {weakBirds.length > 0 && (
               <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
-                <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-md)' }}>Svage fugle</p>
-                <div className="missed-list">
-                  {weakBirds.map(bird => (
-                    <div key={bird.scientificName} className="missed-item">
-                      <img
-                        className="missed-item-thumb"
-                        src={getBirdImageUrl(bird.scientificName)}
-                        alt={bird.nameDa}
-                      />
-                      <div className="missed-item-info">
-                        <div className="missed-item-da">{bird.nameDa}</div>
-                        <div className="missed-item-en">{bird.nameEn}</div>
-                      </div>
-                      <span className="result-card-points" style={{ marginLeft: 'auto', flexShrink: 0 }}>
-                        ×{bird.count}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-md)' }}>
+                  Fugle du missede
+                </p>
+                <MissedBirdsCarousel
+                  items={weakBirds.map(b => ({
+                    key: b.scientificName,
+                    nameDa: b.nameDa,
+                    nameEn: b.nameEn,
+                    imageUrl: getBirdImageUrl(b.scientificName),
+                    count: b.count,
+                  }))}
+                />
               </div>
             )}
 
@@ -210,6 +204,7 @@ export default function MyResults() {
             </div>
 
             <div className="my-results-footer">
+              <a href="/" className="start-quiz-link">Ny quiz &rarr;</a>
               <button className="secondary-btn" onClick={() => setShowClearConfirm(true)}>
                 Slet historik
               </button>

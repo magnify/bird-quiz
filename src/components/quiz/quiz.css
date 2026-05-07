@@ -1520,6 +1520,125 @@ details.results-missed[open] .missed-summary {
   width: 100%;
 }
 
+/* --- Missed birds carousel (shared by post-quiz + /resultater) --- */
+
+.missed-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--quiz-gap-md);
+  outline: none;
+}
+
+.missed-carousel:focus-visible {
+  outline: 2px solid var(--quiz-accent);
+  outline-offset: 4px;
+  border-radius: var(--quiz-radius-md);
+}
+
+.missed-carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+  border-radius: var(--quiz-radius-md);
+  background: var(--quiz-bg-secondary);
+  touch-action: pan-y;
+}
+
+.missed-carousel-track {
+  display: flex;
+  transition: transform 0.3s ease;
+  width: 100%;
+}
+
+.missed-carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+}
+
+.missed-carousel-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.missed-carousel-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--quiz-background);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.missed-carousel-info {
+  padding: var(--quiz-gap-md) var(--quiz-gap-lg);
+}
+
+.missed-carousel-da {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--quiz-foreground);
+}
+
+.missed-carousel-en {
+  font-size: 0.85rem;
+  color: var(--quiz-text-muted);
+  margin-top: 2px;
+}
+
+.missed-carousel-count {
+  position: absolute;
+  top: var(--quiz-gap-sm);
+  right: var(--quiz-gap-sm);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: var(--quiz-radius-pill);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.missed-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--quiz-gap-md);
+}
+
+.missed-carousel-arrow {
+  background: var(--quiz-bg-secondary);
+  color: var(--quiz-foreground);
+  border: 1px solid var(--quiz-border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0;
+  transition: background var(--quiz-transition), border-color var(--quiz-transition);
+}
+
+.missed-carousel-arrow:hover:not(:disabled) {
+  background: var(--quiz-bg-card);
+  border-color: var(--quiz-accent);
+}
+
+.missed-carousel-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.missed-carousel-counter {
+  font-size: 0.85rem;
+  color: var(--quiz-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- Secondary pages (Leaderboard + My Results) --- */
 
 .secondary-page-content {
@@ -1960,6 +2079,8 @@ details.results-missed[open] .missed-summary {
 .my-results-footer {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
   gap: var(--quiz-gap-md);
 }
 
