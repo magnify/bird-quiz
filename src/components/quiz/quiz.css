@@ -1680,7 +1680,8 @@ details.results-missed[open] .missed-summary {
 .secondary-page-content {
   max-width: 640px;
   margin: 0 auto;
-  padding: var(--quiz-padding-lg) var(--quiz-padding-md) var(--quiz-padding-xl);
+  /* Top padding clears the absolute-positioned .app-header (~60px) */
+  padding: calc(var(--quiz-padding-xl) + 40px) var(--quiz-padding-md) var(--quiz-padding-xl);
   display: flex;
   flex-direction: column;
   gap: var(--quiz-gap-2xl);
