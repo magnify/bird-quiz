@@ -5,7 +5,7 @@ import MobileBottomNav from '@/components/quiz/MobileBottomNav'
 export default function OmPage() {
   return (
     <>
-      <QuizHeader />
+      <QuizHeader activePage="om" />
       <div id="secondary-screen" className="screen active">
         <div className="secondary-page-content">
           <div>

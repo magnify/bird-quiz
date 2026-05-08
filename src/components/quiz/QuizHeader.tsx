@@ -8,7 +8,7 @@ interface QuizHeaderProps {
   progress?: number
   currentQuestion?: number
   totalQuestions?: number
-  activePage?: 'quiz' | 'resultater'
+  activePage?: 'quiz' | 'resultater' | 'om'
   onLogoClick?: () => void
   logoLabel?: string
   isQuizActive?: boolean
@@ -80,6 +80,18 @@ export default function QuizHeader({
                 }}
               >
                 Resultater
+              </a>
+              <a
+                href="/om"
+                className={`secondary-nav-link ${activePage === 'om' ? 'active' : ''}`}
+                onClick={(e) => {
+                  if (isQuizActive && onNavClick) {
+                    e.preventDefault()
+                    onNavClick('/om')
+                  }
+                }}
+              >
+                Om
               </a>
             </div>
           )}
