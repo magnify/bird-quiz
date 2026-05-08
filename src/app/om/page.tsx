@@ -35,7 +35,7 @@ export default function OmPage() {
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Støt projektet</p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
               Kan du lide Fugle Quiz? Send en kaffe via MobilePay:{' '}
-              <strong style={{ color: 'var(--quiz-foreground)' }}>XXXX</strong>
+              <strong style={{ color: 'var(--quiz-foreground)' }}>0611SB</strong>
             </p>
           </div>
         </div>
