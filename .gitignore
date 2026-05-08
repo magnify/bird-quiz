@@ -44,3 +44,8 @@ next-env.d.ts
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Backup intermediate artifacts (DB dumps in backups/db/ ARE committed,
+# storage download is huge and gets uploaded as a Release asset instead)
+/backups/storage/
+/storage-*.tar.gz

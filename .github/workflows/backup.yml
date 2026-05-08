@@ -1,0 +1,89 @@
+name: Backup
+
+on:
+  schedule:
+    # Sundays 03:00 UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install postgresql-client-17
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compute date stamp
+        id: stamp
+        run: echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Dump database
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p backups/db
+          pg_dump --no-owner --no-acl --schema=public \
+            "$DB_URL" > "backups/db/${{ steps.stamp.outputs.date }}.sql"
+          ls -lh "backups/db/${{ steps.stamp.outputs.date }}.sql"
+
+      - name: Download storage bucket
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: pnpm tsx scripts/backup-storage.ts
+
+      - name: Tar storage backup
+        run: |
+          tar -czf "storage-${{ steps.stamp.outputs.date }}.tar.gz" -C backups storage
+          ls -lh "storage-${{ steps.stamp.outputs.date }}.tar.gz"
+
+      - name: Prune old DB dumps (keep last 12)
+        run: |
+          cd backups/db
+          ls -1 *.sql 2>/dev/null | sort -r | tail -n +13 | xargs -r rm -v
+          cd ../..
+
+      - name: Commit DB dump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups/db/
+          if git diff --cached --quiet; then
+            echo "No DB changes to commit"
+          else
+            git commit -m "chore(backup): db snapshot ${{ steps.stamp.outputs.date }}"
+            git push
+          fi
+
+      - name: Upload storage tarball as Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: backup-${{ steps.stamp.outputs.date }}
+          name: Backup ${{ steps.stamp.outputs.date }}
+          body: |
+            Automated backup of `bird-images` storage bucket.
+            DB dump committed to `backups/db/${{ steps.stamp.outputs.date }}.sql`.
+          files: storage-${{ steps.stamp.outputs.date }}.tar.gz
+          fail_on_unmatched_files: true
