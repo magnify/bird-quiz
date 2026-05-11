@@ -27,10 +27,8 @@ export default function ImageCropEditor({ scientificName, imageUrl, onCropped, o
   const [hasBackup, setHasBackup] = useState<boolean | null>(null)
   const imgRef = useRef<HTMLImageElement>(null)
 
-  // Check if backup exists in Supabase Storage on mount
-  // Supabase Storage doesn't support HEAD — use a range GET to minimize bandwidth
   const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
-  const backupUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/bird-images/originals/${slug}.jpg`
+  const backupUrl = `/api/images/originals/${slug}.jpg`
   if (hasBackup === null) {
     fetch(backupUrl, { headers: { Range: 'bytes=0-0' } })
       .then(res => setHasBackup(res.ok || res.status === 206))
