@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { createServiceClient } from '@/lib/supabase/server'
+import { r2Get, r2Put } from '@/lib/r2'
 
 const SALT = 'dansk-fugleviden-admin-2026'
-const BUCKET = 'bird-images'
 
 function verifyAdmin(request: NextRequest): boolean {
   const expected = process.env.ADMIN_PASSWORD
@@ -33,28 +32,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing scientificName' }, { status: 400 })
     }
 
-    const storage = createServiceClient().storage.from(BUCKET)
-
-    // Download manifest
-    const { data } = await storage.download('manifest.json')
+    const data = await r2Get('manifest.json')
     if (!data) {
       return NextResponse.json({ error: 'Failed to load manifest' }, { status: 500 })
     }
 
-    const text = await data.text()
-    const manifest: Record<string, ManifestEntry> = JSON.parse(text)
+    const manifest: Record<string, ManifestEntry> = JSON.parse(data.toString())
 
-    // Remove needsReview flag
     if (manifest[scientificName]) {
       delete manifest[scientificName].needsReview
     }
 
-    // Upload updated manifest
     const buffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
-    await storage.upload('manifest.json', buffer, {
-      upsert: true,
-      contentType: 'application/json',
-    })
+    await r2Put('manifest.json', buffer, 'application/json')
 
     return NextResponse.json({ ok: true })
   } catch (err) {

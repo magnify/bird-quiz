@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { createServiceClient } from '@/lib/supabase/server'
+import { r2Get, r2Put } from '@/lib/r2'
 import { toSlug, getBirdImageUrl } from '@/lib/images'
 
 const SALT = 'dansk-fugleviden-admin-2026'
-const BUCKET = 'bird-images'
 
 function verifyAdmin(request: NextRequest): { ok: boolean; reason?: string } {
   const expected = process.env.ADMIN_PASSWORD
@@ -29,25 +28,15 @@ export async function POST(request: NextRequest) {
     }
 
     const slug = toSlug(scientificName)
-    const supabase = createServiceClient()
-    const storage = supabase.storage.from(BUCKET)
 
-    // Download backup
-    const { data: backupData, error: backupError } = await storage.download(`originals/${slug}.jpg`)
-    if (backupError || !backupData) {
+    // Download backup from R2
+    const backupBuffer = await r2Get(`originals/${slug}.jpg`)
+    if (!backupBuffer) {
       return NextResponse.json({ error: 'No backup found' }, { status: 404 })
     }
 
     // Upload backup as current image
-    const buffer = Buffer.from(await backupData.arrayBuffer())
-    const { error: uploadError } = await storage.upload(`${slug}.jpg`, buffer, {
-      upsert: true,
-      contentType: 'image/jpeg',
-    })
-
-    if (uploadError) {
-      throw new Error(uploadError.message)
-    }
+    await r2Put(`${slug}.jpg`, backupBuffer, 'image/jpeg')
 
     return NextResponse.json({ ok: true, path: getBirdImageUrl(scientificName) })
   } catch (err) {

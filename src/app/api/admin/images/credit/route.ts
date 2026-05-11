@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { createServiceClient } from '@/lib/supabase/server'
+import { r2Get, r2Put } from '@/lib/r2'
 
 const SALT = 'dansk-fugleviden-admin-2026'
-const BUCKET = 'bird-images'
 
 function verifyAdmin(request: NextRequest): boolean {
   const expected = process.env.ADMIN_PASSWORD
@@ -21,11 +20,10 @@ interface ManifestEntry {
   license?: string
 }
 
-async function getManifest(storage: ReturnType<ReturnType<typeof createServiceClient>['storage']['from']>) {
-  const { data } = await storage.download('manifest.json')
+async function getManifest() {
+  const data = await r2Get('manifest.json')
   if (!data) return {}
-  const text = await data.text()
-  return JSON.parse(text) as Record<string, ManifestEntry>
+  return JSON.parse(data.toString()) as Record<string, ManifestEntry>
 }
 
 export async function GET(request: NextRequest) {
@@ -38,8 +36,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing bird parameter' }, { status: 400 })
   }
 
-  const storage = createServiceClient().storage.from(BUCKET)
-  const manifest = await getManifest(storage)
+  const manifest = await getManifest()
   const entry = manifest[scientificName]
 
   return NextResponse.json({
@@ -60,15 +57,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing scientificName' }, { status: 400 })
     }
 
-    const storage = createServiceClient().storage.from(BUCKET)
-    const manifest = await getManifest(storage)
+    const manifest = await getManifest()
 
     if (!manifest[scientificName]) {
       const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
       manifest[scientificName] = { file: `${slug}.jpg`, source: 'unknown' }
     }
 
-    // Update attribution
     if (attribution !== undefined) {
       if (attribution) {
         manifest[scientificName].attribution = attribution
@@ -77,7 +72,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update license
     if (license !== undefined) {
       if (license) {
         manifest[scientificName].license = license
@@ -87,10 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
-    await storage.upload('manifest.json', buffer, {
-      upsert: true,
-      contentType: 'application/json',
-    })
+    await r2Put('manifest.json', buffer, 'application/json')
 
     return NextResponse.json({ ok: true })
   } catch (err) {
