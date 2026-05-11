@@ -61,30 +61,46 @@ async function main() {
   console.log('Starting migration from Supabase Storage to Cloudflare R2...')
   console.log(`Target R2 bucket: ${R2_BUCKET}`)
 
-  const { data: files, error } = await supabase.storage.from('bird-images').list()
-  if (error) {
-    throw new Error(`Failed to list files: ${error.message}`)
+  // Paginate to get all files (Supabase default limit is 100)
+  const allFiles: { name: string }[] = []
+  let offset = 0
+  const PAGE_SIZE = 500
+  while (true) {
+    const { data: page, error } = await supabase.storage.from('bird-images').list(undefined, { limit: PAGE_SIZE, offset })
+    if (error) throw new Error(`Failed to list files: ${error.message}`)
+    if (!page || page.length === 0) break
+    allFiles.push(...page)
+    offset += page.length
+    if (page.length < PAGE_SIZE) break
   }
+  console.log(`Found ${allFiles.length} files in Supabase Storage (root)`)
 
-  console.log(`Found ${files.length} files in Supabase Storage (root)`)
-
-  const { data: originals } = await supabase.storage.from('bird-images').list('originals')
-  if (originals) {
-    console.log(`Found ${originals.length} files in originals/`)
+  const originals: { name: string }[] = []
+  offset = 0
+  while (true) {
+    const { data: page, error } = await supabase.storage.from('bird-images').list('originals', { limit: PAGE_SIZE, offset })
+    if (error) throw new Error(`Failed to list originals: ${error.message}`)
+    if (!page || page.length === 0) break
+    originals.push(...page)
+    offset += page.length
+    if (page.length < PAGE_SIZE) break
   }
+  console.log(`Found ${originals.length} files in originals/`)
 
-  const manifestFile = files.find(f => f.name === 'manifest.json')
+  const manifestFile = allFiles.find(f => f.name === 'manifest.json')
   if (manifestFile) {
     await migrateFile('manifest.json')
   }
 
+  // Migrate originals
   if (originals) {
     for (const file of originals) {
       await migrateFile(`originals/${file.name}`)
     }
   }
 
-  for (const file of files) {
+  // Migrate regular bird images
+  for (const file of allFiles) {
     if (file.name === 'manifest.json') continue
     await migrateFile(file.name)
   }
