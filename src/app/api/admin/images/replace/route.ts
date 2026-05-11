@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { createServiceClient } from '@/lib/supabase/server'
-import { toSlug, getSupabaseImageUrl } from '@/lib/images'
+import { r2Get, r2Put } from '@/lib/r2'
+import { toSlug, getBirdImageUrl } from '@/lib/images'
 
 const SALT = 'dansk-fugleviden-admin-2026'
-const BUCKET = 'bird-images'
 
 function verifyAdmin(request: NextRequest): { ok: boolean; reason?: string } {
   const expected = process.env.ADMIN_PASSWORD
@@ -40,7 +39,6 @@ export async function POST(request: NextRequest) {
     let sourceUrl: string | undefined
 
     if (contentType.includes('multipart/form-data')) {
-      // Upload mode: FormData with file + scientificName
       const formData = await request.formData()
       const file = formData.get('file') as File | null
       scientificName = formData.get('scientificName') as string
@@ -51,7 +49,6 @@ export async function POST(request: NextRequest) {
       attribution = (formData.get('attribution') as string) || undefined
       source = 'upload'
     } else {
-      // Remote mode: JSON with url + scientificName + attribution + license (+ optional source, source_url)
       const body = await request.json()
       scientificName = body.scientificName
       const url = body.url as string
@@ -64,7 +61,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Missing url or scientificName' }, { status: 400 })
       }
 
-      // Download image server-side (avoids CORS)
       const res = await fetch(url, {
         headers: source === 'wikimedia-commons' ? { 'User-Agent': 'bird-quiz/1.0 (https://bird-quiz.magnify.dk)' } : {},
       })
@@ -75,39 +71,24 @@ export async function POST(request: NextRequest) {
     }
 
     const slug = toSlug(scientificName)
-    const supabase = createServiceClient()
-    const storage = supabase.storage.from(BUCKET)
 
     // Back up the original if no backup exists yet
-    const { data: backupCheck } = await storage.download(`originals/${slug}.jpg`)
-    if (!backupCheck) {
-      const { data: currentData } = await storage.download(`${slug}.jpg`)
-      if (currentData) {
-        const buffer = Buffer.from(await currentData.arrayBuffer())
-        await storage.upload(`originals/${slug}.jpg`, buffer, {
-          upsert: true,
-          contentType: 'image/jpeg',
-        })
+    const backupBuffer = await r2Get(`originals/${slug}.jpg`)
+    if (!backupBuffer) {
+      const currentBuffer = await r2Get(`${slug}.jpg`)
+      if (currentBuffer) {
+        await r2Put(`originals/${slug}.jpg`, currentBuffer, 'image/jpeg')
       }
     }
 
-    // Upload the replacement image with no-cache header to prevent CDN caching issues
-    const { error: uploadError } = await storage.upload(`${slug}.jpg`, imageBuffer, {
-      upsert: true,
-      contentType: 'image/jpeg',
-      cacheControl: 'public, max-age=0, must-revalidate', // Prevent stale cache after replacement
-    })
+    // Upload the replacement image
+    await r2Put(`${slug}.jpg`, imageBuffer, 'image/jpeg')
 
-    if (uploadError) {
-      throw new Error(uploadError.message)
-    }
-
-    // Update manifest.json in storage
+    // Update manifest.json in R2
     let manifest: Record<string, ManifestEntry> = {}
-    const { data: manifestData } = await storage.download('manifest.json')
+    const manifestData = await r2Get('manifest.json')
     if (manifestData) {
-      const text = await manifestData.text()
-      manifest = JSON.parse(text)
+      manifest = JSON.parse(manifestData.toString())
     }
 
     manifest[scientificName] = {
@@ -119,13 +100,9 @@ export async function POST(request: NextRequest) {
     }
 
     const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
-    await storage.upload('manifest.json', manifestBuffer, {
-      upsert: true,
-      contentType: 'application/json',
-    })
+    await r2Put('manifest.json', manifestBuffer, 'application/json')
 
-    // Return direct Supabase URL for admin (bypasses caching)
-    const directUrl = getSupabaseImageUrl(scientificName)
+    const directUrl = getBirdImageUrl(scientificName)
     const cacheBustedUrl = `${directUrl}?t=${Date.now()}`
     return NextResponse.json({ ok: true, path: cacheBustedUrl })
   } catch (err) {
