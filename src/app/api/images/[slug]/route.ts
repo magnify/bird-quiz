@@ -1,58 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { r2Get } from '@/lib/r2'
 
-const BUCKET = 'bird-images'
-const ONE_YEAR = 31536000 // seconds
+const ONE_YEAR = 31536000
 
 interface RouteContext {
   params: Promise<{ slug: string }>
 }
 
-/**
- * Image API Proxy
- *
- * Serves bird images from Supabase Storage with fallback to Netlify static files.
- * This enables admin image replacements to appear immediately in the quiz without redeployment.
- *
- * Cache behavior:
- * - Primary: Supabase Storage bucket 'bird-images'
- * - Fallback: Netlify static files at /images/birds/
- * - HTTP cache: 1 year (immutable)
- * - Response header X-Source indicates origin (supabase | static-fallback)
- *
- * Usage:
- *   GET /api/images/turdus-merula
- *   GET /api/images/turdus-merula.jpg
- *
- * Both formats are supported. The .jpg extension is added if missing.
- */
-export async function GET(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function GET(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params
   const fileName = slug.endsWith('.jpg') ? slug : `${slug}.jpg`
 
   try {
-    const supabase = createServiceClient()
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .download(fileName)
+    const buffer = await r2Get(fileName)
 
-    if (!data || error) {
-      console.error(`Image not found in Supabase Storage: ${fileName}`, error)
+    if (!buffer) {
+      console.error(`Image not found in R2: ${fileName}`)
       return NextResponse.json(
-        { error: 'Image not found in storage', file: fileName },
+        { error: 'Image not found', file: fileName },
         { status: 404 }
       )
     }
 
-    const buffer = await data.arrayBuffer()
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         'Content-Type': 'image/jpeg',
         'Cache-Control': `public, max-age=${ONE_YEAR}`,
-        'X-Source': 'supabase',
+        'X-Source': 'r2',
       },
     })
   } catch (error) {
