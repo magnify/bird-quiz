@@ -8,11 +8,12 @@ const createMockBird = (id: string, scientificName: string, difficulty: 'easy' |
   scientific_name: scientificName,
   name_da: `Danish ${scientificName}`,
   name_en: `English ${scientificName}`,
+  category: 'test',
   is_easy: difficulty === 'easy',
   is_common: difficulty === 'common',
-  difficulty,
-  image_url: null,
-  updated_at: null,
+  is_active: true,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
 })
 
 const mockBirds: Bird[] = [

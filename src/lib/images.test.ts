@@ -14,16 +14,16 @@ describe('images', () => {
   })
 
   describe('getBirdImageUrl', () => {
-    it('generates correct Netlify path', () => {
-      expect(getBirdImageUrl('Columba palumbus')).toBe('/images/birds/columba-palumbus.jpg')
+    it('generates correct API proxy path', () => {
+      expect(getBirdImageUrl('Columba palumbus')).toBe('/api/images/columba-palumbus')
     })
 
     it('handles lowercase names', () => {
-      expect(getBirdImageUrl('passer domesticus')).toBe('/images/birds/passer-domesticus.jpg')
+      expect(getBirdImageUrl('passer domesticus')).toBe('/api/images/passer-domesticus')
     })
 
     it('handles multiple spaces', () => {
-      expect(getBirdImageUrl('Accipiter  gentilis')).toBe('/images/birds/accipiter-gentilis.jpg')
+      expect(getBirdImageUrl('Accipiter  gentilis')).toBe('/api/images/accipiter-gentilis')
     })
   })
 
