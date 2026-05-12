@@ -1,12 +1,9 @@
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const CDN_URL = process.env.NEXT_PUBLIC_IMAGE_CDN_URL
 
-/**
- * Get the URL for a bird image via API proxy.
- * The proxy serves from Supabase Storage with fallback to Netlify static files.
- * This enables admin image replacements to appear immediately without redeployment.
- */
 export function getBirdImageUrl(scientificName: string): string {
   const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
+  if (CDN_URL) return `${CDN_URL}/${slug}.jpg`
   return `/api/images/${slug}`
 }
 
