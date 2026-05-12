@@ -9,6 +9,26 @@ interface RouteContext {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params
+
+  if (slug === 'manifest.json') {
+    try {
+      const buffer = await r2Get('manifest.json')
+      if (!buffer) {
+        return NextResponse.json({ error: 'Manifest not found' }, { status: 404 })
+      }
+      return new NextResponse(new Uint8Array(buffer), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': `public, max-age=${ONE_YEAR}`,
+          'X-Source': 'r2',
+        },
+      })
+    } catch (error) {
+      console.error('Error fetching manifest:', error)
+      return NextResponse.json({ error: 'Failed to fetch manifest' }, { status: 500 })
+    }
+  }
+
   const fileName = slug.endsWith('.jpg') ? slug : `${slug}.jpg`
 
   try {

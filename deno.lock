@@ -11,6 +11,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@aws-sdk/client-s3@^3.1045.0",
         "npm:@base-ui/react@^1.2.0",
         "npm:@supabase/ssr@0.9",
         "npm:@supabase/supabase-js@^2.98.0",
