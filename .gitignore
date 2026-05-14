@@ -52,3 +52,7 @@ next-env.d.ts
 # storage download is huge and gets uploaded as a Release asset instead)
 /backups/storage/
 /storage-*.tar.gz
+
+# Playwright
+/test-results/
+/playwright-report/
