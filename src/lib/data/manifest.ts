@@ -4,6 +4,7 @@ export interface ManifestEntry {
   attribution?: string
   license?: string
   source_url?: string
+  needsReview?: boolean
 }
 
 export type Manifest = Map<string, ManifestEntry>

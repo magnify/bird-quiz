@@ -437,7 +437,7 @@ body:has(.screen.active) {
 .mosaic-tile {
   flex-shrink: 0;
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--quiz-bg-card);
   border-radius: var(--quiz-gap-xs);

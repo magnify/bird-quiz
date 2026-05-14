@@ -8,12 +8,12 @@ export function getBirdImageUrl(scientificName: string): string {
 }
 
 /**
- * Get the direct Supabase Storage URL for a bird image.
- * Used by admin tools to display images immediately after upload/replacement.
+ * Get the image URL for admin tools.
+ * Uses the API proxy (which reads from R2) with a cache-bust parameter.
  */
 export function getSupabaseImageUrl(scientificName: string): string {
   const slug = toSlug(scientificName)
-  return `${SUPABASE_URL}/storage/v1/object/public/bird-images/${slug}.jpg`
+  return `/api/images/${slug}`
 }
 
 /**

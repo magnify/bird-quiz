@@ -1,7 +1,7 @@
 'use client'
 
 import './quiz.css'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useBirdImages } from '@/hooks/useBirdImages'
@@ -157,6 +157,13 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     }
   }, [state.screen])
 
+  const approvedBirds = useMemo(() => {
+    return birds.filter(bird => {
+      const entry = manifest.get(bird.scientific_name)
+      return !entry?.needsReview
+    })
+  }, [birds, manifest])
+
   const isStart = state.screen === 'start' || state.screen === 'transitioning'
 
   const progress = state.screen === 'quiz' && state.questions.length > 0
@@ -233,7 +240,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           onSetMode={setMode}
           onSetTotalQuestions={setTotalQuestions}
           onStart={startQuiz}
-          birds={birds}
+          birds={approvedBirds}
           firstBirdId={firstBirdId}
           onTileRef={handleTileRef}
           isTransitioning={state.screen === 'transitioning'}

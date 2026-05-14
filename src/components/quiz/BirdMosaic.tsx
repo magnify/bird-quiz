@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import { getBirdImageUrl } from '@/lib/images'
+import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 
 interface BirdMosaicProps {
   birds: Bird[]
@@ -123,6 +124,7 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
                   alt={bird.name_da}
                   loading="lazy"
                   onLoad={() => handleLoad(bird.id)}
+                  onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_SVG; handleLoad(bird.id) }}
                 />
               </div>
             )

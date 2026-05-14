@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import { getSupabaseImageUrl } from '@/lib/images'
+import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import BirdDetailModal from './BirdDetailModal'
@@ -50,25 +51,25 @@ export default function ImageAuditGrid({ audits, initialFlaggedBirdIds = [] }: P
   const [refreshKey, setRefreshKey] = useState(0)
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set(initialFlaggedBirdIds))
 
-  const toggleFlag = useCallback(async (birdId: string, reason?: string) => {
-    const wasFlagged = flaggedIds.has(birdId)
+  const toggleFlag = useCallback(async (scientificName: string, reason?: string) => {
+    const wasFlagged = flaggedIds.has(scientificName)
     // Optimistic update
     setFlaggedIds(prev => {
       const next = new Set(prev)
-      if (wasFlagged) next.delete(birdId)
-      else next.add(birdId)
+      if (wasFlagged) next.delete(scientificName)
+      else next.add(scientificName)
       return next
     })
     const result = wasFlagged
-      ? await unflagBirdImage(birdId)
-      : await flagBirdImage(birdId, reason || 'needs_replacement')
+      ? await unflagBirdImage(scientificName)
+      : await flagBirdImage(scientificName, reason || 'needs_replacement')
     if (!result.ok) {
       console.error('Flag toggle failed:', result.error)
       // Revert
       setFlaggedIds(prev => {
         const next = new Set(prev)
-        if (wasFlagged) next.add(birdId)
-        else next.delete(birdId)
+        if (wasFlagged) next.add(scientificName)
+        else next.delete(scientificName)
         return next
       })
       alert(`Kunne ikke ${wasFlagged ? 'fjerne markering' : 'markere'}: ${result.error}`)
@@ -275,7 +276,7 @@ export default function ImageAuditGrid({ audits, initialFlaggedBirdIds = [] }: P
               <button
                 key={audit.bird.id}
                 onClick={() => setSelectedBird(audit.bird)}
-                className="group relative aspect-square rounded-lg overflow-hidden border-2 hover:border-primary transition-all cursor-pointer bg-muted"
+                className="group relative aspect-[4/3] rounded-lg overflow-hidden border-2 hover:border-primary transition-all cursor-pointer bg-muted"
               >
                 {/* Status indicator dot */}
                 <div className={`absolute top-2 left-2 size-3 rounded-full z-10 ${getStatusColor(audit.status)}`} />
@@ -286,7 +287,7 @@ export default function ImageAuditGrid({ audits, initialFlaggedBirdIds = [] }: P
                 )}
 
                 {/* Flagged indicator */}
-                {flaggedIds.has(audit.bird.id) && (
+                {flaggedIds.has(audit.bird.scientific_name) && (
                   <div className="absolute top-2 left-10 size-3 rounded-full z-10 bg-destructive ring-2 ring-white" title="Markeret" />
                 )}
 
@@ -296,6 +297,7 @@ export default function ImageAuditGrid({ audits, initialFlaggedBirdIds = [] }: P
                   alt={audit.bird.name_da}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_SVG }}
                 />
 
                 {/* Overlay info */}
@@ -350,7 +352,7 @@ export default function ImageAuditGrid({ audits, initialFlaggedBirdIds = [] }: P
           }}
           isFlagged={flaggedIds.has(selectedBird.id)}
           needsReview={selectedAudit?.needsReview || false}
-          onToggleFlag={(reason) => toggleFlag(selectedBird.id, reason)}
+          onToggleFlag={(reason) => toggleFlag(selectedBird.scientific_name, reason)}
           onClose={() => setSelectedBird(null)}
           onImageChanged={handleImageChanged}
           onApproved={handleApproved}

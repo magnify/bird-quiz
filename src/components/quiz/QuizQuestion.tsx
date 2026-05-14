@@ -5,6 +5,7 @@ import type { Bird } from '@/lib/supabase/types'
 import type { QuizQuestion as QuizQuestionType } from '@/lib/quiz/engine'
 import type { Manifest, ManifestEntry } from '@/lib/data/manifest'
 import { useImageErrorHandler } from '@/lib/error-tracking/image-error-handler'
+import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 
 interface QuizQuestionProps {
   question: QuizQuestionType
@@ -100,6 +101,7 @@ function PhotoOptionCard({
           onError={(e) => {
             setFailed(true)
             handleImageError(e)
+            ;(e.target as HTMLImageElement).src = PLACEHOLDER_SVG
           }}
         />
       )}
@@ -228,6 +230,7 @@ export default function QuizQuestion({
                       onError={(e) => {
                         setImageFailed(true)
                         handleImageError(e)
+                        ;(e.target as HTMLImageElement).src = PLACEHOLDER_SVG
                       }}
                     />
                     {imageLoaded && photoAttribution && (

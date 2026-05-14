@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { flagBirdImage, unflagBirdImage } from '@/app/actions/birds'
 import { getSupabaseImageUrl } from '@/lib/images'
+import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 
 type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait'
 
@@ -63,23 +64,23 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
     setRefreshKey(Date.now())
   }, [])
 
-  const toggleFlag = useCallback(async (birdId: string, reason?: string) => {
-    const wasFlagged = flaggedIds.has(birdId)
+  const toggleFlag = useCallback(async (scientificName: string, reason?: string) => {
+    const wasFlagged = flaggedIds.has(scientificName)
     setFlaggedIds(prev => {
       const next = new Set(prev)
-      if (wasFlagged) next.delete(birdId)
-      else next.add(birdId)
+      if (wasFlagged) next.delete(scientificName)
+      else next.add(scientificName)
       return next
     })
     const result = wasFlagged
-      ? await unflagBirdImage(birdId)
-      : await flagBirdImage(birdId, reason || 'needs_replacement')
+      ? await unflagBirdImage(scientificName)
+      : await flagBirdImage(scientificName, reason || 'needs_replacement')
     if (!result.ok) {
       console.error('Flag toggle failed:', result.error)
       setFlaggedIds(prev => {
         const next = new Set(prev)
-        if (wasFlagged) next.add(birdId)
-        else next.delete(birdId)
+        if (wasFlagged) next.add(scientificName)
+        else next.delete(scientificName)
         return next
       })
       alert(`Kunne ikke ${wasFlagged ? 'fjerne markering' : 'markere'}: ${result.error}`)
@@ -100,7 +101,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
       case 'easy': return bird.is_easy
       case 'common': return bird.is_common
       case 'hard': return !bird.is_easy && !bird.is_common
-      case 'flagged': return flaggedIds.has(bird.id)
+      case 'flagged': return flaggedIds.has(bird.scientific_name)
       case 'portrait': return PORTRAIT_IMAGES.has(bird.scientific_name)
       default: return true
     }
@@ -153,7 +154,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
         {filtered.map(bird => {
           const img = imageData.get(bird.id)
-          const isFlagged = flaggedIds.has(bird.id)
+          const isFlagged = flaggedIds.has(bird.scientific_name)
           const isPortrait = PORTRAIT_IMAGES.has(bird.scientific_name)
           return (
             <Card
@@ -167,6 +168,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
                     src={img.url}
                     alt={bird.name_da}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_SVG }}
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
@@ -205,7 +207,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
           bird={selectedBird}
           imageData={imageData.get(selectedBird.id) || null}
           isFlagged={flaggedIds.has(selectedBird.id)}
-          onToggleFlag={(reason) => toggleFlag(selectedBird.id, reason)}
+          onToggleFlag={(reason) => toggleFlag(selectedBird.scientific_name, reason)}
           onClose={() => setSelectedBird(null)}
           onImageChanged={handleImageChanged}
         />

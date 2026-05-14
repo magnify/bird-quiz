@@ -14,9 +14,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const isManifest = slug === 'manifest.json'
-  const key = isManifest ? 'manifest.json' : (slug.endsWith('.jpg') ? slug : `${slug}.jpg`)
-  const contentType = isManifest ? 'application/json' : 'image/jpeg'
+  const key = `originals/${slug.endsWith('.jpg') ? slug : `${slug}.jpg`}`
 
   try {
     const buffer = await r2Get(key)
@@ -25,7 +23,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     }
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': 'image/jpeg',
         'Cache-Control': `public, max-age=${ONE_YEAR}`,
         'X-Source': 'r2',
       },

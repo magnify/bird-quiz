@@ -1,5 +1,5 @@
 import { STATIC_BIRDS } from '@/lib/data/birds-static'
-import { createServiceClient } from '@/lib/supabase/server'
+import { r2Get } from '@/lib/r2'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import ImageAuditGrid from '@/components/admin/ImageAuditGrid'
 import { getFlaggedBirdIds } from '@/app/actions/birds'
@@ -25,18 +25,12 @@ interface ImageAudit {
 }
 
 async function analyzeImages(): Promise<ImageAudit[]> {
-  const supabase = createServiceClient()
-
-  // Download manifest from Supabase Storage
+  // Read manifest from R2
   let manifest: Record<string, ManifestEntry> = {}
   try {
-    const { data } = await supabase.storage
-      .from('bird-images')
-      .download('manifest.json')
-
+    const data = await r2Get('manifest.json')
     if (data) {
-      const text = await data.text()
-      manifest = JSON.parse(text)
+      manifest = JSON.parse(data.toString())
     }
   } catch (err) {
     console.error('Failed to load manifest:', err)
@@ -58,7 +52,7 @@ async function analyzeImages(): Promise<ImageAudit[]> {
     }
 
     // Check license (skip checks for project-owned images)
-    const isOwn = entry.license?.toLowerCase() === 'own' || entry.license?.toLowerCase() === 'project'
+    const isOwn = entry.license?.toLowerCase() === 'own' || entry.license?.toLowerCase() === 'project' || entry.license?.toLowerCase() === 'copyright'
 
     if (!isOwn) {
       if (entry.license?.toLowerCase().includes('nc')) {

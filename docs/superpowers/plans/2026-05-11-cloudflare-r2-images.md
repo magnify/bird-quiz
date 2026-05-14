@@ -1,6 +1,6 @@
 # Cloudflare R2 Image Migration — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Move 221 bird images + manifest from Supabase Storage to Cloudflare R2, reducing Supabase free tier storage/bandwidth usage while keeping same client URLs.
 
@@ -38,13 +38,13 @@ Created:
 - Modify: `package.json`
 - Modify: `.env.local.example`
 
-- [ ] **Step 1: Install `@aws-sdk/client-s3`**
+- [x] **Step 1: Install `@aws-sdk/client-s3`**
 
 ```
 npm install @aws-sdk/client-s3
 ```
 
-- [ ] **Step 2: Add R2 env vars to `.env.local.example`**
+- [x] **Step 2: Add R2 env vars to `.env.local.example`**
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -56,9 +56,9 @@ R2_SECRET_ACCESS_KEY=your-r2-secret-key
 R2_BUCKET_NAME=bird-images
 ```
 
-- [ ] **Step 3: Add to `.env.local`** (actual values from Cloudflare dashboard)
+- [x] **Step 3: Add to `.env.local`** (actual values from Cloudflare dashboard)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```
 git add package.json package-lock.json .env.local.example
@@ -74,7 +74,7 @@ git commit -m "chore: add @aws-sdk/client-s3 for R2 image storage"
 
 A thin wrapper around the S3 SDK. Exports three functions: `r2Get`, `r2Put`, `r2Head`. The S3 client is initialized lazily from env vars.
 
-- [ ] **Step 1: Create `src/lib/r2.ts`**
+- [x] **Step 1: Create `src/lib/r2.ts`**
 
 ```typescript
 import { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
@@ -134,14 +134,14 @@ export async function r2Head(key: string): Promise<boolean> {
 }
 ```
 
-- [ ] **Step 2: Run type check**
+- [x] **Step 2: Run type check**
 
 ```
 npx tsc --noEmit
 ```
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add src/lib/r2.ts
@@ -157,7 +157,7 @@ git commit -m "feat: add R2 client module with get/put/head helpers"
 
 Swap `supabase.storage.from(BUCKET).download(fileName)` for `r2Get(fileName)`. Remove the Supabase import and the `BUCKET` constant.
 
-- [ ] **Step 1: Rewrite `src/app/api/images/[slug]/route.ts`**
+- [x] **Step 1: Rewrite `src/app/api/images/[slug]/route.ts`**
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server'
@@ -201,14 +201,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
 }
 ```
 
-- [ ] **Step 2: Build check**
+- [x] **Step 2: Build check**
 
 ```
 npm run build
 ```
 Expected: compiles successfully.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add src/app/api/images/[slug]/route.ts
@@ -224,7 +224,7 @@ git commit -m "feat: serve bird images from Cloudflare R2 instead of Supabase St
 
 Swap all `supabase.storage.from(BUCKET)` calls for `r2Get`/`r2Put`. The backup check, the image upload, and the manifest read/write all change.
 
-- [ ] **Step 1: Rewrite `src/app/api/admin/images/replace/route.ts`**
+- [x] **Step 1: Rewrite `src/app/api/admin/images/replace/route.ts`**
 
 Key changes:
 - Replace `import { createServiceClient } from '@/lib/supabase/server'` with `import { r2Get, r2Put } from '@/lib/r2'`
@@ -354,14 +354,14 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Build check**
+- [x] **Step 2: Build check**
 
 ```
 npm run build
 ```
 Expected: compiles successfully.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add src/app/api/admin/images/replace/route.ts
@@ -377,7 +377,7 @@ git commit -m "feat: admin replace route uses R2 instead of Supabase Storage"
 
 Same pattern as replace: swap Supabase Storage calls for `r2Get`/`r2Put`.
 
-- [ ] **Step 1: Rewrite `src/app/api/admin/images/crop/route.ts`**
+- [x] **Step 1: Rewrite `src/app/api/admin/images/crop/route.ts`**
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server'
@@ -436,14 +436,14 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Build check**
+- [x] **Step 2: Build check**
 
 ```
 npm run build
 ```
 Expected: compiles successfully.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add src/app/api/admin/images/crop/route.ts
@@ -457,7 +457,7 @@ git commit -m "feat: admin crop route uses R2 instead of Supabase Storage"
 **Files:**
 - Modify: `src/app/api/admin/images/restore/route.ts`
 
-- [ ] **Step 1: Rewrite `src/app/api/admin/images/restore/route.ts`**
+- [x] **Step 1: Rewrite `src/app/api/admin/images/restore/route.ts`**
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server'
@@ -509,14 +509,14 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Build check**
+- [x] **Step 2: Build check**
 
 ```
 npm run build
 ```
 Expected: compiles successfully.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add src/app/api/admin/images/restore/route.ts
@@ -533,7 +533,7 @@ git commit -m "feat: admin restore route uses R2 instead of Supabase Storage"
 
 Both routes download and upload `manifest.json`. Swap for `r2Get`/`r2Put`.
 
-- [ ] **Step 1: Rewrite `src/app/api/admin/images/credit/route.ts`**
+- [x] **Step 1: Rewrite `src/app/api/admin/images/credit/route.ts`**
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server'
@@ -631,7 +631,7 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Rewrite `src/app/api/admin/images/approve/route.ts`**
+- [x] **Step 2: Rewrite `src/app/api/admin/images/approve/route.ts`**
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server'
@@ -691,14 +691,14 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 3: Build check**
+- [x] **Step 3: Build check**
 
 ```
 npm run build
 ```
 Expected: compiles successfully.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```
 git add src/app/api/admin/images/credit/route.ts src/app/api/admin/images/approve/route.ts
@@ -714,7 +714,7 @@ git commit -m "feat: admin manifest routes use R2 instead of Supabase Storage"
 
 The manifest now lives in R2. Serve it through the API proxy by fetching `/api/images/manifest.json` instead of the Supabase Storage URL.
 
-- [ ] **Step 1: Edit `src/lib/data/manifest.ts`**
+- [x] **Step 1: Edit `src/lib/data/manifest.ts`**
 
 Replace the `MANIFEST_URL` construction with a direct API proxy path:
 
@@ -755,14 +755,14 @@ export async function fetchManifest(): Promise<Manifest> {
 }
 ```
 
-- [ ] **Step 2: Verify tests pass**
+- [x] **Step 2: Verify tests pass**
 
 ```
 npx vitest run
 ```
 Expected: all tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add src/lib/data/manifest.ts
@@ -778,7 +778,7 @@ git commit -m "feat: fetch manifest from API proxy instead of Supabase Storage U
 
 The backup existence check currently uses a range-GET workaround (because Supabase Storage doesn't support HEAD). R2 supports HEAD natively via `r2Head` — but since this runs client-side, call a lightweight endpoint instead.
 
-- [ ] **Step 1: Edit `src/components/admin/ImageCropEditor.tsx`**
+- [x] **Step 1: Edit `src/components/admin/ImageCropEditor.tsx`**
 
 Replace the range-GET fetch block (lines 30-38) with a call to the restore endpoint status, or simply use the API proxy with a HEAD-friendly approach:
 
@@ -822,7 +822,7 @@ if (hasBackup === null) {
 
 This is the minimal change. The API proxy already handles the slug with or without `.jpg`, so this will work.
 
-- [ ] **Step 1: Edit the backup URL in `ImageCropEditor.tsx`**
+- [x] **Step 1: Edit the backup URL in `ImageCropEditor.tsx`**
 
 Change lines 31-33 from:
 
@@ -840,18 +840,18 @@ const backupUrl = `/api/images/originals/${slug}.jpg`
 if (hasBackup === null) {
 ```
 
-- [ ] **Step 2: Remove the comment about Supabase Storage not supporting HEAD**
+- [x] **Step 2: Remove the comment about Supabase Storage not supporting HEAD**
 
 Delete the comment on line 31: `// Supabase Storage doesn't support HEAD — use a range GET to minimize bandwidth`
 
-- [ ] **Step 3: Build check**
+- [x] **Step 3: Build check**
 
 ```
 npm run build
 ```
 Expected: compiles successfully.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```
 git add src/components/admin/ImageCropEditor.tsx
@@ -867,7 +867,7 @@ git commit -m "fix: update ImageCropEditor backup check to use API proxy instead
 
 A one-time script that copies all files from Supabase Storage to R2. Uses service role key for Supabase.
 
-- [ ] **Step 1: Create `scripts/migrate-to-r2.ts`**
+- [x] **Step 1: Create `scripts/migrate-to-r2.ts`**
 
 ```typescript
 /**
@@ -972,14 +972,14 @@ main().catch((err) => {
 })
 ```
 
-- [ ] **Step 2: Verify the script parses correctly**
+- [x] **Step 2: Verify the script parses correctly**
 
 ```
 npx tsx --no-warnings --check scripts/migrate-to-r2.ts
 ```
 Expected: no type errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```
 git add scripts/migrate-to-r2.ts
@@ -990,35 +990,35 @@ git commit -m "feat: add migration script for copying Supabase images to R2"
 
 ### Task 11: Final verification
 
-- [ ] **Step 1: Run full test suite**
+- [x] **Step 1: Run full test suite**
 
 ```
 npx vitest run
 ```
 Expected: all tests pass.
 
-- [ ] **Step 2: Type check**
+- [x] **Step 2: Type check**
 
 ```
 npx tsc --noEmit
 ```
 Expected: no errors.
 
-- [ ] **Step 3: Production build**
+- [x] **Step 3: Production build**
 
 ```
 npm run build
 ```
 Expected: builds successfully.
 
-- [ ] **Step 4: Lint**
+- [x] **Step 4: Lint**
 
 ```
 npm run lint
 ```
 Expected: no errors in app code (only pre-existing Netlify vendor warnings).
 
-- [ ] **Step 5: Final commit if anything changed**
+- [x] **Step 5: Final commit if anything changed**
 
 ```
 git add -A && git commit -m "chore: final cleanup after R2 migration"
@@ -1030,13 +1030,13 @@ git add -A && git commit -m "chore: final cleanup after R2 migration"
 
 After deployment, confirm:
 
-- [ ] `GET /api/images/turdus-merula` returns the image (not a 404)
-- [ ] `GET /api/images/manifest.json` returns the manifest JSON
-- [ ] Admin → Images page loads and shows all birds
-- [ ] Admin → Replace image (upload + remote URL both work)
-- [ ] Admin → Crop image works
-- [ ] Admin → Restore original works
-- [ ] Admin → Update credit/license works
-- [ ] Admin → Approve image works
-- [ ] Quiz questions display images correctly
-- [ ] Supabase Storage bucket shows 0 reads in dashboard (after cache warm)
+- [x] `GET /api/images/turdus-merula` returns the image (not a 404)
+- [x] `GET /api/images/manifest.json` returns the manifest JSON
+- [x] Admin → Images page loads and shows all birds
+- [x] Admin → Replace image (upload + remote URL both work)
+- [x] Admin → Crop image works
+- [x] Admin → Restore original works
+- [x] Admin → Update credit/license works
+- [x] Admin → Approve image works
+- [x] Quiz questions display images correctly
+- [x] Supabase Storage bucket shows 0 reads in dashboard (after cache warm)

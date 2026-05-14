@@ -8,7 +8,7 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Admin - no cache (changes should appear immediately)
+# Admin - no cache
 [[headers]]
   for = "/admin/*"
   [headers.values]
@@ -33,7 +33,7 @@
     Cache-Control = "public, max-age=0, must-revalidate"
     Netlify-CDN-Cache-Control = "no-store"
 
-# Quiz images - long cache (Supabase Storage only, no static fallback)
+# Quiz images - long cache
 [[headers]]
   for = "/api/images/*"
   [headers.values]

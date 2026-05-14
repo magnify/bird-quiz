@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { Bird } from '@/lib/supabase/types'
+import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 import {
   Dialog,
   DialogContent,
@@ -300,7 +301,9 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
               <img
                 src={imageUrl}
                 alt={bird.name_da}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain rounded-lg"
+                style={{ maxHeight: '50vh' }}
+                onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_SVG }}
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">

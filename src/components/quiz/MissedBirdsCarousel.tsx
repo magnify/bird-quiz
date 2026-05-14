@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 
 export interface MissedBirdItem {
   key: string
@@ -89,6 +90,7 @@ export default function MissedBirdsCarousel({ items, ariaLabel }: Props) {
                   src={item.imageUrl}
                   alt={item.nameDa}
                   loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_SVG }}
                 />
                 {item.count != null && item.count > 1 && (
                   <span

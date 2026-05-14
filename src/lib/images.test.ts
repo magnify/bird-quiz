@@ -28,15 +28,14 @@ describe('images', () => {
   })
 
   describe('getSupabaseImageUrl', () => {
-    it('generates correct Supabase URL format', () => {
+    it('generates API proxy path', () => {
       const url = getSupabaseImageUrl('Columba palumbus')
-      // Just verify the structure, env var is read at module load time
-      expect(url).toContain('/storage/v1/object/public/bird-images/columba-palumbus.jpg')
+      expect(url).toBe('/api/images/columba-palumbus')
     })
 
     it('uses slug conversion', () => {
       const url = getSupabaseImageUrl('Turdus merula')
-      expect(url).toContain('turdus-merula.jpg')
+      expect(url).toBe('/api/images/turdus-merula')
     })
   })
 
