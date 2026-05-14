@@ -27,9 +27,9 @@ export default async function Home() {
     loadNeedsReviewSet(),
   ])
 
-  const filteredBirds = needsReview.size > 0
-    ? birds.filter(b => !needsReview.has(b.scientific_name))
-    : birds
+  const filteredBirds = birds.filter(
+    b => !b.scientific_name.startsWith('Testus') && !needsReview.has(b.scientific_name),
+  )
 
   return <QuizApp birds={filteredBirds} memberships={memberships} />
 }
