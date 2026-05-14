@@ -249,6 +249,8 @@ const LEGACY_BIRDS: LegacyBird[] = [
   { da: "Sabinemåge", en: "Sabine's Gull", sci: "Xema sabini", cat: "sjælden gæst", common: false },
   { da: "Steppehøg", en: "Pallid Harrier", sci: "Circus macrourus", cat: "sjælden gæst", common: false },
   { da: "Aftenfalk", en: "Red-footed Falcon", sci: "Falco vespertinus", cat: "sjælden gæst", common: false },
+  { da: "Testfugl", en: "Test Bird", sci: "Testus testus", cat: "standfugl", common: false },
+  { da: "Testfugl 2", en: "Alt Test Bird", sci: "Testus alternus", cat: "standfugl", common: false },
 ]
 
 /**
