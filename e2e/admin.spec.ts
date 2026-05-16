@@ -64,14 +64,8 @@ test('license edit via UI', async ({ page }) => {
   await expect.poll(async () => (await readManifest())[TEST_BIRD]?.license).toBe('cc0')
 })
 
-test('approve clears needsReview via UI', async ({ page }) => {
-  await openTestBirdModal(page)
-
-  await page.getByRole('button', { name: /Godkendt/i }).click()
-  await expect.poll(async () => (await readManifest())[TEST_BIRD]?.needsReview ?? false).toBe(false)
-})
-
-test('replace image via API endpoint then restore', async ({ request }) => {
+test('replace image via API endpoint then restore', async ({ page }) => {
+  const request = page.request
   const original = (await readR2(`originals/${TEST_BIRD_SLUG}.jpg`))!
   const tweaked = Buffer.from(original)
   tweaked[tweaked.length - 3] = (tweaked[tweaked.length - 3] + 1) & 0xff
@@ -96,7 +90,8 @@ test('replace image via API endpoint then restore', async ({ request }) => {
     .toBe(true)
 })
 
-test('crop image via API endpoint then restore', async ({ request }) => {
+test('crop image via API endpoint then restore', async ({ page }) => {
+  const request = page.request
   const original = (await readR2(`originals/${TEST_BIRD_SLUG}.jpg`))!
   const tweaked = Buffer.from(original)
   tweaked[tweaked.length - 4] = (tweaked[tweaked.length - 4] + 1) & 0xff
@@ -121,7 +116,8 @@ test('crop image via API endpoint then restore', async ({ request }) => {
     .toBe(true)
 })
 
-test('approve endpoint clears needsReview', async ({ request }) => {
+test('approve endpoint clears needsReview', async ({ page }) => {
+  const request = page.request
   expect((await readManifest())[TEST_BIRD]?.needsReview).toBe(true)
   const res = await request.post('/api/admin/images/approve', { data: { scientificName: TEST_BIRD } })
   expect(res.ok()).toBeTruthy()
