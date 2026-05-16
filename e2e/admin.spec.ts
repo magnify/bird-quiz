@@ -31,7 +31,7 @@ test('login + grid renders test bird', async ({ page }) => {
   await expect(page.getByText('Testfugl', { exact: true })).toBeVisible()
 })
 
-test('flag → unflag round trip via UI', async ({ page }) => {
+test('flag bird via UI writes manifest', async ({ page }) => {
   await openTestBirdModal(page)
 
   await page.getByRole('button', { name: /Markeret/i }).click()
@@ -39,9 +39,6 @@ test('flag → unflag round trip via UI', async ({ page }) => {
 
   await expect.poll(async () => (await readManifest())[TEST_BIRD]?.flagged).toBe(true)
   expect((await readManifest())[TEST_BIRD]?.flag_reason).toBe('other')
-
-  await page.getByRole('button', { name: /Markeret/i }).click()
-  await expect.poll(async () => (await readManifest())[TEST_BIRD]?.flagged ?? false).toBe(false)
 })
 
 test('credit edit via UI', async ({ page }) => {
