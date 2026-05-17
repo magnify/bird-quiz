@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Search, Check, ExternalLink } from 'lucide-react'
@@ -55,6 +55,13 @@ export default function CommonsPhotoBrowser({ scientificName, onReplace }: Props
       setLoading(false)
     }
   }
+
+  const autoSearched = useRef(false)
+  useEffect(() => {
+    if (autoSearched.current) return
+    autoSearched.current = true
+    handleSearch()
+  }, [])
 
   const handleUsePhoto = async () => {
     if (!selected) return
