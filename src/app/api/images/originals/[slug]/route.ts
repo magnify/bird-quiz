@@ -25,6 +25,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       headers: {
         'Content-Type': 'image/jpeg',
         'Cache-Control': `public, max-age=${ONE_YEAR}`,
+        'Access-Control-Allow-Origin': '*',
         'X-Source': 'r2',
       },
     })
