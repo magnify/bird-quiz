@@ -127,3 +127,55 @@ test('approve endpoint clears needsReview', async ({ page }) => {
   manifest[TEST_BIRD] = { ...BASELINE_MANIFEST_ENTRY }
   await writeManifest(manifest)
 })
+
+test('re-flag with different reason overwrites flag_reason', async ({ page }) => {
+  await openTestBirdModal(page)
+
+  await page.getByRole('button', { name: /Markeret/i }).click()
+  await page.getByRole('button', { name: 'Forkert art' }).click()
+  await expect.poll(async () => (await readManifest())[TEST_BIRD]?.flag_reason).toBe('wrong-species')
+
+  await page.getByRole('button', { name: /Markeret/i }).click()
+  await page.getByRole('button', { name: 'Dårlig komposition' }).click()
+
+  await expect.poll(async () => {
+    const entry = (await readManifest())[TEST_BIRD]
+    return { flagged: entry?.flagged, reason: entry?.flag_reason }
+  }).toEqual({ flagged: true, reason: 'bad-crop' })
+})
+
+test('crop UI loads image and enables save button', async ({ page }) => {
+  await openTestBirdModal(page)
+  await page.getByRole('button', { name: /Beskær/i }).first().click()
+
+  const cropImage = page.locator('.ReactCrop img').first()
+  await expect(cropImage).toBeVisible({ timeout: 10_000 })
+  await page.waitForFunction(
+    () => {
+      const img = document.querySelector('.ReactCrop img') as HTMLImageElement | null
+      return !!img && img.naturalWidth > 0
+    },
+    null,
+    { timeout: 10_000 },
+  )
+
+  const saveButton = page.getByRole('button', { name: /Beskær & gem/i })
+  await expect(saveButton).toBeEnabled({ timeout: 5_000 })
+})
+
+test('replace dialog tabs stay visible when scrolling', async ({ page }) => {
+  await openTestBirdModal(page)
+  await page.getByRole('button', { name: /Erstat billede/i }).click()
+
+  const tabBar = page.getByRole('button', { name: 'Wikimedia' }).first()
+  await expect(tabBar).toBeVisible()
+  const before = await tabBar.boundingBox()
+  expect(before).not.toBeNull()
+
+  await page.mouse.wheel(0, 800)
+  await page.waitForTimeout(200)
+
+  const after = await tabBar.boundingBox()
+  expect(after).not.toBeNull()
+  expect(after!.y).toBeLessThanOrEqual(before!.y + 5)
+})

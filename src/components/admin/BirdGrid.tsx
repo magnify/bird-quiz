@@ -48,7 +48,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
   const [search, setSearch] = useState('')
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set(initialFlaggedBirdIds))
   const [selectedBird, setSelectedBird] = useState<Bird | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(() => Date.now())
 
   // Build image data map from direct Supabase URLs (bypasses all caching)
   const imageData = new Map<string, ImageData>(
@@ -66,13 +66,14 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
 
   const toggleFlag = useCallback(async (scientificName: string, reason?: string) => {
     const wasFlagged = flaggedIds.has(scientificName)
+    const action: 'flag' | 'unflag' = reason ? 'flag' : (wasFlagged ? 'unflag' : 'flag')
     setFlaggedIds(prev => {
       const next = new Set(prev)
-      if (wasFlagged) next.delete(scientificName)
+      if (action === 'unflag') next.delete(scientificName)
       else next.add(scientificName)
       return next
     })
-    const result = wasFlagged
+    const result = action === 'unflag'
       ? await unflagBirdImage(scientificName)
       : await flagBirdImage(scientificName, reason || 'needs_replacement')
     if (!result.ok) {
@@ -83,7 +84,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
         else next.delete(scientificName)
         return next
       })
-      alert(`Kunne ikke ${wasFlagged ? 'fjerne markering' : 'markere'}: ${result.error}`)
+      alert(`Kunne ikke ${action === 'unflag' ? 'fjerne markering' : 'markere'}: ${result.error}`)
     }
   }, [flaggedIds])
 

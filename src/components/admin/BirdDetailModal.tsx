@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Flag, Crop, Replace, X, Pencil, Check, Loader2, Clock } from 'lucide-react'
+import { Flag, Crop, Replace, X, Pencil, Check, Loader2, Clock, ArrowLeft } from 'lucide-react'
 import ImageCropEditor from './ImageCropEditor'
 import ImageUploader from './ImageUploader'
 import INatPhotoBrowser from './INatPhotoBrowser'
@@ -60,6 +60,8 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
   const [licenseDraft, setLicenseDraft] = useState('')
   const [savingCredit, setSavingCredit] = useState(false)
   const [savingLicense, setSavingLicense] = useState(false)
+  const [creditError, setCreditError] = useState<string | null>(null)
+  const [licenseError, setLicenseError] = useState<string | null>(null)
   const [approving, setApproving] = useState(false)
   const [approved, setApproved] = useState(false)
   const [pickingReason, setPickingReason] = useState(false)
@@ -92,6 +94,7 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
 
   const saveCredit = useCallback(async () => {
     setSavingCredit(true)
+    setCreditError(null)
     try {
       const res = await fetch('/api/admin/images/credit', {
         method: 'POST',
@@ -101,14 +104,20 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
       if (res.ok) {
         setCredit(creditDraft || null)
         setEditingCredit(false)
-        onImageChanged?.() // Refresh audit status
+        onImageChanged?.()
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setCreditError(data.error || `Kunne ikke gemme (HTTP ${res.status})`)
       }
-    } catch {}
+    } catch (err) {
+      setCreditError(err instanceof Error ? err.message : 'Netværksfejl')
+    }
     setSavingCredit(false)
   }, [bird.scientific_name, creditDraft, onImageChanged])
 
   const saveLicense = useCallback(async () => {
     setSavingLicense(true)
+    setLicenseError(null)
     try {
       const res = await fetch('/api/admin/images/credit', {
         method: 'POST',
@@ -118,9 +127,14 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
       if (res.ok) {
         setLicense(licenseDraft || null)
         setEditingLicense(false)
-        onImageChanged?.() // Refresh audit status
+        onImageChanged?.()
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setLicenseError(data.error || `Kunne ikke gemme (HTTP ${res.status})`)
       }
-    } catch {}
+    } catch (err) {
+      setLicenseError(err instanceof Error ? err.message : 'Netværksfejl')
+    }
     setSavingLicense(false)
   }, [bird.scientific_name, licenseDraft, onImageChanged])
 
@@ -222,7 +236,7 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden" showCloseButton={!replacing && !cropping}>
+      <DialogContent className="sm:max-w-2xl p-0 max-h-[90vh] overflow-y-auto" showCloseButton={!replacing && !cropping}>
         {cropping && imageUrl ? (
           <div className="p-4">
             <ImageCropEditor
@@ -237,63 +251,74 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
             />
           </div>
         ) : replacing ? (
-          <div className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Erstat billede — {bird.name_da}</h3>
-              <Button variant="ghost" size="sm" onClick={() => setReplacing(false)}>
-                <X className="size-3.5" />
-              </Button>
+          <div className="flex flex-col max-h-[85vh]">
+            <div className="sticky top-0 z-10 bg-background border-b">
+              <div className="flex items-center justify-between p-4 pb-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 -ml-2"
+                  onClick={() => setReplacing(false)}
+                >
+                  <ArrowLeft className="size-3.5 mr-1.5" />
+                  Tilbage
+                </Button>
+                <h3 className="text-sm font-semibold">Erstat billede — {bird.name_da}</h3>
+                <span className="w-16" aria-hidden />
+              </div>
+
+              <div className="flex gap-1 px-4">
+                <button
+                  className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
+                    replaceTab === 'commons'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setReplaceTab('commons')}
+                >
+                  Wikimedia
+                </button>
+                <button
+                  className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
+                    replaceTab === 'inaturalist'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setReplaceTab('inaturalist')}
+                >
+                  iNaturalist
+                </button>
+                <button
+                  className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
+                    replaceTab === 'upload'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setReplaceTab('upload')}
+                >
+                  Upload
+                </button>
+              </div>
             </div>
 
-            <div className="flex gap-1 border-b">
-              <button
-                className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
-                  replaceTab === 'commons'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => setReplaceTab('commons')}
-              >
-                Wikimedia
-              </button>
-              <button
-                className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
-                  replaceTab === 'inaturalist'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => setReplaceTab('inaturalist')}
-              >
-                iNaturalist
-              </button>
-              <button
-                className={`px-3 py-1.5 text-sm font-medium border-b-2 transition-colors ${
-                  replaceTab === 'upload'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => setReplaceTab('upload')}
-              >
-                Upload
-              </button>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {replaceTab === 'upload' ? (
+                <ImageUploader
+                  scientificName={bird.scientific_name}
+                  onReplace={handleUpload}
+                />
+              ) : replaceTab === 'commons' ? (
+                <CommonsPhotoBrowser
+                  scientificName={bird.scientific_name}
+                  onReplace={handleCommonsReplace}
+                />
+              ) : (
+                <INatPhotoBrowser
+                  scientificName={bird.scientific_name}
+                  onReplace={handleINatReplace}
+                />
+              )}
             </div>
-
-            {replaceTab === 'upload' ? (
-              <ImageUploader
-                scientificName={bird.scientific_name}
-                onReplace={handleUpload}
-              />
-            ) : replaceTab === 'commons' ? (
-              <CommonsPhotoBrowser
-                scientificName={bird.scientific_name}
-                onReplace={handleCommonsReplace}
-              />
-            ) : (
-              <INatPhotoBrowser
-                scientificName={bird.scientific_name}
-                onReplace={handleINatReplace}
-              />
-            )}
           </div>
         ) : (
           <div className="relative bg-muted" style={{ aspectRatio: '16/10' }}>
@@ -337,27 +362,32 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
               <div>
                 <div className="text-xs font-medium text-muted-foreground mb-1">Kredit</div>
                 {editingCredit ? (
-                  <div className="flex gap-1.5">
-                    <Input
-                      type="text"
-                      value={creditDraft}
-                      onChange={e => setCreditDraft(e.target.value)}
-                      placeholder="Navn eller kilde"
-                      className="text-xs h-8"
-                      autoFocus
-                      onKeyDown={e => e.key === 'Enter' && saveCredit()}
-                    />
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveCredit} disabled={savingCredit}>
-                      {savingCredit ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setEditingCredit(false)}>
-                      <X className="size-3" />
-                    </Button>
+                  <div className="space-y-1">
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="text"
+                        value={creditDraft}
+                        onChange={e => setCreditDraft(e.target.value)}
+                        placeholder="Navn eller kilde"
+                        className="text-xs h-8"
+                        autoFocus
+                        onKeyDown={e => e.key === 'Enter' && saveCredit()}
+                      />
+                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveCredit} disabled={savingCredit}>
+                        {savingCredit ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => { setEditingCredit(false); setCreditError(null) }}>
+                        <X className="size-3" />
+                      </Button>
+                    </div>
+                    {creditError && (
+                      <div className="text-xs text-destructive">{creditError}</div>
+                    )}
                   </div>
                 ) : (
                   <div
                     className="text-xs p-2 rounded bg-muted text-muted-foreground flex items-center justify-between cursor-pointer hover:bg-muted/80"
-                    onClick={() => { setCreditDraft(credit || ''); setEditingCredit(true) }}
+                    onClick={() => { setCreditDraft(credit || ''); setCreditError(null); setEditingCredit(true) }}
                   >
                     <span>{credit || 'Ingen kredit'}</span>
                     <Pencil className="size-3 opacity-50" />
@@ -367,27 +397,32 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
               <div>
                 <div className="text-xs font-medium text-muted-foreground mb-1">Licens</div>
                 {editingLicense ? (
-                  <div className="flex gap-1.5">
-                    <Input
-                      type="text"
-                      value={licenseDraft}
-                      onChange={e => setLicenseDraft(e.target.value)}
-                      placeholder="own, cc0, cc-by, etc."
-                      className="text-xs h-8"
-                      autoFocus
-                      onKeyDown={e => e.key === 'Enter' && saveLicense()}
-                    />
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveLicense} disabled={savingLicense}>
-                      {savingLicense ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setEditingLicense(false)}>
-                      <X className="size-3" />
-                    </Button>
+                  <div className="space-y-1">
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="text"
+                        value={licenseDraft}
+                        onChange={e => setLicenseDraft(e.target.value)}
+                        placeholder="own, cc0, cc-by, etc."
+                        className="text-xs h-8"
+                        autoFocus
+                        onKeyDown={e => e.key === 'Enter' && saveLicense()}
+                      />
+                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveLicense} disabled={savingLicense}>
+                        {savingLicense ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => { setEditingLicense(false); setLicenseError(null) }}>
+                        <X className="size-3" />
+                      </Button>
+                    </div>
+                    {licenseError && (
+                      <div className="text-xs text-destructive">{licenseError}</div>
+                    )}
                   </div>
                 ) : (
                   <div
                     className="text-xs p-2 rounded bg-muted text-muted-foreground flex items-center justify-between cursor-pointer hover:bg-muted/80"
-                    onClick={() => { setLicenseDraft(license || ''); setEditingLicense(true) }}
+                    onClick={() => { setLicenseDraft(license || ''); setLicenseError(null); setEditingLicense(true) }}
                   >
                     <span>{license || 'Ingen licens'}</span>
                     <Pencil className="size-3 opacity-50" />

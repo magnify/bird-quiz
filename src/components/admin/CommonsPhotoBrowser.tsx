@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Loader2, Search, Check, ExternalLink } from 'lucide-react'
+import { Loader2, Search, Check, ExternalLink, ArrowLeft } from 'lucide-react'
 
 interface CommonsPhoto {
   title: string
@@ -104,6 +104,16 @@ export default function CommonsPhotoBrowser({ scientificName, onReplace }: Props
 
       {selected && (
         <div className="space-y-2 border rounded-lg p-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelected(null)}
+            disabled={replacing}
+            className="w-full justify-start"
+          >
+            <ArrowLeft className="size-3.5 mr-1.5" />
+            Tilbage til søgning
+          </Button>
           <img
             src={selected.thumbnailUrl}
             alt="Valgt billede"
@@ -131,24 +141,14 @@ export default function CommonsPhotoBrowser({ scientificName, onReplace }: Props
               {selected.width > selected.height ? ' (landscape)' : ' (portrait)'}
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleUsePhoto} disabled={replacing}>
-              {replacing ? (
-                <Loader2 className="size-3.5 mr-1.5 animate-spin" />
-              ) : (
-                <Check className="size-3.5 mr-1.5" />
-              )}
-              Brug dette billede
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelected(null)}
-              disabled={replacing}
-            >
-              Annullér
-            </Button>
-          </div>
+          <Button size="sm" onClick={handleUsePhoto} disabled={replacing} className="w-full">
+            {replacing ? (
+              <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Check className="size-3.5 mr-1.5" />
+            )}
+            Brug dette billede
+          </Button>
         </div>
       )}
 
