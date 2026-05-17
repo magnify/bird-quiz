@@ -15,7 +15,7 @@ const securityHeaders = [
   },
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; font-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'",
+    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://upload.wikimedia.org https://commons.wikimedia.org https://inaturalist-open-data.s3.amazonaws.com https://static.inaturalist.org; connect-src 'self' https://*.supabase.co https://api.inaturalist.org; font-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'",
   },
 ];
 
