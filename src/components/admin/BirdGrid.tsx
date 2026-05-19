@@ -207,7 +207,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
         <BirdDetailModal
           bird={selectedBird}
           imageData={imageData.get(selectedBird.id) || null}
-          isFlagged={flaggedIds.has(selectedBird.id)}
+          isFlagged={flaggedIds.has(selectedBird.scientific_name)}
           onToggleFlag={(reason) => toggleFlag(selectedBird.scientific_name, reason)}
           onClose={() => setSelectedBird(null)}
           onImageChanged={handleImageChanged}

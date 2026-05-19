@@ -436,7 +436,7 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
             const status: 'flagged' | 'review' | 'approved' =
               isFlagged ? 'flagged' : (needsReview && !approved) ? 'review' : 'approved'
 
-            const setApproved = async () => {
+            const markApproved = async () => {
               if (isFlagged) onToggleFlag()
               if (needsReview && !approved) await handleApprove()
             }
@@ -449,7 +449,7 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
                     variant={status === 'approved' ? 'default' : 'ghost'}
                     size="sm"
                     className="h-7"
-                    onClick={setApproved}
+                    onClick={markApproved}
                     disabled={approving || status === 'approved'}
                   >
                     {approving ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <Check className="size-3.5 mr-1.5" />}

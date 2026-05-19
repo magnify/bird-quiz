@@ -58,7 +58,7 @@ export async function unflagBirdImage(scientificName: string): Promise<{ ok: boo
   }
 }
 
-export async function getFlaggedBirdIds(): Promise<Set<string>> {
+export async function getFlaggedScientificNames(): Promise<Set<string>> {
   try {
     const manifest = await readManifest()
     const flagged = new Set<string>()

@@ -2,7 +2,7 @@ import { STATIC_BIRDS } from '@/lib/data/birds-static'
 import { r2Get } from '@/lib/r2'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import ImageAuditGrid from '@/components/admin/ImageAuditGrid'
-import { getFlaggedBirdIds } from '@/app/actions/birds'
+import { getFlaggedScientificNames } from '@/app/actions/birds'
 
 type AuditStatus = 'critical' | 'warning' | 'ok'
 
@@ -116,9 +116,9 @@ async function analyzeImages(): Promise<ImageAudit[]> {
 }
 
 export default async function ImagesPage() {
-  const [audits, flaggedIds] = await Promise.all([
+  const [audits, flaggedNames] = await Promise.all([
     analyzeImages(),
-    getFlaggedBirdIds(),
+    getFlaggedScientificNames(),
   ])
 
   return (
@@ -132,7 +132,7 @@ export default async function ImagesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ImageAuditGrid audits={audits} initialFlaggedBirdIds={Array.from(flaggedIds)} />
+          <ImageAuditGrid audits={audits} initialFlaggedBirdIds={Array.from(flaggedNames)} />
         </CardContent>
       </Card>
     </div>
