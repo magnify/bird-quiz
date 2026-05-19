@@ -54,14 +54,11 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
 
   const [credit, setCredit] = useState<string | null>(null)
   const [license, setLicense] = useState<string | null>(null)
-  const [editingCredit, setEditingCredit] = useState(false)
-  const [editingLicense, setEditingLicense] = useState(false)
+  const [editingMeta, setEditingMeta] = useState(false)
   const [creditDraft, setCreditDraft] = useState('')
   const [licenseDraft, setLicenseDraft] = useState('')
-  const [savingCredit, setSavingCredit] = useState(false)
-  const [savingLicense, setSavingLicense] = useState(false)
-  const [creditError, setCreditError] = useState<string | null>(null)
-  const [licenseError, setLicenseError] = useState<string | null>(null)
+  const [savingMeta, setSavingMeta] = useState(false)
+  const [metaError, setMetaError] = useState<string | null>(null)
   const [approving, setApproving] = useState(false)
   const [approved, setApproved] = useState(false)
   const [pickingReason, setPickingReason] = useState(false)
@@ -92,51 +89,45 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
     setApproving(false)
   }, [bird.scientific_name, onImageChanged])
 
-  const saveCredit = useCallback(async () => {
-    setSavingCredit(true)
-    setCreditError(null)
+  const startEditingMeta = useCallback(() => {
+    setCreditDraft(credit || '')
+    setLicenseDraft(license || '')
+    setMetaError(null)
+    setEditingMeta(true)
+  }, [credit, license])
+
+  const cancelEditingMeta = useCallback(() => {
+    setEditingMeta(false)
+    setMetaError(null)
+  }, [])
+
+  const saveMeta = useCallback(async () => {
+    setSavingMeta(true)
+    setMetaError(null)
     try {
       const res = await fetch('/api/admin/images/credit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scientificName: bird.scientific_name, attribution: creditDraft }),
+        body: JSON.stringify({
+          scientificName: bird.scientific_name,
+          attribution: creditDraft,
+          license: licenseDraft,
+        }),
       })
       if (res.ok) {
         setCredit(creditDraft || null)
-        setEditingCredit(false)
-        onImageChanged?.()
-      } else {
-        const data = await res.json().catch(() => ({}))
-        setCreditError(data.error || `Kunne ikke gemme (HTTP ${res.status})`)
-      }
-    } catch (err) {
-      setCreditError(err instanceof Error ? err.message : 'Netværksfejl')
-    }
-    setSavingCredit(false)
-  }, [bird.scientific_name, creditDraft, onImageChanged])
-
-  const saveLicense = useCallback(async () => {
-    setSavingLicense(true)
-    setLicenseError(null)
-    try {
-      const res = await fetch('/api/admin/images/credit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scientificName: bird.scientific_name, license: licenseDraft }),
-      })
-      if (res.ok) {
         setLicense(licenseDraft || null)
-        setEditingLicense(false)
+        setEditingMeta(false)
         onImageChanged?.()
       } else {
         const data = await res.json().catch(() => ({}))
-        setLicenseError(data.error || `Kunne ikke gemme (HTTP ${res.status})`)
+        setMetaError(data.error || `Kunne ikke gemme (HTTP ${res.status})`)
       }
     } catch (err) {
-      setLicenseError(err instanceof Error ? err.message : 'Netværksfejl')
+      setMetaError(err instanceof Error ? err.message : 'Netværksfejl')
     }
-    setSavingLicense(false)
-  }, [bird.scientific_name, licenseDraft, onImageChanged])
+    setSavingMeta(false)
+  }, [bird.scientific_name, creditDraft, licenseDraft, onImageChanged])
 
 
   const handleReplaceSuccess = (newPath: string) => {
@@ -358,78 +349,71 @@ export default function BirdDetailModal({ bird, imageData, isFlagged, needsRevie
           </div>
 
           {showNormalView && imageUrl && (
-            <div className="space-y-2">
-              <div>
-                <div className="text-xs font-medium text-muted-foreground mb-1">Kredit</div>
-                {editingCredit ? (
-                  <div className="space-y-1">
-                    <div className="flex gap-1.5">
-                      <Input
-                        type="text"
-                        value={creditDraft}
-                        onChange={e => setCreditDraft(e.target.value)}
-                        placeholder="Navn eller kilde"
-                        className="text-xs h-8"
-                        autoFocus
-                        onKeyDown={e => e.key === 'Enter' && saveCredit()}
-                      />
-                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveCredit} disabled={savingCredit}>
-                        {savingCredit ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => { setEditingCredit(false); setCreditError(null) }}>
-                        <X className="size-3" />
-                      </Button>
-                    </div>
-                    {creditError && (
-                      <div className="text-xs text-destructive">{creditError}</div>
-                    )}
-                  </div>
-                ) : (
-                  <div
-                    className="text-xs p-2 rounded bg-muted text-muted-foreground flex items-center justify-between cursor-pointer hover:bg-muted/80"
-                    onClick={() => { setCreditDraft(credit || ''); setCreditError(null); setEditingCredit(true) }}
-                  >
-                    <span>{credit || 'Ingen kredit'}</span>
-                    <Pencil className="size-3 opacity-50" />
-                  </div>
+            editingMeta ? (
+              <form
+                className="space-y-3 rounded-md border p-3"
+                onSubmit={e => { e.preventDefault(); saveMeta() }}
+              >
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground" htmlFor="bdm-credit">
+                    Kredit
+                  </label>
+                  <Input
+                    id="bdm-credit"
+                    type="text"
+                    value={creditDraft}
+                    onChange={e => setCreditDraft(e.target.value)}
+                    placeholder="Navn eller kilde"
+                    className="text-xs h-8"
+                    autoFocus
+                    disabled={savingMeta}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground" htmlFor="bdm-license">
+                    Licens
+                  </label>
+                  <Input
+                    id="bdm-license"
+                    type="text"
+                    value={licenseDraft}
+                    onChange={e => setLicenseDraft(e.target.value)}
+                    placeholder="own, cc0, cc-by, etc."
+                    className="text-xs h-8"
+                    disabled={savingMeta}
+                  />
+                </div>
+                {metaError && (
+                  <div className="text-xs text-destructive">{metaError}</div>
                 )}
-              </div>
-              <div>
-                <div className="text-xs font-medium text-muted-foreground mb-1">Licens</div>
-                {editingLicense ? (
-                  <div className="space-y-1">
-                    <div className="flex gap-1.5">
-                      <Input
-                        type="text"
-                        value={licenseDraft}
-                        onChange={e => setLicenseDraft(e.target.value)}
-                        placeholder="own, cc0, cc-by, etc."
-                        className="text-xs h-8"
-                        autoFocus
-                        onKeyDown={e => e.key === 'Enter' && saveLicense()}
-                      />
-                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={saveLicense} disabled={savingLicense}>
-                        {savingLicense ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => { setEditingLicense(false); setLicenseError(null) }}>
-                        <X className="size-3" />
-                      </Button>
-                    </div>
-                    {licenseError && (
-                      <div className="text-xs text-destructive">{licenseError}</div>
-                    )}
+                <div className="flex gap-2 pt-1">
+                  <Button type="submit" size="sm" disabled={savingMeta}>
+                    {savingMeta ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <Check className="size-3.5 mr-1.5" />}
+                    Gem
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={cancelEditingMeta} disabled={savingMeta}>
+                    Annullér
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-2 rounded-md border p-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground">Kredit</div>
+                    <div className="text-xs text-muted-foreground">{credit || 'Ingen kredit'}</div>
                   </div>
-                ) : (
-                  <div
-                    className="text-xs p-2 rounded bg-muted text-muted-foreground flex items-center justify-between cursor-pointer hover:bg-muted/80"
-                    onClick={() => { setLicenseDraft(license || ''); setLicenseError(null); setEditingLicense(true) }}
-                  >
-                    <span>{license || 'Ingen licens'}</span>
-                    <Pencil className="size-3 opacity-50" />
-                  </div>
-                )}
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground">Licens</div>
+                  <div className="text-xs text-muted-foreground">{license || 'Ingen licens'}</div>
+                </div>
+                <Button variant="outline" size="sm" onClick={startEditingMeta} className="w-full">
+                  <Pencil className="size-3.5 mr-1.5" />
+                  Rediger kredit & licens
+                </Button>
               </div>
-            </div>
+            )
           )}
 
           {showNormalView && (() => {

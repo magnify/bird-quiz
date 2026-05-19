@@ -45,10 +45,9 @@ test('credit edit via UI', async ({ page }) => {
   await openTestBirdModal(page)
 
   const newCredit = `e2e-${Date.now()}`
-  await page.getByText('Test attribution', { exact: true }).click()
-  const creditInput = page.getByPlaceholder('Navn eller kilde')
-  await creditInput.fill(newCredit)
-  await creditInput.press('Enter')
+  await page.getByRole('button', { name: /Rediger kredit & licens/i }).click()
+  await page.getByLabel('Kredit').fill(newCredit)
+  await page.getByRole('button', { name: /^Gem$/ }).click()
 
   await expect.poll(async () => (await readManifest())[TEST_BIRD]?.attribution).toBe(newCredit)
 })
@@ -56,10 +55,9 @@ test('credit edit via UI', async ({ page }) => {
 test('license edit via UI', async ({ page }) => {
   await openTestBirdModal(page)
 
-  await page.getByText('own', { exact: true }).click()
-  const licenseInput = page.getByPlaceholder(/own, cc0, cc-by/)
-  await licenseInput.fill('cc0')
-  await licenseInput.press('Enter')
+  await page.getByRole('button', { name: /Rediger kredit & licens/i }).click()
+  await page.getByLabel('Licens').fill('cc0')
+  await page.getByRole('button', { name: /^Gem$/ }).click()
 
   await expect.poll(async () => (await readManifest())[TEST_BIRD]?.license).toBe('cc0')
 })
