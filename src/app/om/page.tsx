@@ -34,7 +34,8 @@ export default function OmPage() {
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Støt projektet</p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
-              Kan du lide Fugle Quiz? Send en kaffe via MobilePay:{' '}
+              Fugle Quiz er et frivilligt projekt. Det overskud, der er tilbage efter drift — der er lidt server,
+              der skal hostes — går til at støtte dansk natur. Kan du lide projektet? Send en kaffe via MobilePay:{' '}
               <strong style={{ color: 'var(--quiz-foreground)' }}>0611SB</strong>
             </p>
           </div>
