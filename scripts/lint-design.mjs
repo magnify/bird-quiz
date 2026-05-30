@@ -38,6 +38,9 @@ const INLINE_STYLE_RE = /style=\{\{/g
 const DYNAMIC_MARKER = /\/\*\s*dynamic\s*\*\//
 const DEFAULT_EXPORT_RE = /^export default function\s+\w+/gm
 const BROWSER_DIALOG_RE = /\b(alert|confirm|prompt)\s*\(/g
+const HEX_COLOR_RE = /#[0-9a-fA-F]{3,8}\b/g
+const HARDCODED_PX_RE = /\b\d+px\b/g
+const RAW_RGBA_RE = /\brgba?\s*\(/g
 
 // Categories: [name, { roots: [globs], test: (file, src) => count }]
 const RULES = [
@@ -74,8 +77,51 @@ const RULES = [
     name: 'browser-dialog',
     roots: ['src'],
     exts: ['.ts', '.tsx', '.js', '.jsx'],
-    excludeDirs: ['src/app'],  // server files don't hit these anyway
+    excludeDirs: ['src/app'],
     test: (_f, src) => (src.match(BROWSER_DIALOG_RE) || []).length,
+  },
+  {
+    // Catches raw hex color literals in quiz components — use --quiz-* tokens instead.
+    name: 'hex-color',
+    roots: ['src/components/quiz'],
+    exts: ['.tsx', '.jsx'],
+    test: (_f, src) => {
+      let count = 0
+      for (const line of src.split('\n')) {
+        const m = line.match(HEX_COLOR_RE)
+        if (m) count += m.length
+      }
+      return count
+    },
+  },
+  {
+    // Catches hardcoded px values in quiz components — use --quiz-gap-* / --quiz-padding-* tokens.
+    name: 'hardcoded-px',
+    roots: ['src/components/quiz'],
+    exts: ['.tsx', '.jsx'],
+    test: (_f, src) => {
+      let count = 0
+      for (const line of src.split('\n')) {
+        if (/@media/.test(line)) continue
+        const m = line.match(HARDCODED_PX_RE)
+        if (m) count += m.length
+      }
+      return count
+    },
+  },
+  {
+    // Catches raw rgba() calls in quiz components — use --quiz-* tokens instead.
+    name: 'raw-rgba',
+    roots: ['src/components/quiz'],
+    exts: ['.tsx', '.jsx'],
+    test: (_f, src) => {
+      let count = 0
+      for (const line of src.split('\n')) {
+        const m = line.match(RAW_RGBA_RE)
+        if (m) count += m.length
+      }
+      return count
+    },
   },
 ]
 
