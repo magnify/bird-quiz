@@ -188,7 +188,7 @@ export default function QuizQuestion({
           // PHOTO MODE: Text options (left) | Bird image (right)
           <>
             <div className="options-area">
-              <div className="question-text">Hvad er dette for en fugl?</div>
+              <div className="question-text">Hvilken fugl ser du her?</div>
               <div className="options-grid">
                 {question.options.map(opt => {
                   const { className, icon } = getButtonState(opt)
@@ -247,7 +247,7 @@ export default function QuizQuestion({
           // NAME MODE: Bird name question (left) | Photo grid (right)
           <>
             <div className="options-area">
-              <div className="question-text">Find billedet af</div>
+              <div className="question-text">Find billede af en</div>
               <div className="name-display">
                 <h2 className="bird-name-text">{question.bird.name_da}</h2>
                 <p className="bird-sci-text">{question.bird.scientific_name}</p>
