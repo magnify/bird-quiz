@@ -36,39 +36,27 @@ function weightedPick(
   weights: Weights,
   count: number
 ): Bird[] {
-  if (pool.length <= count) return [...pool]
+  if (pool.length <= count) return shuffle(pool)
 
+  const remaining = [...pool]
   const picked: Bird[] = []
-  const usedIndices = new Set<number>()
 
-  const totalWeight = pool.reduce(
-    (sum, b) => sum + getWeight(b.scientific_name, weights),
-    0
-  )
-
-  while (picked.length < count) {
+  while (picked.length < count && remaining.length > 0) {
+    const totalWeight = remaining.reduce(
+      (sum, b) => sum + getWeight(b.scientific_name, weights),
+      0,
+    )
     let r = Math.random() * totalWeight
-    let pickedOne = false
-    for (let i = 0; i < pool.length; i++) {
-      if (usedIndices.has(i)) continue
-      r -= getWeight(pool[i].scientific_name, weights)
+    let idx = remaining.length - 1
+    for (let i = 0; i < remaining.length; i++) {
+      r -= getWeight(remaining[i].scientific_name, weights)
       if (r <= 0) {
-        picked.push(pool[i])
-        usedIndices.add(i)
-        pickedOne = true
+        idx = i
         break
       }
     }
-    // Safety: if rounding prevents a pick, grab the first available
-    if (!pickedOne) {
-      for (let i = 0; i < pool.length; i++) {
-        if (!usedIndices.has(i)) {
-          picked.push(pool[i])
-          usedIndices.add(i)
-          break
-        }
-      }
-    }
+    picked.push(remaining[idx])
+    remaining.splice(idx, 1)
   }
 
   return picked

@@ -151,6 +151,33 @@ describe('generateQuestions', () => {
     }
   })
 
+  it('weighted selection does not bias toward low-index birds when pool > count', () => {
+    // Pool of 20 hard birds, pick 10. With uniform weights, every bird should
+    // appear at least once across many runs. The previous algorithm fell back
+    // to "first available" and consistently picked low-index birds.
+    const pool: Bird[] = []
+    for (let i = 0; i < 20; i++) {
+      pool.push(createMockBird(`p${i}`, `Genus species${i}`, 'hard'))
+    }
+
+    const counts = new Map<string, number>()
+    pool.forEach(b => counts.set(b.id, 0))
+
+    for (let run = 0; run < 200; run++) {
+      const questions = generateQuestions(pool, [], 'hard', 'photo', 10, {})
+      questions.forEach(q => {
+        counts.set(q.bird.id, (counts.get(q.bird.id) ?? 0) + 1)
+      })
+    }
+
+    // Every bird should be picked at least once across 200 runs of 10 picks
+    // each. With uniform weights this is overwhelmingly likely. The buggy
+    // algorithm starved high-index birds entirely.
+    for (const [id, n] of counts.entries()) {
+      expect(n, `bird ${id} was picked 0 times across 200 runs`).toBeGreaterThan(0)
+    }
+  })
+
   it('does not generate more questions than available birds', () => {
     const easyBirds = mockBirds.filter(b => b.is_easy)
     const questions = generateQuestions(mockBirds, [], 'easy', 'photo', 100, {})
