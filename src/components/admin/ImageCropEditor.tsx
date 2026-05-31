@@ -25,6 +25,8 @@ export default function ImageCropEditor({ scientificName, imageUrl, onCropped, o
   const [restoring, setRestoring] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hasBackup, setHasBackup] = useState<boolean | null>(null)
+  // Stable per mount so the crossOrigin image isn't refetched on every render.
+  const [cacheBust] = useState(() => Date.now())
   const imgRef = useRef<HTMLImageElement>(null)
 
   const slug = scientificName.toLowerCase().replace(/\s+/g, '-')
@@ -158,7 +160,11 @@ export default function ImageCropEditor({ scientificName, imageUrl, onCropped, o
       >
         <img
           ref={imgRef}
-          src={imageUrl.includes('?') ? imageUrl : `${imageUrl}?crop=${Date.now()}`}
+          // Always use a unique URL for the crossOrigin fetch. The summary view
+          // and grid load this image WITHOUT crossOrigin, so reusing their URL
+          // would serve the cached non-CORS copy here and taint the canvas,
+          // making canvas.toBlob() throw and the crop silently fail.
+          src={`${imageUrl}${imageUrl.includes('?') ? '&' : '?'}cors=${cacheBust}`}
           alt="Crop preview"
           onLoad={onImageLoad}
           onError={() => setError('Kunne ikke indlæse billede til beskæring (CORS?)')}

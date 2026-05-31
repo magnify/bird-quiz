@@ -93,18 +93,21 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
         attribution: creditDraft || undefined,
         license: licenseDraft || undefined,
       })
-      setView('summary')
+      setSavingMeta(false)
+      onClose()
+      return
     } catch (err) {
       setMetaError(err instanceof Error ? err.message : 'Netværksfejl')
     }
     setSavingMeta(false)
-  }, [actions, audit.flagged, audit.flagReason, bird.scientific_name, creditDraft, flagDraft, licenseDraft])
+  }, [actions, audit.flagged, audit.flagReason, bird.scientific_name, creditDraft, flagDraft, licenseDraft, onClose])
 
   const handleApprove = useCallback(async () => {
     setApproving(true)
     await actions.approve(bird.scientific_name)
     setApproving(false)
-  }, [actions, bird.scientific_name])
+    onClose()
+  }, [actions, bird.scientific_name, onClose])
 
   const handleReplaceSuccess = (newPath: string, patch: { attribution?: string; license?: string }) => {
     setImageUrl(newPath)
