@@ -36,22 +36,23 @@ export default function ImageCropEditor({ scientificName, imageUrl, onCropped, o
   }
 
   const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    const { naturalWidth, naturalHeight, width, height } = e.currentTarget
-    // Set initial centered 4:3 crop
+    const { width, height } = e.currentTarget
     const initialCrop = centerCrop(
-      makeAspectCrop(
-        { unit: '%', width: 90 },
-        4 / 3,
-        width,
-        height,
-      ),
+      makeAspectCrop({ unit: '%', width: 90 }, 4 / 3, width, height),
       width,
       height,
     )
     setCrop(initialCrop)
-    // We need to suppress the unused variable warning
-    void naturalWidth
-    void naturalHeight
+    // Also seed completedCrop so save button is enabled immediately (no drag required).
+    // react-image-crop does not fire onComplete from programmatic setCrop in all cases.
+    const pixelCrop: PixelCrop = {
+      unit: 'px',
+      x: (initialCrop.x / 100) * width,
+      y: (initialCrop.y / 100) * height,
+      width: (initialCrop.width / 100) * width,
+      height: (initialCrop.height / 100) * height,
+    }
+    setCompletedCrop(pixelCrop)
   }, [])
 
   const handleSave = useCallback(async () => {
@@ -157,9 +158,10 @@ export default function ImageCropEditor({ scientificName, imageUrl, onCropped, o
       >
         <img
           ref={imgRef}
-          src={imageUrl}
+          src={imageUrl.includes('?') ? imageUrl : `${imageUrl}?crop=${Date.now()}`}
           alt="Crop preview"
           onLoad={onImageLoad}
+          onError={() => setError('Kunne ikke indlæse billede til beskæring (CORS?)')}
           style={{ maxHeight: '60vh', width: '100%', objectFit: 'contain' }}
           crossOrigin="anonymous"
         />

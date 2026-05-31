@@ -103,17 +103,7 @@ export default function CommonsPhotoBrowser({ scientificName, onReplace }: Props
       )}
 
       {selected && (
-        <div className="space-y-2 border rounded-lg p-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSelected(null)}
-            disabled={replacing}
-            className="w-full justify-start"
-          >
-            <ArrowLeft className="size-3.5 mr-1.5" />
-            Tilbage til søgning
-          </Button>
+        <div className="space-y-3 border rounded-lg p-3">
           <img
             src={selected.thumbnailUrl}
             alt="Valgt billede"
@@ -141,19 +131,30 @@ export default function CommonsPhotoBrowser({ scientificName, onReplace }: Props
               {selected.width > selected.height ? ' (landscape)' : ' (portrait)'}
             </div>
           </div>
-          <Button size="sm" onClick={handleUsePhoto} disabled={replacing} className="w-full">
-            {replacing ? (
-              <Loader2 className="size-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <Check className="size-3.5 mr-1.5" />
-            )}
-            Brug dette billede
-          </Button>
+          <div className="flex justify-between gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelected(null)}
+              disabled={replacing}
+            >
+              <ArrowLeft className="size-3.5 mr-1.5" />
+              Tilbage
+            </Button>
+            <Button size="sm" onClick={handleUsePhoto} disabled={replacing}>
+              {replacing ? (
+                <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Check className="size-3.5 mr-1.5" />
+              )}
+              Brug dette billede
+            </Button>
+          </div>
         </div>
       )}
 
       {photos.length > 0 && !selected && (
-        <div className="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto">
+        <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 gap-2 max-h-[65vh] overflow-y-auto">
           {photos.map((photo, i) => {
             const isLandscape = photo.width > photo.height
             return (

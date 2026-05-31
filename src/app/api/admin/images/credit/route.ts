@@ -18,32 +18,14 @@ interface ManifestEntry {
   source: string
   attribution?: string
   license?: string
+  flagged?: boolean
+  flag_reason?: string
 }
 
 async function getManifest() {
   const data = await r2Get('manifest.json')
   if (!data) return {}
   return JSON.parse(data.toString()) as Record<string, ManifestEntry>
-}
-
-export async function GET(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const scientificName = request.nextUrl.searchParams.get('bird')
-  if (!scientificName) {
-    return NextResponse.json({ error: 'Missing bird parameter' }, { status: 400 })
-  }
-
-  const manifest = await getManifest()
-  const entry = manifest[scientificName]
-
-  return NextResponse.json({
-    attribution: entry?.attribution || null,
-    source: entry?.source || null,
-    license: entry?.license || null,
-  })
 }
 
 export async function POST(request: NextRequest) {

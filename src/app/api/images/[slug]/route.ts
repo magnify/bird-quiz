@@ -23,10 +23,14 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     if (!buffer) {
       return NextResponse.json({ error: 'Not found', file: key }, { status: 404 })
     }
+    const cacheControl = isManifest
+      ? 'no-store, max-age=0'
+      : `public, max-age=${ONE_YEAR}`
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': `public, max-age=${ONE_YEAR}`,
+        'Cache-Control': cacheControl,
+        'Netlify-CDN-Cache-Control': cacheControl,
         'Access-Control-Allow-Origin': '*',
         'X-Source': 'r2',
       },

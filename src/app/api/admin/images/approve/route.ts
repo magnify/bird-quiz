@@ -19,6 +19,8 @@ interface ManifestEntry {
   attribution?: string
   license?: string
   needsReview?: boolean
+  flagged?: boolean
+  flag_reason?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -41,6 +43,8 @@ export async function POST(request: NextRequest) {
 
     if (manifest[scientificName]) {
       delete manifest[scientificName].needsReview
+      delete manifest[scientificName].flagged
+      delete manifest[scientificName].flag_reason
     }
 
     const buffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')

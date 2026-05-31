@@ -1,94 +1,31 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import BirdDetailModal from './BirdDetailModal'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { flagBirdImage, unflagBirdImage } from '@/app/actions/birds'
 import { getSupabaseImageUrl } from '@/lib/images'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
+import type { ImageAudit } from '@/lib/admin/image-status'
+import { useBirdImageActions } from '@/hooks/admin/useBirdImageActions'
 
-type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait'
-
-interface ImageData {
-  url: string | null
-  source: 'supabase'
-  status: 'loaded'
-}
-
-// Birds with portrait or square images (ratio <= 1.0) that crop poorly
-const PORTRAIT_IMAGES = new Set([
-  'Falco columbarius',
-  'Dryocopus martius',
-  'Certhia familiaris',
-  'Picus viridis',
-  'Aegithalos caudatus',
-  'Falco peregrinus',
-  'Dendrocopos major',
-  'Loxia pytyopsittacus',
-  'Cyanistes caeruleus',
-  'Acrocephalus palustris',
-  'Falco tinnunculus',
-  'Lophophanes cristatus',
-  'Milvus milvus',
-  'Nucifraga caryocatactes',
-  'Remiz pendulinus',
-  'Strix aluco',
-])
+type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait' | 'missing'
 
 interface BirdGridProps {
   birds: Bird[]
-  initialFlaggedBirdIds: string[]
+  audits: ImageAudit[]
 }
 
-export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps) {
+export default function BirdGrid({ birds, audits: initialAudits }: BirdGridProps) {
+  const { audits, statusByName, refreshKey, actions } = useBirdImageActions({ initialAudits })
   const [filter, setFilter] = useState<Filter>('all')
   const [search, setSearch] = useState('')
-  const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set(initialFlaggedBirdIds))
   const [selectedBird, setSelectedBird] = useState<Bird | null>(null)
-  const [refreshKey, setRefreshKey] = useState(() => Date.now())
 
-  // Build image data map from direct Supabase URLs (bypasses all caching)
-  const imageData = new Map<string, ImageData>(
-    birds.map(b => {
-      // Admin uses direct Supabase URLs with timestamp - always fresh
-      const url = `${getSupabaseImageUrl(b.scientific_name)}?t=${refreshKey}`
-      return [b.id, { url, source: 'supabase', status: 'loaded' }]
-    })
-  )
+  const auditByName = new Map(audits.map(a => [a.scientificName, a]))
 
-  const handleImageChanged = useCallback(() => {
-    // Force re-render with fresh timestamp to bypass Supabase CDN cache
-    setRefreshKey(Date.now())
-  }, [])
-
-  const toggleFlag = useCallback(async (scientificName: string, reason?: string) => {
-    const wasFlagged = flaggedIds.has(scientificName)
-    const action: 'flag' | 'unflag' = reason ? 'flag' : (wasFlagged ? 'unflag' : 'flag')
-    setFlaggedIds(prev => {
-      const next = new Set(prev)
-      if (action === 'unflag') next.delete(scientificName)
-      else next.add(scientificName)
-      return next
-    })
-    const result = action === 'unflag'
-      ? await unflagBirdImage(scientificName)
-      : await flagBirdImage(scientificName, reason || 'needs_replacement')
-    if (!result.ok) {
-      console.error('Flag toggle failed:', result.error)
-      setFlaggedIds(prev => {
-        const next = new Set(prev)
-        if (wasFlagged) next.add(scientificName)
-        else next.delete(scientificName)
-        return next
-      })
-      alert(`Kunne ikke ${action === 'unflag' ? 'fjerne markering' : 'markere'}: ${result.error}`)
-    }
-  }, [flaggedIds])
-
-  // Filter birds
   const filtered = birds.filter(bird => {
     if (search) {
       const q = search.toLowerCase()
@@ -98,12 +35,14 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
         !bird.scientific_name.toLowerCase().includes(q)
       ) return false
     }
+    const audit = auditByName.get(bird.scientific_name)
     switch (filter) {
       case 'easy': return bird.is_easy
       case 'common': return bird.is_common
       case 'hard': return !bird.is_easy && !bird.is_common
-      case 'flagged': return flaggedIds.has(bird.scientific_name)
-      case 'portrait': return PORTRAIT_IMAGES.has(bird.scientific_name)
+      case 'flagged': return audit?.flagged ?? false
+      case 'portrait': return audit?.isPortrait ?? false
+      case 'missing': return !(audit?.hasFile ?? false)
       default: return true
     }
   })
@@ -113,13 +52,15 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
     { key: 'easy', label: 'Lette', count: birds.filter(b => b.is_easy).length },
     { key: 'common', label: 'Almindelige', count: birds.filter(b => b.is_common).length },
     { key: 'hard', label: 'Svære', count: birds.filter(b => !b.is_easy && !b.is_common).length },
-    { key: 'portrait', label: 'Billedproblemer', count: PORTRAIT_IMAGES.size },
-    { key: 'flagged', label: 'Markerede', count: flaggedIds.size },
+    { key: 'portrait', label: 'Billedproblemer', count: audits.filter(a => a.isPortrait).length },
+    { key: 'flagged', label: 'Markerede', count: audits.filter(a => a.flagged).length },
+    { key: 'missing', label: 'Intet billede', count: audits.filter(a => !a.hasFile).length },
   ]
+
+  const selectedAudit = selectedBird ? auditByName.get(selectedBird.scientific_name) : null
 
   return (
     <>
-      {/* Toolbar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
         <Input
           type="text"
@@ -134,7 +75,7 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
               key={f.key}
               variant={filter === f.key ? 'default' : 'outline'}
               className={`cursor-pointer ${
-                filter === f.key && (f.key === 'flagged' || f.key === 'portrait')
+                filter === f.key && (f.key === 'flagged' || f.key === 'portrait' || f.key === 'missing')
                   ? 'bg-destructive/15 text-destructive'
                   : ''
               }`}
@@ -146,17 +87,16 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
         </div>
       </div>
 
-      {/* Status */}
       <div className="text-xs mb-4 text-muted-foreground">
         {filtered.length} af {birds.length} fugle
       </div>
 
-      {/* Grid */}
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
         {filtered.map(bird => {
-          const img = imageData.get(bird.id)
-          const isFlagged = flaggedIds.has(bird.scientific_name)
-          const isPortrait = PORTRAIT_IMAGES.has(bird.scientific_name)
+          const audit = auditByName.get(bird.scientific_name)
+          const status = statusByName.get(bird.scientific_name)
+          const isMissing = status?.kind === 'missing'
+          const imageUrl = `${getSupabaseImageUrl(bird.scientific_name)}?t=${refreshKey}`
           return (
             <Card
               key={bird.id}
@@ -164,22 +104,22 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
               className="overflow-hidden cursor-pointer p-0"
             >
               <div className="relative bg-muted" style={{ aspectRatio: '4/3' }}>
-                {img?.url ? (
+                {isMissing ? (
+                  <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+                    Intet foto
+                  </div>
+                ) : (
                   <img
-                    src={img.url}
+                    src={imageUrl}
                     alt={bird.name_da}
                     className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_SVG }}
                   />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
-                    Intet foto
-                  </div>
                 )}
-                {isFlagged && (
+                {audit?.flagged && (
                   <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-destructive" />
                 )}
-                {isPortrait && (
+                {audit?.isPortrait && (
                   <div className="absolute top-2 left-2 w-2.5 h-2.5 rounded-full bg-orange-400" />
                 )}
               </div>
@@ -203,14 +143,13 @@ export default function BirdGrid({ birds, initialFlaggedBirdIds }: BirdGridProps
         })}
       </div>
 
-      {selectedBird && (
+      {selectedBird && selectedAudit && (
         <BirdDetailModal
           bird={selectedBird}
-          imageData={imageData.get(selectedBird.id) || null}
-          isFlagged={flaggedIds.has(selectedBird.scientific_name)}
-          onToggleFlag={(reason) => toggleFlag(selectedBird.scientific_name, reason)}
+          audit={selectedAudit}
+          imageUrl={`${getSupabaseImageUrl(selectedBird.scientific_name)}?t=${refreshKey}`}
+          actions={actions}
           onClose={() => setSelectedBird(null)}
-          onImageChanged={handleImageChanged}
         />
       )}
     </>

@@ -58,15 +58,3 @@ export async function unflagBirdImage(scientificName: string): Promise<{ ok: boo
   }
 }
 
-export async function getFlaggedScientificNames(): Promise<Set<string>> {
-  try {
-    const manifest = await readManifest()
-    const flagged = new Set<string>()
-    for (const [sciName, entry] of Object.entries(manifest)) {
-      if (entry.flagged) flagged.add(sciName)
-    }
-    return flagged
-  } catch {
-    return new Set()
-  }
-}

@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: true,
   reporter: 'list',
   use: {
-    baseURL: 'https://bird-quiz.magnify.dk',
+    baseURL: 'https://www.fuglequiz.dk',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

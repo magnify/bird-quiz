@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 
 let client: S3Client | null = null
 
@@ -57,4 +57,24 @@ export async function r2Head(key: string): Promise<boolean> {
     if (err instanceof Error && err.name === 'NotFound') return false
     throw err
   }
+}
+
+export async function r2List(prefix?: string): Promise<string[]> {
+  const keys: string[] = []
+  let continuationToken: string | undefined
+
+  do {
+    const cmd = new ListObjectsV2Command({
+      Bucket: getBucket(),
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    })
+    const response = await getR2Client().send(cmd)
+    for (const obj of response.Contents ?? []) {
+      if (obj.Key) keys.push(obj.Key)
+    }
+    continuationToken = response.NextContinuationToken
+  } while (continuationToken)
+
+  return keys
 }
