@@ -105,44 +105,46 @@ export function generateQuestions(
   const pool = filterPool(birds, difficulty)
   const { birdGroups, groupMembers } = buildGroupIndex(birds, memberships)
 
-  // For mixed mode: generate BOTH photo AND name questions for each bird
-  // For other modes: generate the requested number of questions
   const isMixed = mode === 'mixed'
   const numBirds = isMixed ? Math.min(Math.floor(questionCount / 2), pool.length) : Math.min(questionCount, pool.length)
   const picked = weightedPick(pool, weights, numBirds)
 
+  const photoQuestions: QuizQuestion[] = []
+  const nameQuestions: QuizQuestion[] = []
   const questions: QuizQuestion[] = []
 
   picked.forEach(bird => {
     const distractors = pickDistractors(bird, pool, birds, birdGroups, groupMembers)
-    const options = shuffle([bird, ...distractors])
 
     if (isMixed) {
-      // Generate BOTH photo and name questions for this bird
-      questions.push({
+      photoQuestions.push({
         bird,
         distractors,
-        options: shuffle([bird, ...distractors]), // Fresh shuffle for photo
+        options: shuffle([bird, ...distractors]),
         mode: 'photo',
       })
-      questions.push({
+      nameQuestions.push({
         bird,
         distractors,
-        options: shuffle([bird, ...distractors]), // Fresh shuffle for name
+        options: shuffle([bird, ...distractors]),
         mode: 'name',
       })
     } else {
-      // Single question with the requested mode
       const qMode: 'photo' | 'name' = mode === 'name' ? 'name' : 'photo'
       questions.push({
         bird,
         distractors,
-        options,
+        options: shuffle([bird, ...distractors]),
         mode: qMode,
       })
     }
   })
 
-  // For mixed mode, shuffle the questions so photo/name don't always alternate predictably
-  return isMixed ? shuffle(questions) : questions
+  if (isMixed) {
+    // Shuffle each group independently so the same bird's photo and name
+    // questions are guaranteed to be ≥ numBirds positions apart.
+    return [...shuffle(photoQuestions), ...shuffle(nameQuestions)]
+  }
+
+  return questions
 }
