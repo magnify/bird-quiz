@@ -34,9 +34,14 @@ export default function OmPage() {
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Støt projektet</p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
-              Fugle Quiz er et frivilligt projekt. Det overskud, der er tilbage efter drift — der er lidt server,
-              der skal hostes — går til at støtte dansk natur. Kan du lide projektet? Send en kaffe via MobilePay:{' '}
+              Fugle Quiz er et frivilligt projekt. Det er lavet af mig, Brian Jensen, der er hobby-fugleentusiast
+              og gerne vil lære mere om danske fugle og øve mig i at genkende de forskellige arter. Kan du lide
+              projektet? Så kan du støtte det via MobilePay:{' '}
               <strong style={{ color: 'var(--quiz-foreground)' }}>0611SB</strong>
+            </p>
+            <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6, marginTop: 'var(--quiz-gap-md)' }}>
+              Jeg har flere idéer på tegnebrættet og forbedrer quizzen løbende, men har du forslag eller vil hjælpe
+              med at teste, billeder eller andet, så skriv.
             </p>
           </div>
         </div>
