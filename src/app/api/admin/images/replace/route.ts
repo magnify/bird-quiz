@@ -21,6 +21,7 @@ interface ManifestEntry {
   attribution?: string
   license?: string
   source_url?: string
+  needsReview?: boolean
 }
 
 export async function POST(request: NextRequest) {
@@ -91,9 +92,11 @@ export async function POST(request: NextRequest) {
       manifest = JSON.parse(manifestData.toString())
     }
 
+    // A freshly replaced image needs human review before it counts as approved.
     manifest[scientificName] = {
       file: `${slug}.jpg`,
       source,
+      needsReview: true,
       ...(attribution && { attribution }),
       ...(license && { license }),
       ...(sourceUrl && { source_url: sourceUrl }),

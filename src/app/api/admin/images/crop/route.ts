@@ -45,6 +45,17 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
     await r2Put(`${slug}.jpg`, buffer, 'image/jpeg')
 
+    // A re-cropped image needs human review again; preserve all other metadata.
+    const manifestData = await r2Get('manifest.json')
+    if (manifestData) {
+      const manifest: Record<string, Record<string, unknown>> = JSON.parse(manifestData.toString())
+      if (manifest[scientificName]) {
+        manifest[scientificName].needsReview = true
+        const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
+        await r2Put('manifest.json', manifestBuffer, 'application/json')
+      }
+    }
+
     return NextResponse.json({ ok: true, path: getBirdImageUrl(scientificName) })
   } catch (err) {
     console.error('Crop error:', err)

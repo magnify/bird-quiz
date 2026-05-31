@@ -110,7 +110,7 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
     setImageUrl(newPath)
     actions.patch(bird.scientific_name, {
       hasFile: true,
-      needsReview: false,
+      needsReview: true,
       flagged: false,
       flagReason: undefined,
       ...patch,
@@ -190,7 +190,7 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
               imageUrl={imageUrl}
               onCropped={(newUrl) => {
                 setImageUrl(newUrl)
-                actions.patch(bird.scientific_name, { needsReview: false })
+                actions.patch(bird.scientific_name, { needsReview: true })
                 actions.bumpRefreshKey()
                 setView('summary')
               }}
