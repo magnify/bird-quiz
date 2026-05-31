@@ -175,7 +175,10 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
 
   const showApproveButton = status.kind === 'review' || status.kind === 'flagged'
   const approveLabel = status.kind === 'flagged' ? 'Fjern markering & godkend' : 'Markér som godkendt'
-  const showEditActions = status.kind === 'review' || status.kind === 'flagged'
+  // Replace + crop apply to any bird that already has an image, regardless of
+  // approval state (pre-refactor parity). The 'missing' case is handled by the
+  // separate "Tilføj billede" branch in the footer.
+  const showEditActions = status.kind !== 'missing'
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
