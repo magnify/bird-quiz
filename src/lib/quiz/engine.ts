@@ -129,9 +129,21 @@ export function generateQuestions(
   })
 
   if (isMixed) {
-    // Shuffle each group independently so the same bird's photo and name
-    // questions are guaranteed to be ≥ numBirds positions apart.
-    return [...shuffle(photoQuestions), ...shuffle(nameQuestions)]
+    // Shuffle each group independently, then concatenate (photo block, then
+    // name block). Birds are unique within each block, so the only adjacency
+    // risk is at the boundary: the last photo question and the first name
+    // question can be the same bird. Swap the name block's first entry with
+    // its last to guarantee the boundary birds differ.
+    const photo = shuffle(photoQuestions)
+    const name = shuffle(nameQuestions)
+    if (
+      photo.length > 0 &&
+      name.length > 1 &&
+      photo[photo.length - 1].bird.id === name[0].bird.id
+    ) {
+      ;[name[0], name[name.length - 1]] = [name[name.length - 1], name[0]]
+    }
+    return [...photo, ...name]
   }
 
   return questions
