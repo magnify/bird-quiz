@@ -106,10 +106,8 @@ describe('generateQuestions', () => {
   it('handles mixed mode (generates both photo and name questions)', () => {
     const questions = generateQuestions(mockBirds, [], 'common', 'mixed', 10, {})
 
-    // Mixed mode should generate pairs of questions (photo + name) for each bird
     expect(questions.length).toBe(10)
 
-    // Should have both photo and name modes
     const photoCount = questions.filter(q => q.mode === 'photo').length
     const nameCount = questions.filter(q => q.mode === 'name').length
 
@@ -121,8 +119,6 @@ describe('generateQuestions', () => {
     for (let i = 0; i < 50; i++) {
       const questions = generateQuestions(mockBirds, [], 'common', 'mixed', 10, {})
 
-      // In mixed mode, same bird can appear in both photo and name questions
-      // But we should not have the same bird twice in photo questions or twice in name questions
       const photoBirds = questions.filter(q => q.mode === 'photo').map(q => q.bird.id)
       const nameBirds = questions.filter(q => q.mode === 'name').map(q => q.bird.id)
 
@@ -142,11 +138,23 @@ describe('generateQuestions', () => {
     }
   })
 
+  it('does not place same bird in adjacent questions in mixed mode (CRITICAL)', () => {
+    for (let i = 0; i < 100; i++) {
+      const questions = generateQuestions(mockBirds, [], 'common', 'mixed', 10, {})
+      for (let j = 0; j < questions.length - 1; j++) {
+        if (questions[j].bird.id === questions[j + 1].bird.id) {
+          throw new Error(
+            `Mixed mode: bird "${questions[j].bird.scientific_name}" appears at adjacent positions ${j} and ${j + 1} (run ${i + 1}/100)`
+          )
+        }
+      }
+    }
+  })
+
   it('does not generate more questions than available birds', () => {
     const easyBirds = mockBirds.filter(b => b.is_easy)
     const questions = generateQuestions(mockBirds, [], 'easy', 'photo', 100, {})
 
-    // Should only generate as many questions as there are easy birds
     expect(questions.length).toBeLessThanOrEqual(easyBirds.length)
   })
 })
