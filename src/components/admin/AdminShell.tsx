@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Toaster } from '@/components/ui/sonner'
 import {
   Home,
   Bird,
@@ -121,6 +122,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </div>
         </div>
       </SidebarInset>
+      <Toaster />
     </SidebarProvider>
   )
 }
