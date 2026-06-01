@@ -6,9 +6,10 @@ import BirdDetailModal from './BirdDetailModal'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { getSupabaseImageUrl } from '@/lib/images'
+import { getAdminImageUrl } from '@/lib/images'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 import type { ImageAudit } from '@/lib/admin/image-status'
+import { auditImageVersion } from '@/lib/admin/audit-filters'
 import { useBirdImageActions } from '@/hooks/admin/useBirdImageActions'
 
 type Filter = 'all' | 'easy' | 'common' | 'hard' | 'flagged' | 'portrait' | 'missing'
@@ -19,12 +20,10 @@ interface BirdGridProps {
 }
 
 export default function BirdGrid({ birds, audits: initialAudits }: BirdGridProps) {
-  const { audits, statusByName, refreshKey, actions } = useBirdImageActions({ initialAudits })
+  const { audits, auditByName, statusByName, actions } = useBirdImageActions({ initialAudits })
   const [filter, setFilter] = useState<Filter>('all')
   const [search, setSearch] = useState('')
   const [selectedBird, setSelectedBird] = useState<Bird | null>(null)
-
-  const auditByName = new Map(audits.map(a => [a.scientificName, a]))
 
   const filtered = birds.filter(bird => {
     if (search) {
@@ -96,7 +95,7 @@ export default function BirdGrid({ birds, audits: initialAudits }: BirdGridProps
           const audit = auditByName.get(bird.scientific_name)
           const status = statusByName.get(bird.scientific_name)
           const isMissing = status?.kind === 'missing'
-          const imageUrl = `${getSupabaseImageUrl(bird.scientific_name)}?t=${refreshKey}`
+          const imageUrl = getAdminImageUrl(bird.scientific_name, audit ? auditImageVersion(audit) : undefined)
           return (
             <Card
               key={bird.id}
@@ -147,7 +146,7 @@ export default function BirdGrid({ birds, audits: initialAudits }: BirdGridProps
         <BirdDetailModal
           bird={selectedBird}
           audit={selectedAudit}
-          imageUrl={`${getSupabaseImageUrl(selectedBird.scientific_name)}?t=${refreshKey}`}
+          imageUrl={getAdminImageUrl(selectedBird.scientific_name, auditImageVersion(selectedAudit))}
           actions={actions}
           onClose={() => setSelectedBird(null)}
         />

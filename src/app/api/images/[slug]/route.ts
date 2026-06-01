@@ -7,7 +7,7 @@ interface RouteContext {
   params: Promise<{ slug: string }>
 }
 
-export async function GET(_request: NextRequest, context: RouteContext) {
+export async function GET(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params
 
   if (slug.includes('/') || slug.includes('\\') || slug.startsWith('.')) {
@@ -15,6 +15,9 @@ export async function GET(_request: NextRequest, context: RouteContext) {
   }
 
   const isManifest = slug === 'manifest.json'
+  // Admin requests pass ?nocache so they always see the current image (no 1-year
+  // CDN/browser cache fighting crop/replace). The public quiz omits it and caches.
+  const noCache = isManifest || request.nextUrl.searchParams.has('nocache')
   const key = isManifest ? 'manifest.json' : (slug.endsWith('.jpg') ? slug : `${slug}.jpg`)
   const contentType = isManifest ? 'application/json' : 'image/jpeg'
 
@@ -23,7 +26,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     if (!buffer) {
       return NextResponse.json({ error: 'Not found', file: key }, { status: 404 })
     }
-    const cacheControl = isManifest
+    const cacheControl = noCache
       ? 'no-store, max-age=0'
       : `public, max-age=${ONE_YEAR}`
     return new NextResponse(new Uint8Array(buffer), {

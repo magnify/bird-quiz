@@ -2,70 +2,61 @@
 
 import { useState } from 'react'
 import type { Bird } from '@/lib/supabase/types'
-import { getSupabaseImageUrl } from '@/lib/images'
+import { getAdminImageUrl } from '@/lib/images'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Loader2 } from 'lucide-react'
 import BirdDetailModal from './BirdDetailModal'
 import type { AuditSeverity, ImageAudit } from '@/lib/admin/image-status'
 import { useBirdImageActions } from '@/hooks/admin/useBirdImageActions'
-
-type Filter = 'all' | 'critical' | 'warning' | 'ok' | 'portrait' | 'no-license' | 'needs-review' | 'missing'
+import {
+  AUDIT_FILTERS,
+  auditCounts,
+  auditImageVersion,
+  matchesAuditFilter,
+  matchesSearch,
+  type AuditFilter,
+} from '@/lib/admin/audit-filters'
 
 interface Props {
   audits: ImageAudit[]
   birdsByName: Record<string, Bird>
 }
 
+const SEVERITY_DOT: Record<AuditSeverity, string> = {
+  critical: 'bg-red-500',
+  warning: 'bg-yellow-500',
+  ok: 'bg-green-500',
+}
+
+function severityBadge(severity: AuditSeverity): { variant: 'destructive' | 'default'; text: string } {
+  if (severity === 'critical') return { variant: 'destructive', text: 'Kritisk' }
+  if (severity === 'warning') return { variant: 'default', text: 'Advarsel' }
+  return { variant: 'default', text: 'OK' }
+}
+
+// Colour the severity filter chips so the bar reads at a glance.
+function chipClass(key: AuditFilter, active: boolean): string {
+  if (active) return 'bg-primary text-primary-foreground border-primary'
+  const tint: Partial<Record<AuditFilter, string>> = {
+    critical: 'text-red-700 border-red-300 hover:bg-red-50',
+    warning: 'text-yellow-700 border-yellow-300 hover:bg-yellow-50',
+    ok: 'text-green-700 border-green-300 hover:bg-green-50',
+  }
+  return `bg-background hover:bg-muted border-input ${tint[key] ?? ''}`
+}
+
 export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: Props) {
-  const { audits, statusByName, refreshKey, actions } = useBirdImageActions({ initialAudits })
-  const [filter, setFilter] = useState<Filter>('all')
+  const { audits, statusByName, pending, actions } = useBirdImageActions({ initialAudits })
+  const [filter, setFilter] = useState<AuditFilter>('all')
   const [search, setSearch] = useState('')
   const [selectedName, setSelectedName] = useState<string | null>(null)
 
-  const filtered = audits.filter(audit => {
-    if (search) {
-      const q = search.toLowerCase()
-      const bird = birdsByName[audit.scientificName]
-      const matches =
-        audit.scientificName.toLowerCase().includes(q) ||
-        bird?.name_da.toLowerCase().includes(q)
-      if (!matches) return false
-    }
-
-    if (filter === 'all') return true
-    if (filter === 'critical' || filter === 'warning' || filter === 'ok') {
-      return audit.severity === filter
-    }
-    if (filter === 'portrait') return audit.isPortrait
-    if (filter === 'no-license') return !audit.license
-    if (filter === 'needs-review') return audit.needsReview
-    if (filter === 'missing') return !audit.hasFile
-    return true
-  })
-
-  const counts = {
-    all: audits.length,
-    critical: audits.filter(a => a.severity === 'critical').length,
-    warning: audits.filter(a => a.severity === 'warning').length,
-    ok: audits.filter(a => a.severity === 'ok').length,
-    portrait: audits.filter(a => a.isPortrait).length,
-    'no-license': audits.filter(a => !a.license).length,
-    'needs-review': audits.filter(a => a.needsReview).length,
-    missing: audits.filter(a => !a.hasFile).length,
-  }
-
-  const getStatusColor = (severity: AuditSeverity) => {
-    if (severity === 'critical') return 'bg-red-500'
-    if (severity === 'warning') return 'bg-yellow-500'
-    return 'bg-green-500'
-  }
-
-  const getStatusBadge = (severity: AuditSeverity) => {
-    if (severity === 'critical') return { variant: 'destructive' as const, text: 'Kritisk' }
-    if (severity === 'warning') return { variant: 'default' as const, text: 'Advarsel' }
-    return { variant: 'default' as const, text: 'OK' }
-  }
+  const counts = auditCounts(audits)
+  const filtered = audits.filter(
+    a => matchesAuditFilter(a, filter) && matchesSearch(a, birdsByName[a.scientificName]?.name_da, search),
+  )
 
   const selectedAudit = selectedName ? audits.find(a => a.scientificName === selectedName) : null
   const selectedBird = selectedName ? birdsByName[selectedName] : null
@@ -73,47 +64,6 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
   return (
     <>
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            onClick={() => setFilter('critical')}
-            className={`text-left p-4 rounded-lg border-2 transition-all ${
-              filter === 'critical'
-                ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                : 'border-border hover:border-red-300 bg-card'
-            }`}
-          >
-            <div className="text-sm text-muted-foreground mb-1">Kritiske problemer</div>
-            <div className="text-3xl font-bold tabular-nums text-red-600 mb-2">{counts.critical}</div>
-            <div className="text-xs text-muted-foreground">Mangler kredit eller har NC-licens</div>
-          </button>
-
-          <button
-            onClick={() => setFilter('warning')}
-            className={`text-left p-4 rounded-lg border-2 transition-all ${
-              filter === 'warning'
-                ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
-                : 'border-border hover:border-yellow-300 bg-card'
-            }`}
-          >
-            <div className="text-sm text-muted-foreground mb-1">Advarsler</div>
-            <div className="text-3xl font-bold tabular-nums text-yellow-600 mb-2">{counts.warning}</div>
-            <div className="text-xs text-muted-foreground">Mindre problemer med licens/kvalitet</div>
-          </button>
-
-          <button
-            onClick={() => setFilter('ok')}
-            className={`text-left p-4 rounded-lg border-2 transition-all ${
-              filter === 'ok'
-                ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                : 'border-border hover:border-green-300 bg-card'
-            }`}
-          >
-            <div className="text-sm text-muted-foreground mb-1">OK</div>
-            <div className="text-3xl font-bold tabular-nums text-green-600 mb-2">{counts.ok}</div>
-            <div className="text-xs text-muted-foreground">Korrekt licenseret og dokumenteret</div>
-          </button>
-        </div>
-
         <Input
           type="search"
           placeholder="Søg fugl..."
@@ -122,22 +72,13 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
           className="max-w-sm"
         />
 
+        {/* Single filter bar — one source of truth (no duplicate filter UIs). */}
         <div className="flex flex-wrap gap-2">
-          {([
-            ['all', 'Alle'],
-            ['portrait', 'Portrait/Square'],
-            ['no-license', 'Mangler licens'],
-            ['needs-review', 'Afventer godkendelse'],
-            ['missing', 'Intet billede'],
-          ] as const).map(([key, label]) => (
+          {AUDIT_FILTERS.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
-                filter === key
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-background hover:bg-muted border-input'
-              }`}
+              className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${chipClass(key, filter === key)}`}
             >
               {label}
               <span className="ml-1.5 text-xs opacity-70">({counts[key]})</span>
@@ -149,9 +90,10 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
           {filtered.map(audit => {
             const bird = birdsByName[audit.scientificName]
             if (!bird) return null
-            const imageUrl = `${getSupabaseImageUrl(audit.scientificName)}?t=${refreshKey}`
-            const badge = getStatusBadge(audit.severity)
+            const badge = severityBadge(audit.severity)
             const status = statusByName.get(audit.scientificName)
+            const isPending = pending.has(audit.scientificName)
+            const imageUrl = getAdminImageUrl(audit.scientificName, auditImageVersion(audit))
 
             return (
               <button
@@ -159,7 +101,7 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
                 onClick={() => setSelectedName(audit.scientificName)}
                 className="group relative aspect-[4/3] rounded-lg overflow-hidden border-2 hover:border-primary transition-all cursor-pointer bg-muted"
               >
-                <div className={`absolute top-2 left-2 size-3 rounded-full z-10 ${getStatusColor(audit.severity)}`} />
+                <div className={`absolute top-2 left-2 size-3 rounded-full z-10 ${SEVERITY_DOT[audit.severity]}`} />
 
                 {audit.needsReview && (
                   <div className="absolute top-2 left-6 size-3 rounded-full z-10 bg-blue-500 ring-2 ring-white" title="Afventer godkendelse" />
@@ -167,6 +109,12 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
 
                 {audit.flagged && (
                   <div className="absolute top-2 left-10 size-3 rounded-full z-10 bg-destructive ring-2 ring-white" title="Markeret" />
+                )}
+
+                {isPending && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+                    <Loader2 className="size-6 animate-spin text-white" />
+                  </div>
                 )}
 
                 {status?.kind === 'missing' ? (
@@ -193,12 +141,23 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
                     {audit.isPortrait && (
                       <div className="text-orange-300 text-[10px]">Portrait/Square</div>
                     )}
+                    {audit.issues.length > 0 && (
+                      <ul className="pt-1 space-y-0.5">
+                        {audit.issues.map((issue, i) => (
+                          <li key={i} className="text-yellow-200 text-[10px] leading-tight">• {issue}</li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
 
                 {audit.issues.length > 0 && (
                   <div className="absolute top-2 right-2 z-10">
-                    <Badge variant={badge.variant} className="text-[10px] px-1.5 py-0">
+                    <Badge
+                      variant={badge.variant}
+                      className="text-[10px] px-1.5 py-0"
+                      title={audit.issues.join(' · ')}
+                    >
                       {badge.text}
                     </Badge>
                   </div>
@@ -217,7 +176,7 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
         <BirdDetailModal
           bird={selectedBird}
           audit={selectedAudit}
-          imageUrl={`${getSupabaseImageUrl(selectedBird.scientific_name)}?t=${refreshKey}`}
+          imageUrl={getAdminImageUrl(selectedBird.scientific_name, auditImageVersion(selectedAudit))}
           actions={actions}
           onClose={() => setSelectedName(null)}
         />

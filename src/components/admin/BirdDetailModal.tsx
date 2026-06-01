@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import type { Bird } from '@/lib/supabase/types'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 import {
@@ -89,36 +90,32 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
 
       await Promise.all([creditPromise, flagPromise])
 
-      actions.patch(bird.scientific_name, {
-        attribution: creditDraft || undefined,
-        license: licenseDraft || undefined,
-      })
+      toast.success('Metadata gemt')
       setSavingMeta(false)
+      actions.refresh()
       onClose()
       return
     } catch (err) {
-      setMetaError(err instanceof Error ? err.message : 'Netværksfejl')
+      const message = err instanceof Error ? err.message : 'Netværksfejl'
+      setMetaError(message)
+      toast.error('Kunne ikke gemme metadata', { description: message })
     }
     setSavingMeta(false)
   }, [actions, audit.flagged, audit.flagReason, bird.scientific_name, creditDraft, flagDraft, licenseDraft, onClose])
 
   const handleApprove = useCallback(async () => {
     setApproving(true)
-    await actions.approve(bird.scientific_name)
+    const ok = await actions.approve(bird.scientific_name)
     setApproving(false)
-    onClose()
+    if (ok) onClose()
   }, [actions, bird.scientific_name, onClose])
 
-  const handleReplaceSuccess = (newPath: string, patch: { attribution?: string; license?: string }) => {
+  // After a replace/crop the modal returns to the summary so the new image can be
+  // reviewed and approved; the server is the source of truth, so refresh from it.
+  const handleReplaceSuccess = (newPath: string) => {
     setImageUrl(newPath)
-    actions.patch(bird.scientific_name, {
-      hasFile: true,
-      needsReview: true,
-      flagged: false,
-      flagReason: undefined,
-      ...patch,
-    })
-    actions.bumpRefreshKey()
+    toast.success('Billede erstattet — afventer godkendelse')
+    actions.refresh()
     setView('summary')
   }
 
@@ -134,7 +131,7 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
       throw new Error(data.error || 'Upload fejlede')
     }
     const data = await res.json()
-    handleReplaceSuccess(data.path, attribution ? { attribution } : {})
+    handleReplaceSuccess(data.path)
   }
 
   const handleRemoteReplace = async (opts: {
@@ -161,7 +158,7 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
       throw new Error(data.error || 'Erstatning fejlede')
     }
     const data = await res.json()
-    handleReplaceSuccess(data.path, { attribution: opts.attribution, license: opts.license })
+    handleReplaceSuccess(data.path)
   }
 
   const handleINatReplace = (url: string, attribution: string, license: string) =>
@@ -193,8 +190,8 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
               imageUrl={imageUrl}
               onCropped={(newUrl) => {
                 setImageUrl(newUrl)
-                actions.patch(bird.scientific_name, { needsReview: true })
-                actions.bumpRefreshKey()
+                toast.success('Billede beskåret — afventer godkendelse')
+                actions.refresh()
                 setView('summary')
               }}
               onCancel={() => setView('summary')}
@@ -390,6 +387,20 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
                     </Badge>
                   )}
                 </div>
+
+                {audit.issues.length > 0 && (
+                  <div className="space-y-1 rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs">
+                    <div className="flex items-center gap-1.5 font-medium text-yellow-800">
+                      <AlertTriangle className="size-3.5" />
+                      {audit.severity === 'critical' ? 'Kritiske problemer' : 'Advarsler'}
+                    </div>
+                    <ul className="space-y-0.5 text-yellow-800">
+                      {audit.issues.map((issue, i) => (
+                        <li key={i}>• {issue}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {status.kind !== 'missing' && (
                   <div className="space-y-2 rounded-md border p-3 text-xs">
