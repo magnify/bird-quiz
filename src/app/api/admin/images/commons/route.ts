@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash } from 'crypto'
-
-const SALT = 'dansk-fugleviden-admin-2026'
-
-function verifyAdmin(request: NextRequest): { ok: boolean; reason?: string } {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) return { ok: false, reason: 'no ADMIN_PASSWORD env var' }
-  const token = request.cookies.get('admin_auth')?.value
-  if (!token) return { ok: false, reason: 'no admin_auth cookie' }
-  const hash = createHash('sha256').update(expected + SALT).digest('hex')
-  if (token !== hash) return { ok: false, reason: 'cookie mismatch' }
-  return { ok: true }
-}
+import { verifyAdminRequest } from '@/lib/admin/auth'
+import { BRAND } from '@/lib/brand'
 
 interface CommonsImageInfo {
   url: string
@@ -47,7 +36,7 @@ function stripHtml(html: string): string {
 }
 
 export async function GET(request: NextRequest) {
-  const auth = verifyAdmin(request)
+  const auth = verifyAdminRequest(request)
   if (!auth.ok) {
     return NextResponse.json({ error: 'Unauthorized', reason: auth.reason }, { status: 401 })
   }
@@ -73,7 +62,7 @@ export async function GET(request: NextRequest) {
     const url = `https://commons.wikimedia.org/w/api.php?${params}`
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'bird-quiz/1.0 (https://bird-quiz.magnify.dk)',
+        'User-Agent': BRAND.userAgent,
       },
     })
 

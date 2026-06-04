@@ -5,6 +5,7 @@ import type { Bird } from '@/lib/supabase/types'
 import { Logo } from './Logo'
 import MobileBottomNav from './MobileBottomNav'
 import { BirdMosaic } from './BirdMosaic'
+import { BRAND } from '@/lib/brand'
 
 interface QuizSetupProps {
   difficulty: Difficulty
@@ -79,7 +80,7 @@ export default function QuizSetup({
         <div className="start-settings-area">
           <div className="start-hero">
             <Logo size="large" showText={false} />
-            <h1 className="title">Fugle Quiz</h1>
+            <h1 className="title">{BRAND.name}</h1>
             <p className="subtitle">Test din viden om Danmarks fugle</p>
           </div>
 

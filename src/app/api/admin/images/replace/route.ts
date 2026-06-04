@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash } from 'crypto'
+import { verifyAdminRequest } from '@/lib/admin/auth'
 import { r2Get, r2Put } from '@/lib/r2'
 import { toSlug, getBirdImageUrl } from '@/lib/images'
-
-const SALT = 'dansk-fugleviden-admin-2026'
-
-function verifyAdmin(request: NextRequest): { ok: boolean; reason?: string } {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) return { ok: false, reason: 'no ADMIN_PASSWORD env var' }
-  const token = request.cookies.get('admin_auth')?.value
-  if (!token) return { ok: false, reason: 'no admin_auth cookie' }
-  const hash = createHash('sha256').update(expected + SALT).digest('hex')
-  if (token !== hash) return { ok: false, reason: 'cookie mismatch' }
-  return { ok: true }
-}
+import { jpegSize } from '@/lib/admin/image-dimensions'
+import { BRAND } from '@/lib/brand'
 
 interface ManifestEntry {
   file: string
@@ -22,10 +12,12 @@ interface ManifestEntry {
   license?: string
   source_url?: string
   needsReview?: boolean
+  width?: number
+  height?: number
 }
 
 export async function POST(request: NextRequest) {
-  const auth = verifyAdmin(request)
+  const auth = verifyAdminRequest(request)
   if (!auth.ok) {
     return NextResponse.json({ error: 'Unauthorized', reason: auth.reason }, { status: 401 })
   }
@@ -63,7 +55,7 @@ export async function POST(request: NextRequest) {
       }
 
       const res = await fetch(url, {
-        headers: source === 'wikimedia-commons' ? { 'User-Agent': 'bird-quiz/1.0 (https://bird-quiz.magnify.dk)' } : {},
+        headers: source === 'wikimedia-commons' ? { 'User-Agent': BRAND.userAgent } : {},
       })
       if (!res.ok) {
         return NextResponse.json({ error: `Failed to download image: ${res.status}` }, { status: 502 })
@@ -93,6 +85,8 @@ export async function POST(request: NextRequest) {
     }
 
     // A freshly replaced image needs human review before it counts as approved.
+    // Record dimensions so the portrait/Billedproblemer check reflects the new image.
+    const dims = jpegSize(imageBuffer)
     manifest[scientificName] = {
       file: `${slug}.jpg`,
       source,
@@ -100,6 +94,7 @@ export async function POST(request: NextRequest) {
       ...(attribution && { attribution }),
       ...(license && { license }),
       ...(sourceUrl && { source_url: sourceUrl }),
+      ...(dims && { width: dims.width, height: dims.height }),
     }
 
     const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')

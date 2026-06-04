@@ -4,8 +4,11 @@ import { r2Get, r2List } from '@/lib/r2'
 import { toSlug } from '@/lib/images'
 import type { AuditSeverity, FlagReason, ImageAudit, ManifestEntry } from './image-status'
 import { FLAG_REASONS } from './image-status'
+import { isPortraitDimensions } from './image-dimensions'
 
-// Birds with portrait or square images that crop poorly.
+// Fallback list for images whose real dimensions haven't been recorded yet
+// (i.e. never cropped/replaced through the admin tools). Once an image is
+// cropped or replaced, its measured width/height in the manifest takes over.
 const PORTRAIT_IMAGES = new Set<string>([
   'Falco columbarius',
   'Dryocopus martius',
@@ -106,6 +109,14 @@ export async function getImageAudits(): Promise<ImageAudit[]> {
     const needsReview = entry?.needsReview === true
     const issues = computeIssues(entry, needsReview)
 
+    // Prefer measured dimensions (recorded on crop/replace); fall back to the
+    // static known-bad list so an image only leaves "Billedproblemer" once
+    // its real aspect ratio proves it's landscape.
+    const isPortrait =
+      entry?.width && entry?.height
+        ? isPortraitDimensions({ width: entry.width, height: entry.height })
+        : PORTRAIT_IMAGES.has(bird.scientific_name)
+
     return {
       scientificName: bird.scientific_name,
       hasFile,
@@ -117,7 +128,7 @@ export async function getImageAudits(): Promise<ImageAudit[]> {
       needsReview,
       issues,
       severity: computeSeverity(issues),
-      isPortrait: PORTRAIT_IMAGES.has(bird.scientific_name),
+      isPortrait,
     }
   })
 }

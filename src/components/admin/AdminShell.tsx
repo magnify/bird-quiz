@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Toaster } from '@/components/ui/sonner'
+import { BRAND } from '@/lib/brand'
 import {
   Home,
   Bird,
@@ -56,7 +57,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <SidebarHeader className="px-4 py-4">
           <Link href="/admin" className="flex items-center gap-2 no-underline">
             <span className="font-semibold text-sm text-sidebar-foreground">
-              Fugle Quiz
+              {BRAND.name}
             </span>
           </Link>
         </SidebarHeader>

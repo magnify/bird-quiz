@@ -6,6 +6,7 @@ import { loginAction } from '@/app/admin/actions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { BRAND } from '@/lib/brand'
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('')
@@ -32,7 +33,7 @@ export default function AdminLogin() {
     <div className="flex min-h-dvh items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle>Fugle Quiz</CardTitle>
+          <CardTitle>{BRAND.name}</CardTitle>
           <CardDescription>Log ind for at tilgå admin</CardDescription>
         </CardHeader>
         <CardContent>

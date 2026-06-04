@@ -2,17 +2,18 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Fredoka } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { BRAND } from '@/lib/brand'
 
 const fredoka = Fredoka({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: 'Fugle Quiz',
+  title: BRAND.name,
   description: 'Test din viden om Danmarks fugle',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Fugle Quiz',
+    title: BRAND.name,
   },
 }
 

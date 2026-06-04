@@ -17,6 +17,8 @@ export interface ManifestEntry {
   flag_reason?: string
   approved?: boolean
   needsReview?: boolean
+  width?: number
+  height?: number
 }
 
 export type BirdImageStatus =

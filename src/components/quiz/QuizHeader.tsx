@@ -1,6 +1,7 @@
 'use client'
 
 import { LogoSvg } from './Logo'
+import { BRAND } from '@/lib/brand'
 
 interface QuizHeaderProps {
   centerContent?: React.ReactNode
@@ -25,7 +26,7 @@ export default function QuizHeader({
   totalQuestions,
   activePage = 'quiz',
   onLogoClick,
-  logoLabel = 'Fugle Quiz',
+  logoLabel = BRAND.name,
   isQuizActive = false,
   onNavClick,
   hideLogo = false,
@@ -48,7 +49,7 @@ export default function QuizHeader({
             <span className="app-header-logo">
               <LogoSvg />
             </span>
-            <span className="app-header-title">Fugle Quiz</span>
+            <span className="app-header-title">{BRAND.name}</span>
           </LogoElement>
         )}
 

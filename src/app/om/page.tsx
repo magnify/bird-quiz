@@ -1,6 +1,7 @@
 import '@/components/quiz/quiz.css'
 import QuizHeader from '@/components/quiz/QuizHeader'
 import MobileBottomNav from '@/components/quiz/MobileBottomNav'
+import { BRAND } from '@/lib/brand'
 
 export default function OmPage() {
   return (
@@ -10,13 +11,13 @@ export default function OmPage() {
         <div className="secondary-page-content">
           <div>
             <h1 style={{ fontSize: 'var(--quiz-text-2xl)', fontWeight: 700, color: 'var(--quiz-foreground)' }}>
-              Om Fugle Quiz
+              Om {BRAND.name}
             </h1>
           </div>
 
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
-              Fugle Quiz er en gratis dansk fuglequiz, der hjælper dig med at lære de danske fugle at kende.
+              {BRAND.name} er en gratis dansk fuglequiz, der hjælper dig med at lære de danske fugle at kende.
               Gæt fuglen ud fra billeder og test din viden.
             </p>
           </div>
@@ -24,20 +25,20 @@ export default function OmPage() {
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Kontakt</p>
             <a
-              href="mailto:hallo@magnify.dk"
+              href={`mailto:${BRAND.contactEmail}`}
               style={{ color: 'var(--quiz-accent)', fontSize: 'var(--quiz-text-base)' }}
             >
-              hallo@magnify.dk
+              {BRAND.contactEmail}
             </a>
           </div>
 
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Støt projektet</p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
-              Fugle Quiz er et frivilligt projekt. Det er lavet af mig, Brian Jensen, der er hobby-fugleentusiast
+              {BRAND.name} er et frivilligt projekt. Det er lavet af mig, Brian Jensen, der er hobby-fugleentusiast
               og gerne vil lære mere om danske fugle og øve mig i at genkende de forskellige arter. Kan du lide
               projektet? Så kan du støtte det via MobilePay:{' '}
-              <strong style={{ color: 'var(--quiz-foreground)' }}>0611SB</strong>
+              <strong style={{ color: 'var(--quiz-foreground)' }}>{BRAND.mobilePay}</strong>
             </p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6, marginTop: 'var(--quiz-gap-md)' }}>
               Jeg har flere idéer på tegnebrættet og forbedrer quizzen løbende, men har du forslag eller vil hjælpe

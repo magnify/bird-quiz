@@ -17,6 +17,7 @@ import AuthModal from './AuthModal'
 import QuizHeader from './QuizHeader'
 import ConfirmModal from './ConfirmModal'
 import { ErrorBoundary } from '@/lib/error-tracking/ErrorBoundary'
+import { BRAND } from '@/lib/brand'
 
 interface QuizAppProps {
   birds: Bird[]
@@ -195,7 +196,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         currentQuestion={state.currentQuestion + 1}
         totalQuestions={state.questions.length}
         onLogoClick={isStart ? undefined : handleLogoClick}
-        logoLabel={state.screen === 'quiz' ? 'Afslut quiz' : 'Fugle Quiz'}
+        logoLabel={state.screen === 'quiz' ? 'Afslut quiz' : BRAND.name}
         isQuizActive={state.screen === 'quiz'}
         onNavClick={handleNavClick}
         centerContent={

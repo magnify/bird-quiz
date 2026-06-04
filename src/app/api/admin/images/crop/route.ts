@@ -1,22 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash } from 'crypto'
+import { verifyAdminRequest } from '@/lib/admin/auth'
 import { r2Get, r2Put } from '@/lib/r2'
 import { toSlug, getBirdImageUrl } from '@/lib/images'
-
-const SALT = 'dansk-fugleviden-admin-2026'
-
-function verifyAdmin(request: NextRequest): { ok: boolean; reason?: string } {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) return { ok: false, reason: 'no ADMIN_PASSWORD env var' }
-  const token = request.cookies.get('admin_auth')?.value
-  if (!token) return { ok: false, reason: 'no admin_auth cookie' }
-  const hash = createHash('sha256').update(expected + SALT).digest('hex')
-  if (token !== hash) return { ok: false, reason: 'cookie mismatch' }
-  return { ok: true }
-}
+import { jpegSize } from '@/lib/admin/image-dimensions'
 
 export async function POST(request: NextRequest) {
-  const auth = verifyAdmin(request)
+  const auth = verifyAdminRequest(request)
   if (!auth.ok) {
     return NextResponse.json({ error: 'Unauthorized', reason: auth.reason }, { status: 401 })
   }
@@ -45,12 +34,18 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
     await r2Put(`${slug}.jpg`, buffer, 'image/jpeg')
 
-    // A re-cropped image needs human review again; preserve all other metadata.
+    // A re-cropped image needs human review again; record its new dimensions so
+    // the portrait/Billedproblemer check reflects the crop. Preserve everything else.
+    const dims = jpegSize(buffer)
     const manifestData = await r2Get('manifest.json')
     if (manifestData) {
       const manifest: Record<string, Record<string, unknown>> = JSON.parse(manifestData.toString())
       if (manifest[scientificName]) {
         manifest[scientificName].needsReview = true
+        if (dims) {
+          manifest[scientificName].width = dims.width
+          manifest[scientificName].height = dims.height
+        }
         const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
         await r2Put('manifest.json', manifestBuffer, 'application/json')
       }

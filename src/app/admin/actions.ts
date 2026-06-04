@@ -1,13 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { createHash } from 'crypto'
-
-const SALT = 'dansk-fugleviden-admin-2026'
-
-function hashToken(password: string): string {
-  return createHash('sha256').update(password + SALT).digest('hex')
-}
+import { adminCookieHash as hashToken } from '@/lib/admin/auth'
 
 export async function loginAction(password: string): Promise<{ success: boolean }> {
   const expected = process.env.ADMIN_PASSWORD

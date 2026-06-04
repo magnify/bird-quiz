@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { isQuizActive } from '@/lib/quiz/result-history'
+import { BRAND } from '@/lib/brand'
 
 interface SecondaryNavProps {
   active: 'resultater' | 'rangliste'
@@ -17,7 +18,7 @@ export default function SecondaryNav({ active }: SecondaryNavProps) {
   return (
     <nav className="secondary-nav">
       <a href="/" className="secondary-nav-back">
-        &larr; {quizActive ? 'Tilbage til quiz' : 'Fugle Quiz'}
+        &larr; {quizActive ? 'Tilbage til quiz' : BRAND.name}
       </a>
       <div className="secondary-nav-tabs">
         <a

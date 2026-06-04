@@ -1,3 +1,5 @@
+import { BRAND } from '@/lib/brand'
+
 export function LogoSvg() {
   return (
     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +31,7 @@ export function Logo({ size = 'medium', showText = true, className = '' }: LogoP
       </div>
       {showText && (
         <span className="font-bold text-base tracking-tight bg-gradient-to-br from-[var(--quiz-foreground)] to-[var(--quiz-accent)] bg-clip-text text-transparent">
-          Fugle Quiz
+          {BRAND.name}
         </span>
       )}
     </div>

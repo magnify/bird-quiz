@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash } from 'crypto'
+import { verifyAdminRequest } from '@/lib/admin/auth'
 import { r2Get, r2Put } from '@/lib/r2'
-
-const SALT = 'dansk-fugleviden-admin-2026'
-
-function verifyAdmin(request: NextRequest): boolean {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) return false
-  const token = request.cookies.get('admin_auth')?.value
-  if (!token) return false
-  const hash = createHash('sha256').update(expected + SALT).digest('hex')
-  return token === hash
-}
 
 interface ManifestEntry {
   file: string
@@ -29,7 +18,7 @@ async function getManifest() {
 }
 
 export async function POST(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!verifyAdminRequest(request).ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

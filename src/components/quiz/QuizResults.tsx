@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import { getBirdImageUrl } from '@/lib/images'
+import { BRAND } from '@/lib/brand'
 import MissedBirdsCarousel from './MissedBirdsCarousel'
 
 interface QuizResultsProps {
@@ -76,7 +77,7 @@ export default function QuizResults({
   ]
 
   const handleShare = async () => {
-    const text = `Fugle Quiz: ${score}/${totalQuestions} (${pct}%) — ${points.toLocaleString('da-DK')} point! Kan du slå mig? bird-quiz.magnify.dk`
+    const text = `${BRAND.name}: ${score}/${totalQuestions} (${pct}%) — ${points.toLocaleString('da-DK')} point! Kan du slå mig? ${BRAND.domain}`
     if (navigator.share) {
       try {
         await navigator.share({ text })
