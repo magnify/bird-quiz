@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import BirdDetailModal from './BirdDetailModal'
+import { BirdMetaFields } from './BirdMetaFields'
 import type { AuditSeverity, ImageAudit } from '@/lib/admin/image-status'
 import { useBirdImageActions } from '@/hooks/admin/useBirdImageActions'
 import {
@@ -96,11 +97,15 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
             const imageUrl = getAdminImageUrl(audit.scientificName, auditImageVersion(audit))
 
             return (
-              <button
+              <div
                 key={audit.scientificName}
-                onClick={() => setSelectedName(audit.scientificName)}
-                className="group relative aspect-[4/3] rounded-lg overflow-hidden border-2 hover:border-primary transition-all cursor-pointer bg-muted"
+                className="relative rounded-lg overflow-hidden border-2 bg-muted"
               >
+                <button
+                  type="button"
+                  onClick={() => setSelectedName(audit.scientificName)}
+                  className="group relative block w-full aspect-[4/3] cursor-pointer hover:opacity-95 transition-opacity"
+                >
                 <div className={`absolute top-2 left-2 size-3 rounded-full z-10 ${SEVERITY_DOT[audit.severity]}`} />
 
                 {audit.needsReview && (
@@ -162,7 +167,12 @@ export default function ImageAuditGrid({ audits: initialAudits, birdsByName }: P
                     </Badge>
                   </div>
                 )}
-              </button>
+                </button>
+
+                <div className="border-t bg-background p-2" onClick={(e) => e.stopPropagation()}>
+                  <BirdMetaFields audit={audit} actions={actions} pending={isPending} variant="strip" />
+                </div>
+              </div>
             )
           })}
         </div>
