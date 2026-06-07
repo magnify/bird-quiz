@@ -14,6 +14,7 @@ interface UseBirdImageActionsArgs {
 export interface BirdImageActions {
   toggleFlag(scientificName: string, reason?: FlagReason): Promise<boolean>
   approve(scientificName: string): Promise<boolean>
+  setCredit(scientificName: string, patch: { attribution?: string; license?: string }): Promise<boolean>
   /** Re-fetch server-derived audits (counts, severity, issues) after an external change. */
   refresh(): void
 }
@@ -100,9 +101,34 @@ export function useBirdImageActions({ initialAudits }: UseBirdImageActionsArgs) 
     [router, setPendingFor],
   )
 
+  const setCredit = useCallback(
+    async (scientificName: string, patch: { attribution?: string; license?: string }): Promise<boolean> => {
+      const current = auditByName.get(scientificName)
+      const attribution = patch.attribution ?? current?.attribution ?? ''
+      const license = patch.license ?? current?.license ?? ''
+
+      setPendingFor(scientificName, true)
+      const res = await fetch('/api/admin/images/credit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scientificName, attribution, license }),
+      }).catch(() => null)
+      setPendingFor(scientificName, false)
+
+      if (res?.ok) {
+        toast.success('Metadata gemt')
+        router.refresh()
+        return true
+      }
+      toast.error('Kunne ikke gemme metadata')
+      return false
+    },
+    [auditByName, router, setPendingFor],
+  )
+
   const actions: BirdImageActions = useMemo(
-    () => ({ toggleFlag, approve, refresh }),
-    [toggleFlag, approve, refresh],
+    () => ({ toggleFlag, approve, setCredit, refresh }),
+    [toggleFlag, approve, setCredit, refresh],
   )
 
   return { audits, auditByName, statusByName, pending, actions }
