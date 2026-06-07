@@ -23,6 +23,7 @@ import CommonsPhotoBrowser from './CommonsPhotoBrowser'
 import type { FlagReason, ImageAudit } from '@/lib/admin/image-status'
 import { FLAG_REASONS, auditStatus } from '@/lib/admin/image-status'
 import type { BirdImageActions } from '@/hooks/admin/useBirdImageActions'
+import { BirdMetaFields } from './BirdMetaFields'
 
 interface Props {
   bird: Bird
@@ -399,6 +400,12 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
                         <li key={i}>• {issue}</li>
                       ))}
                     </ul>
+                  </div>
+                )}
+
+                {status.kind !== 'missing' && (
+                  <div className="rounded-md border p-3">
+                    <BirdMetaFields audit={audit} actions={actions} variant="summary" />
                   </div>
                 )}
 
