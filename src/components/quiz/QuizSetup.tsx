@@ -3,7 +3,6 @@
 import type { Difficulty, QuizMode } from '@/lib/quiz/engine'
 import type { Bird } from '@/lib/supabase/types'
 import { Logo } from './Logo'
-import MobileBottomNav from './MobileBottomNav'
 import { BirdMosaic } from './BirdMosaic'
 import { BRAND } from '@/lib/brand'
 
@@ -131,8 +130,6 @@ export default function QuizSetup({
           </div>
         </div>
       </div>
-
-      <MobileBottomNav activePage="home" />
     </div>
   )
 }

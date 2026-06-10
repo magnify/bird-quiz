@@ -15,6 +15,7 @@ import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
 import AuthModal from './AuthModal'
 import QuizHeader from './QuizHeader'
+import MobileBottomNav from './MobileBottomNav'
 import ConfirmModal from './ConfirmModal'
 import { ErrorBoundary } from '@/lib/error-tracking/ErrorBoundary'
 import { BRAND } from '@/lib/brand'
@@ -273,6 +274,10 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           onGoHome={goHome}
         />
       )}
+
+      {/* Bottom nav is part of the shell, after the screen, so it sits in
+          flow on every non-quiz screen (start, results) */}
+      {state.screen !== 'quiz' && <MobileBottomNav activePage="home" />}
 
       {/* Zoom transition overlay */}
       {transitionData && (

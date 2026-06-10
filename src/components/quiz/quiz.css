@@ -3,12 +3,22 @@
  * Completely self-contained. Does not affect admin or shadcn components.
  */
 
-/* Quiz app root container */
+/* Quiz app root container — normal document flow (header / screen / nav as a
+   flex column). The body scrolls; screens never manage their own viewport. */
 .quiz-app-root {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   background: var(--quiz-background);
+}
+
+/* Active question on desktop: lock the shell to the viewport so the
+   two-column immersive layout fills it exactly. Mobile stays in normal
+   flow and scrolls the body instead. */
+@media (min-width: 641px) {
+  .quiz-app-root:has(.quiz-body--immersive) {
+    height: 100dvh;
+  }
 }
 
 :root {
@@ -146,12 +156,9 @@
 
   /* Layout */
   display: none;
-  height: 100%;
   animation: quizFadeIn 0.3s ease;
   color: var(--quiz-foreground);
   background: var(--quiz-background);
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 .screen::before {
   content: '';
@@ -193,34 +200,30 @@
    keep their light bg. */
 body:has(.screen.active) {
   background: var(--quiz-background);
+  /* The old fixed root clipped all overflow; keep horizontal bleed
+     (mosaic, shake animations) from causing sideways scroll. */
+  overflow-x: hidden;
 }
 
 .screen.active {
   display: flex;
+  flex: 1;
 }
 #quiz-screen {
   flex-direction: column;
   background: var(--quiz-background);
 }
-#quiz-screen:has(.quiz-body--immersive) {
-  height: calc(100dvh - 45px);
-  min-height: 0;
-  overflow: hidden;
+@media (min-width: 641px) {
+  #quiz-screen:has(.quiz-body--immersive) {
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
 /* --- Start screen --- */
 #start-screen {
   align-items: stretch;
   padding: 0;
-  overflow: hidden;
-  height: 100%;
-}
-
-@media (max-width: 640px) {
-  #start-screen {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
 }
 
 /* Start screen layout: mosaic left, form right */
@@ -291,12 +294,14 @@ body:has(.screen.active) {
 }
 
 @media (max-width: 640px) {
+  /* Last child of .quiz-app-root: occupies its own space in flow (no
+     padding-bottom hacks needed on screens) and sticks to the viewport
+     bottom while content scrolls past. */
   .mobile-bottom-nav {
-    position: fixed;
+    position: sticky;
     bottom: var(--quiz-gap-md);
-    left: var(--quiz-gap-md);
-    right: var(--quiz-gap-md);
-    z-index: 100;
+    margin: auto var(--quiz-gap-md) var(--quiz-gap-md);
+    z-index: 50;
     background: color-mix(in srgb, var(--quiz-bg-secondary) 92%, transparent);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -342,14 +347,6 @@ body:has(.screen.active) {
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0;
-  }
-
-  /* Adjust screens to account for floating pill nav */
-  #start-screen,
-  #secondary-screen,
-  #my-results-screen,
-  #leaderboard-screen {
-    padding-bottom: 76px;
   }
 }
 
@@ -643,13 +640,10 @@ body:has(.screen.active) {
   color: var(--quiz-foreground);
 }
 
-/* --- Persistent app header --- */
+/* --- Persistent app header — in normal flow, content sits below it --- */
 .app-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  position: relative;
+  z-index: 10;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1688,13 +1682,11 @@ details.results-missed[open] .missed-summary {
 .secondary-page-content {
   max-width: 640px;
   margin: 0 auto;
-  /* Top padding clears the absolute-positioned .app-header (~60px) */
-  padding: calc(var(--quiz-padding-xl) + 40px) var(--quiz-padding-md) var(--quiz-padding-xl);
+  padding: var(--quiz-padding-lg) var(--quiz-padding-md) var(--quiz-padding-xl);
   display: flex;
   flex-direction: column;
   gap: var(--quiz-gap-2xl);
   flex: 1;
-  min-height: calc(100dvh - 45px);
 }
 
 /* --- Secondary nav bar --- */
@@ -2272,13 +2264,11 @@ a.start-quiz-link:hover {
   }
 }
 
-/* Mobile: stack vertically (image on top, answers below) */
+/* Mobile: stack vertically (image on top, answers below); body scrolls */
 @media (max-width: 640px) {
-  #quiz-screen:has(.quiz-body--immersive) {
-    overflow-y: auto;
-  }
   .quiz-body--immersive {
     flex-direction: column;
+    overflow: visible;
   }
   .photo-stage {
     flex: 0 0 auto;

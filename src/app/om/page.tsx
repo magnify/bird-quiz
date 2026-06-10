@@ -5,7 +5,7 @@ import { BRAND } from '@/lib/brand'
 
 export default function OmPage() {
   return (
-    <>
+    <div className="quiz-app-root">
       <QuizHeader activePage="om" />
       <div id="secondary-screen" className="screen active">
         <div className="secondary-page-content">
@@ -48,6 +48,6 @@ export default function OmPage() {
         </div>
       </div>
       <MobileBottomNav activePage="om" />
-    </>
+    </div>
   )
 }

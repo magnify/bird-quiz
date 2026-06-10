@@ -96,6 +96,7 @@ export default function MyResults() {
           onCancel={() => setShowClearConfirm(false)}
         />
       )}
+      <div className="quiz-app-root">
       <QuizHeader activePage="resultater" />
       <div id="my-results-screen" className="screen active">
         <div className="secondary-page-content">
@@ -232,6 +233,7 @@ export default function MyResults() {
       </div>
     </div>
       <MobileBottomNav activePage="resultater" />
+      </div>
     </>
   )
 }
