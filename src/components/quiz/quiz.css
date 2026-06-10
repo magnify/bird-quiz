@@ -62,6 +62,7 @@
   --quiz-label: var(--quiz-text-sm);
   --quiz-button: var(--quiz-text-sm);
   --quiz-button-primary: var(--quiz-text-lg);
+  --quiz-button-secondary: var(--quiz-text-md);
   --quiz-tooltip: var(--quiz-text-sm);
   --quiz-version: var(--quiz-text-xs);
 
@@ -118,13 +119,13 @@
   --quiz-results-value: var(--quiz-text-2xl);
   --quiz-modal-title: var(--quiz-text-xl);
 
-  /* Component tokens — explicit contracts for shared UI elements (from #35).
-     Buttons may migrate onto these; defined here so the contract isn't lost. */
+  /* Component tokens — explicit contracts for shared UI elements.
+     The .btn system (#33) sources ALL button geometry from these. */
   --quiz-btn-height: 48px;
   --quiz-btn-height-sm: 40px;
-  --quiz-btn-padding-x: var(--quiz-padding-md);
+  --quiz-btn-padding-x: var(--quiz-padding-lg);
   --quiz-btn-padding-y: 0px;
-  --quiz-btn-radius: var(--quiz-radius-md);
+  --quiz-btn-radius: var(--quiz-radius-pill);
 }
 
 /* --- Quiz theme scope ---
@@ -513,6 +514,11 @@ body:has(.screen.active) {
   color: var(--quiz-text-muted);
 }
 
+/* Label above a content block (e.g. missed-birds sections) */
+.setting-label--spaced {
+  margin-bottom: var(--quiz-gap-md);
+}
+
 .toggle-group {
   display: flex;
   gap: var(--quiz-gap-sm);
@@ -589,36 +595,87 @@ body:has(.screen.active) {
   color: var(--quiz-accent);
 }
 
-/* --- Buttons --- */
-.start-btn {
-  display: flex;
+/* --- Button system (#33) ---
+   Every action button is .btn + exactly one variant (+ .btn--block for
+   full width). Geometry (height, padding, radius) comes exclusively from
+   the --quiz-btn-* component tokens — never per-button. Pill toggles
+   (.toggle-btn, .filter-btn) are selection controls, not action buttons,
+   and stay separate. */
+.btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--quiz-gap-sm);
-  width: 100%;
   height: var(--quiz-btn-height);
-  padding: 0 28px;
-  background: linear-gradient(135deg, var(--quiz-accent-dim), var(--quiz-accent-dark));
-  border: none;
-  border-radius: var(--quiz-radius-pill);
-  color: var(--quiz-background);
-  font-size: var(--quiz-button-primary);
+  padding: var(--quiz-btn-padding-y) var(--quiz-btn-padding-x);
+  border-radius: var(--quiz-btn-radius);
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   transition: all var(--quiz-transition);
-  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-decoration: none;
+  letter-spacing: 0.03em;
 }
 
-.start-btn:hover {
+.btn--block {
+  width: 100%;
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--quiz-accent-dim), var(--quiz-accent-dark));
+  border: none;
+  color: var(--quiz-background);
+  font-size: var(--quiz-button-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25);
+}
+
+.btn--primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 24px rgba(34, 197, 94, 0.35);
 }
 
-.start-btn:active {
+.btn--primary:active {
   transform: translateY(0);
+}
+
+.btn--secondary {
+  background: transparent;
+  border: 2px solid var(--quiz-border-pill-strong);
+  color: var(--quiz-text-secondary);
+  font-size: var(--quiz-button-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.btn--secondary:hover {
+  background: var(--quiz-bg-hover);
+  border-color: var(--quiz-border-pill-hover-strong);
+  color: var(--quiz-foreground);
+}
+
+.btn--accent {
+  background: var(--quiz-accent);
+  border: none;
+  color: var(--quiz-background);
+  font-size: var(--quiz-button-secondary);
+}
+
+.btn--accent:hover {
+  opacity: 0.85;
+}
+
+.btn--danger {
+  background: var(--quiz-wrong);
+  border: none;
+  color: var(--quiz-text-light);
+  font-size: var(--quiz-button-secondary);
+  text-transform: uppercase;
+}
+
+.btn--danger:hover {
+  opacity: 0.9;
 }
 
 .version-label {
@@ -626,33 +683,6 @@ body:has(.screen.active) {
   color: var(--quiz-text-muted);
   opacity: 0.5;
   letter-spacing: 0.05em;
-}
-
-.secondary-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--quiz-gap-sm);
-  width: 100%;
-  height: var(--quiz-btn-height);
-  padding: 0 var(--quiz-padding-lg);
-  background: transparent;
-  border: 2px solid var(--quiz-border-pill-strong);
-  border-radius: var(--quiz-radius-pill);
-  color: var(--quiz-text-secondary);
-  font-size: 0.95rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all var(--quiz-transition);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.secondary-btn:hover {
-  background: var(--quiz-bg-hover);
-  border-color: var(--quiz-border-pill-hover-strong);
-  color: var(--quiz-foreground);
 }
 
 /* --- Persistent app header — in normal flow, content sits below it --- */
@@ -840,49 +870,8 @@ body:has(.screen.active) {
   gap: var(--quiz-gap-md);
 }
 
-.confirm-modal-actions button {
+.confirm-modal-actions .btn {
   flex: 1;
-  padding: var(--quiz-gap-md) var(--quiz-padding-md);
-  border-radius: var(--quiz-radius-pill);
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all var(--quiz-transition);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.confirm-modal-cancel {
-  background: transparent;
-  border: 2px solid var(--quiz-border-pill-strong);
-  color: var(--quiz-text-secondary);
-}
-
-.confirm-modal-cancel:hover {
-  background: var(--quiz-bg-hover);
-  border-color: var(--quiz-border-pill-hover-strong);
-  color: var(--quiz-foreground);
-}
-
-.confirm-modal-danger {
-  background: var(--quiz-wrong);
-  border: 2px solid var(--quiz-wrong);
-  color: var(--quiz-text-light);
-}
-
-.confirm-modal-danger:hover {
-  opacity: 0.9;
-}
-
-.confirm-modal-confirm {
-  background: var(--quiz-accent);
-  border: 2px solid var(--quiz-accent);
-  color: var(--quiz-background);
-}
-
-.confirm-modal-confirm:hover {
-  opacity: 0.9;
 }
 
 /* --- Quiz body --- */
@@ -892,7 +881,7 @@ body:has(.screen.active) {
   align-items: center;
   flex: 1;
   width: 100%;
-  padding-bottom: 32px;
+  padding-bottom: var(--quiz-padding-xl);
 }
 
 /* Immersive photo mode — two-column: answers left, image right */
@@ -959,14 +948,14 @@ body:has(.screen.active) {
   background: rgba(0, 0, 0, 0.65);
   color: rgba(255, 255, 255, 0.9);
   font-size: var(--quiz-text-xs);
-  padding: 4px 8px;
+  padding: var(--quiz-gap-xs) var(--quiz-gap-sm);
   border-radius: var(--quiz-radius-sm);
   backdrop-filter: blur(4px);
   pointer-events: none;
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--quiz-gap-xs);
 }
 
 .photo-stage-inner .photo-loading {
@@ -1812,25 +1801,10 @@ details.results-missed[open] .missed-summary {
   justify-content: center;
 }
 
+/* Width constraint only — visuals come from .btn .btn--accent */
 a.start-quiz-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   max-width: 240px;
-  height: var(--quiz-btn-height);
-  padding: 0 var(--quiz-padding-lg);
-  background: var(--quiz-accent);
-  color: var(--quiz-background);
-  border-radius: var(--quiz-radius-pill);
-  text-decoration: none;
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: opacity 0.15s;
-}
-a.start-quiz-link:hover {
-  opacity: 0.85;
 }
 
 .leaderboard-table {
@@ -2030,6 +2004,11 @@ a.start-quiz-link:hover {
   border: 1px solid var(--quiz-border-subtle-md);
   border-radius: var(--quiz-radius-md);
   overflow: hidden;
+}
+
+/* Standalone card with inner padding (no expandable header) */
+.result-card--padded {
+  padding: var(--quiz-padding-md);
 }
 
 .result-card-header {
@@ -2252,9 +2231,6 @@ a.start-quiz-link:hover {
     --quiz-button-primary: var(--quiz-text-sm);
     --quiz-tooltip: 0.65rem;
     --quiz-version: 0.65rem;
-  }
-  .start-btn {
-    padding: 0 var(--quiz-gap-xl);
   }
   .results-stats {
     gap: var(--quiz-padding-md);

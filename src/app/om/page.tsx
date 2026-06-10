@@ -13,14 +13,14 @@ export default function OmPage() {
             <h1 className="page-title">Om {BRAND.name}</h1>
           </div>
 
-          <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
+          <div className="result-card result-card--padded">
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
               {BRAND.name} er en gratis dansk fuglequiz, der hjælper dig med at lære de danske fugle at kende.
               Gæt fuglen ud fra billeder og test din viden.
             </p>
           </div>
 
-          <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
+          <div className="result-card result-card--padded">
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Kontakt</p>
             <a
               href={`mailto:${BRAND.contactEmail}`}
@@ -30,7 +30,7 @@ export default function OmPage() {
             </a>
           </div>
 
-          <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
+          <div className="result-card result-card--padded">
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Støt projektet</p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
               {BRAND.name} er et frivilligt projekt. Det er lavet af mig, Brian Jensen, der er hobby-fugleentusiast

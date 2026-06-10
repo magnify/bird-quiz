@@ -16,7 +16,7 @@ import QuizResults from './QuizResults'
 import AuthModal from './AuthModal'
 import QuizHeader from './QuizHeader'
 import MobileBottomNav from './MobileBottomNav'
-import ConfirmModal from './ConfirmModal'
+import { ConfirmModal } from './ConfirmModal'
 import { ErrorBoundary } from '@/lib/error-tracking/ErrorBoundary'
 import { BRAND } from '@/lib/brand'
 

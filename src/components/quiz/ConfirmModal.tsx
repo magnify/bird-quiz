@@ -10,7 +10,7 @@ interface ConfirmModalProps {
   onCancel: () => void
 }
 
-export default function ConfirmModal({
+export function ConfirmModal({
   title,
   text,
   confirmLabel,
@@ -25,11 +25,11 @@ export default function ConfirmModal({
         <div className="confirm-modal-title">{title}</div>
         {text && <div className="confirm-modal-text">{text}</div>}
         <div className="confirm-modal-actions">
-          <button className="confirm-modal-cancel" onClick={onCancel}>
+          <button className="btn btn--secondary" onClick={onCancel}>
             {cancelLabel}
           </button>
           <button
-            className={variant === 'danger' ? 'confirm-modal-danger' : 'confirm-modal-confirm'}
+            className={variant === 'danger' ? 'btn btn--danger' : 'btn btn--accent'}
             onClick={onConfirm}
           >
             {confirmLabel}

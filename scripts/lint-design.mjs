@@ -123,6 +123,42 @@ const RULES = [
       return count
     },
   },
+  {
+    // #33: spacing in quiz.css must come from --quiz-* tokens. Counts px
+    // literals outside token definitions (`--…: 16px`) and @media conditions.
+    // 0/1/2px are exempt (zero values and hairline borders).
+    name: 'css-magic-px',
+    roots: ['src/components/quiz'],
+    exts: ['.css'],
+    test: (_f, src) => {
+      let count = 0
+      for (const line of src.split('\n')) {
+        if (/@media/.test(line)) continue
+        if (/^\s*--/.test(line)) continue
+        if (/^\s*(\/\*|\*)/.test(line)) continue
+        const m = line.match(HARDCODED_PX_RE)
+        if (!m) continue
+        count += m.filter(v => v !== '0px' && v !== '1px' && v !== '2px').length
+      }
+      return count
+    },
+  },
+  {
+    // #33: type scale in quiz.css must come from --quiz-text-* /semantic
+    // tokens. Counts raw rem/px font-size declarations outside the :root
+    // token block.
+    name: 'css-magic-font-size',
+    roots: ['src/components/quiz'],
+    exts: ['.css'],
+    test: (_f, src) => {
+      let count = 0
+      for (const line of src.split('\n')) {
+        if (/^\s*--/.test(line)) continue
+        if (/font-size:\s*[\d.]+(rem|px)/.test(line)) count++
+      }
+      return count
+    },
+  },
 ]
 
 // ---- Walker --------------------------------------------------------------

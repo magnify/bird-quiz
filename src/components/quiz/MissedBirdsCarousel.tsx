@@ -16,7 +16,7 @@ interface Props {
   ariaLabel?: string
 }
 
-export default function MissedBirdsCarousel({ items, ariaLabel }: Props) {
+export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
   const [index, setIndex] = useState(0)
   const startXRef = useRef<number | null>(null)
   const deltaXRef = useRef(0)
@@ -80,7 +80,7 @@ export default function MissedBirdsCarousel({ items, ariaLabel }: Props) {
       >
         <div
           className="missed-carousel-track"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          style={/* dynamic */ { transform: `translateX(-${index * 100}%)` }}
         >
           {items.map(item => (
             <div key={item.key} className="missed-carousel-slide">

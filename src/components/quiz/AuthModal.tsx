@@ -85,7 +85,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
           {error && <p className="auth-error">{error}</p>}
 
-          <button type="submit" className="start-btn" disabled={loading}>
+          <button type="submit" className="btn btn--primary btn--block" disabled={loading}>
             <span>{loading ? 'Vent...' : isSignUp ? 'Opret konto' : 'Log ind'}</span>
           </button>
         </form>

@@ -38,7 +38,7 @@ export function BirdMosaic({ birds, highlightBirdId, onTileRef }: BirdMosaicProp
     const firstCol = el.querySelector('.mosaic-column') as HTMLElement | null
     if (!firstCol) return
     const colWidth = firstCol.offsetWidth
-    // Each tile is square (aspect-ratio: 1) + 4px gap
+    // Each tile is square (aspect-ratio: 1) plus the --quiz-mosaic gap (4)
     const tileSize = colWidth + 4
     const containerHeight = el.offsetHeight
     // Enough rows to fill 160% of height (accounts for offsets + bleeding)

@@ -6,8 +6,8 @@ import { loadResults, clearResults, type QuizResult } from '@/lib/quiz/result-hi
 import { getBirdImageUrl } from '@/lib/images'
 import QuizHeader from './QuizHeader'
 import MobileBottomNav from './MobileBottomNav'
-import ConfirmModal from './ConfirmModal'
-import MissedBirdsCarousel from './MissedBirdsCarousel'
+import { ConfirmModal } from './ConfirmModal'
+import { MissedBirdsCarousel } from './MissedBirdsCarousel'
 
 function difficultyLabel(d: string): string {
   if (d === 'easy') return 'Lette'
@@ -134,7 +134,7 @@ export default function MyResults() {
               Tag din første quiz for at følge din score, dine svage fugle og din historik.
             </p>
             <div className="my-results-empty-actions">
-              <a href="/" className="start-quiz-link">Spil en quiz &rarr;</a>
+              <a href="/" className="btn btn--accent start-quiz-link">Spil en quiz &rarr;</a>
             </div>
           </div>
         ) : (
@@ -159,8 +159,8 @@ export default function MyResults() {
             </div>
 
             {weakBirds.length > 0 && (
-              <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
-                <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-md)' }}>
+              <div className="result-card result-card--padded">
+                <p className="setting-label setting-label--spaced">
                   Fugle du missede
                 </p>
                 <MissedBirdsCarousel
@@ -232,8 +232,8 @@ export default function MyResults() {
             </div>
 
             <div className="my-results-footer">
-              <a href="/" className="start-quiz-link">Ny quiz &rarr;</a>
-              <button className="secondary-btn" onClick={() => setShowClearConfirm(true)}>
+              <a href="/" className="btn btn--accent start-quiz-link">Ny quiz &rarr;</a>
+              <button className="btn btn--secondary btn--block" onClick={() => setShowClearConfirm(true)}>
                 Slet historik
               </button>
             </div>
