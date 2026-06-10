@@ -101,6 +101,15 @@ export default function MyResults() {
       <div id="my-results-screen" className="screen active">
         <div className="secondary-page-content">
 
+        <div>
+          <h1 className="page-title">Dine resultater</h1>
+          {loaded && totalGames > 0 && (
+            <p className="page-subtitle">
+              Baseret på {totalGames} {totalGames === 1 ? 'quiz' : 'quizzer'} på denne enhed.
+            </p>
+          )}
+        </div>
+
         {!loaded ? (
           <div className="leaderboard-loading">Indlæser...</div>
         ) : totalGames === 0 ? (

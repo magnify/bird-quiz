@@ -50,18 +50,29 @@ function PhotoOptionCard({
 }) {
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(false)
+  const loadedRef = useRef(false)
   const imgRef = useRef<HTMLImageElement>(null)
   const handleImageError = useImageErrorHandler('QuizQuestion')
 
   useEffect(() => {
     setLoaded(false)
     setFailed(false)
+    loadedRef.current = false
 
     // Check if image is already loaded (from cache)
     const img = imgRef.current
     if (img?.complete && img.naturalWidth > 0) {
+      loadedRef.current = true
       setLoaded(true)
+      return
     }
+
+    // Timeout: slow networks never fire onError — show fallback instead of
+    // an infinite spinner
+    const timer = setTimeout(() => {
+      if (!loadedRef.current) setFailed(true)
+    }, 10000)
+    return () => clearTimeout(timer)
   }, [bird.id])
 
   const classes = [
@@ -84,7 +95,7 @@ function PhotoOptionCard({
     >
       <div className={`photo-option-loading ${loaded ? 'hidden' : ''}`}>
         {failed ? (
-          <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Fejl</span>
+          <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Billede ikke tilgængeligt</span>
         ) : imageUrl ? (
           <div className="spinner" />
         ) : (
@@ -97,7 +108,7 @@ function PhotoOptionCard({
           src={imageUrl}
           alt={bird.name_da}
           className={loaded ? 'loaded' : ''}
-          onLoad={() => setLoaded(true)}
+          onLoad={() => { loadedRef.current = true; setLoaded(true) }}
           onError={(e) => {
             setFailed(true)
             handleImageError(e)

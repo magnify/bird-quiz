@@ -10,9 +10,7 @@ export default function OmPage() {
       <div id="secondary-screen" className="screen active">
         <div className="secondary-page-content">
           <div>
-            <h1 style={{ fontSize: 'var(--quiz-text-2xl)', fontWeight: 700, color: 'var(--quiz-foreground)' }}>
-              Om {BRAND.name}
-            </h1>
+            <h1 className="page-title">Om {BRAND.name}</h1>
           </div>
 
           <div className="result-card" style={{ padding: 'var(--quiz-padding-md)' }}>
@@ -39,6 +37,10 @@ export default function OmPage() {
               og gerne vil lære mere om danske fugle og øve mig i at genkende de forskellige arter. Kan du lide
               projektet? Så kan du støtte det via MobilePay:{' '}
               <strong style={{ color: 'var(--quiz-foreground)' }}>{BRAND.mobilePay}</strong>
+            </p>
+            <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6, marginTop: 'var(--quiz-gap-md)' }}>
+              Det overskud, der er tilbage efter driftsomkostninger (lidt server der skal hostes), går til at
+              støtte dansk natur.
             </p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6, marginTop: 'var(--quiz-gap-md)' }}>
               Jeg har flere idéer på tegnebrættet og forbedrer quizzen løbende, men har du forslag eller vil hjælpe

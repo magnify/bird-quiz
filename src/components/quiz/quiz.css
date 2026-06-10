@@ -350,13 +350,26 @@ body:has(.screen.active) {
   }
 }
 
-/* Hide header on ALL mobile screens - use bottom nav instead */
+/* Hide header on mobile — the bottom nav covers navigation and branding
+   lives in the start hero. Exception: during an active quiz the header is
+   the only home of the progress bar, counter and quit control, so show it
+   as a slim sticky bar (the progress bar is only rendered mid-quiz). */
 @media (max-width: 640px) {
   .app-header {
     display: none;
   }
 
-  /* Floating nav removed */
+  .app-header:has(.progress-bar-container) {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--quiz-background);
+  }
+
+  .app-header:has(.progress-bar-container) .app-header-inner {
+    padding: var(--quiz-gap-sm) var(--quiz-padding-md);
+  }
 }
 
 .start-hero {
@@ -583,7 +596,8 @@ body:has(.screen.active) {
   justify-content: center;
   gap: var(--quiz-gap-sm);
   width: 100%;
-  padding: var(--quiz-padding-md) 28px;
+  height: var(--quiz-btn-height);
+  padding: 0 28px;
   background: linear-gradient(135deg, var(--quiz-accent-dim), var(--quiz-accent-dark));
   border: none;
   border-radius: var(--quiz-radius-pill);
@@ -620,7 +634,8 @@ body:has(.screen.active) {
   justify-content: center;
   gap: var(--quiz-gap-sm);
   width: 100%;
-  padding: var(--quiz-padding-md) var(--quiz-padding-lg);
+  height: var(--quiz-btn-height);
+  padding: 0 var(--quiz-padding-lg);
   background: transparent;
   border: 2px solid var(--quiz-border-pill-strong);
   border-radius: var(--quiz-radius-pill);
@@ -1689,6 +1704,27 @@ details.results-missed[open] .missed-summary {
   flex: 1;
 }
 
+/* Narrow phones: cards feel edge-to-edge with 16px insets — widen to 24px */
+@media (max-width: 640px) {
+  .secondary-page-content {
+    padding-left: var(--quiz-padding-lg);
+    padding-right: var(--quiz-padding-lg);
+  }
+}
+
+/* Page heading for secondary pages */
+.page-title {
+  font-size: var(--quiz-text-2xl);
+  font-weight: 700;
+  color: var(--quiz-foreground);
+}
+
+.page-subtitle {
+  font-size: var(--quiz-text-sm);
+  color: var(--quiz-text-muted);
+  margin-top: var(--quiz-gap-xs);
+}
+
 /* --- Secondary nav bar --- */
 .secondary-nav {
   display: flex;
@@ -1777,10 +1813,13 @@ details.results-missed[open] .missed-summary {
 }
 
 a.start-quiz-link {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: 240px;
-  padding: var(--quiz-gap-sm) var(--quiz-padding-lg);
+  height: var(--quiz-btn-height);
+  padding: 0 var(--quiz-padding-lg);
   background: var(--quiz-accent);
   color: var(--quiz-background);
   border-radius: var(--quiz-radius-pill);
@@ -2215,7 +2254,7 @@ a.start-quiz-link:hover {
     --quiz-version: 0.65rem;
   }
   .start-btn {
-    padding: var(--quiz-gap-sm) var(--quiz-gap-xl);
+    padding: 0 var(--quiz-gap-xl);
   }
   .results-stats {
     gap: var(--quiz-padding-md);
@@ -2272,8 +2311,12 @@ a.start-quiz-link:hover {
   }
   .photo-stage {
     flex: 0 0 auto;
-    order: -1;
     padding: var(--quiz-gap-md) var(--quiz-padding-md) 0;
+  }
+  /* Photo mode: image above the answer buttons. Name mode keeps DOM order
+     (question + bird name first, photo grid below). */
+  .quiz-body--photo .photo-stage {
+    order: -1;
   }
   .photo-stage-inner {
     aspect-ratio: 4 / 3;
