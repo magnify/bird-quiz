@@ -93,38 +93,38 @@ function PhotoOptionCard({
       aria-label={bird.name_da}
       aria-disabled={answered}
     >
-      <div className={`photo-option-loading ${loaded ? 'hidden' : ''}`}>
-        {failed ? (
-          <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Billede ikke tilgængeligt</span>
-        ) : imageUrl ? (
-          <div className="spinner" />
-        ) : (
-          <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Intet foto</span>
-        )}
-      </div>
-      {imageUrl && (
-        <img
-          ref={imgRef}
-          src={imageUrl}
-          alt={bird.name_da}
-          className={loaded ? 'loaded' : ''}
-          onLoad={() => { loadedRef.current = true; setLoaded(true) }}
-          onError={(e) => {
-            setFailed(true)
-            handleImageError(e)
-            ;(e.target as HTMLImageElement).src = PLACEHOLDER_SVG
-          }}
-        />
-      )}
-      {(isCorrect || (isSelected && !isCorrect)) && (
-        <div className="photo-option-badge">{isCorrect ? '✓' : '✗'}</div>
-      )}
-      {attribution && (
-        <div className="photo-option-attribution" title={attribution}>
-          {attribution}
+      <div className="photo-option-frame">
+        <div className={`photo-option-loading ${loaded ? 'hidden' : ''}`}>
+          {failed ? (
+            <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Billede ikke tilgængeligt</span>
+          ) : imageUrl ? (
+            <div className="spinner" />
+          ) : (
+            <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Intet foto</span>
+          )}
         </div>
-      )}
-      <div className="photo-option-label">{bird.name_da}</div>
+        {imageUrl && (
+          <img
+            ref={imgRef}
+            src={imageUrl}
+            alt={bird.name_da}
+            className={loaded ? 'loaded' : ''}
+            onLoad={() => { loadedRef.current = true; setLoaded(true) }}
+            onError={(e) => {
+              setFailed(true)
+              handleImageError(e)
+              ;(e.target as HTMLImageElement).src = PLACEHOLDER_SVG
+            }}
+          />
+        )}
+        {(isCorrect || (isSelected && !isCorrect)) && (
+          <div className="photo-option-badge">{isCorrect ? '✓' : '✗'}</div>
+        )}
+        <div className="photo-option-label">{bird.name_da}</div>
+      </div>
+      <div className="photo-option-credit" title={attribution ?? undefined}>
+        {attribution ?? '\u00A0' /* keeps all four tiles equal height */}
+      </div>
     </div>
   )
 }

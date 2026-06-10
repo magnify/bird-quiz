@@ -1173,14 +1173,22 @@ body:has(.screen.active) {
 }
 
 .photo-option {
-  position: relative;
-  aspect-ratio: 3 / 2;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--quiz-radius-md);
   overflow: hidden;
   border: 2px solid var(--quiz-border);
   cursor: pointer;
   transition: all var(--quiz-transition);
   background: var(--quiz-bg-secondary);
+}
+
+/* Image area — overlays (spinner, badge, name label) anchor here so the
+   credit strip below stays clear */
+.photo-option-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
 }
 
 .photo-option:hover:not(.disabled) {
@@ -1283,22 +1291,15 @@ body:has(.screen.active) {
   opacity: 1;
 }
 
-.photo-option-attribution {
-  position: absolute;
-  top: var(--quiz-gap-xs);
-  left: var(--quiz-gap-xs);
-  right: var(--quiz-gap-xs);
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  border-radius: var(--quiz-radius-sm);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.625rem;
-  line-height: 1.2;
+/* Attribution below the image (#18) — never overlays the bird */
+.photo-option-credit {
+  padding: 2px var(--quiz-gap-sm);
+  font-size: var(--quiz-text-xs);
+  line-height: 1.4;
+  color: var(--quiz-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  pointer-events: none;
 }
 
 /* --- Results screen --- */
@@ -2294,11 +2295,17 @@ a.start-quiz-link {
   .quiz-body--photo .photo-stage {
     order: -1;
   }
-  .photo-stage-inner {
+  /* Photo mode: cap the single image so options stay in reach */
+  .quiz-body--photo .photo-stage-inner {
     aspect-ratio: 4 / 3;
     max-height: 40dvh;
     width: auto;
     margin: 0 auto;
+  }
+  /* Name mode (#28): the 2×2 grid takes the full width — each tile lands
+     at ~44vw so the birds are actually inspectable */
+  .quiz-body--name .photo-stage-inner {
+    padding: 0;
   }
   .options-area {
     flex: 0 0 auto;
