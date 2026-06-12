@@ -227,6 +227,20 @@ body:has(.screen.active) {
   padding: 0;
 }
 
+/* Desktop start screen: lock the shell to the viewport so the mosaic side
+   gets a bounded height to fill and clip against. Without this the mosaic's
+   bleed defines the container height and the page grows unbounded (#19
+   incident). Below 1025px the mosaic is hidden and normal flow is fine. */
+@media (min-width: 1025px) {
+  .quiz-app-root:has(#start-screen.active) {
+    height: 100dvh;
+  }
+  #start-screen.active {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 /* Start screen layout: mosaic left, form right */
 .start-layout {
   width: 100%;
