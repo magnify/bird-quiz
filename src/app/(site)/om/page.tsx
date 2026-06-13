@@ -1,17 +1,12 @@
-import '@/components/quiz/quiz.css'
-import QuizHeader from '@/components/quiz/QuizHeader'
-import MobileBottomNav from '@/components/quiz/MobileBottomNav'
 import { BRAND } from '@/lib/brand'
 
 export default function OmPage() {
   return (
-    <div className="quiz-app-root">
-      <QuizHeader activePage="om" />
-      <div id="secondary-screen" className="screen active">
-        <div className="secondary-page-content">
-          <div>
-            <h1 className="page-title">Om {BRAND.name}</h1>
-          </div>
+    <div id="secondary-screen" className="screen active">
+      <div className="secondary-page-content">
+        <div>
+          <h1 className="page-title">Om {BRAND.name}</h1>
+        </div>
 
           <div className="result-card result-card--padded">
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
@@ -46,10 +41,8 @@ export default function OmPage() {
               Jeg har flere idéer på tegnebrættet og forbedrer quizzen løbende, men har du forslag eller vil hjælpe
               med at teste, billeder eller andet, så skriv.
             </p>
-          </div>
         </div>
       </div>
-      <MobileBottomNav activePage="om" />
     </div>
   )
 }

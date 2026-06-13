@@ -1,0 +1,50 @@
+import type { Bird } from '@/lib/supabase/types'
+
+/**
+ * Curated allowlist of hero-quality bird photos (by scientific name) shown
+ * full-bleed behind the start-screen card. Full-bleed exposes soft/low-res
+ * photos that looked fine as small mosaic tiles, so this is a hand-picked
+ * set of high-quality landscape shots — expanded collaboratively over time.
+ */
+export const HERO_BIRD_NAMES: string[] = [
+  'Alcedo atthis',
+  'Cyanistes caeruleus',
+  'Carduelis carduelis',
+  'Upupa epops',
+  'Pyrrhula pyrrhula',
+  'Erithacus rubecula',
+]
+
+const HERO_SET = new Set(HERO_BIRD_NAMES)
+
+// Fisher–Yates. Not pure (Math.random) — acceptable here, the hero rotation is
+// deliberately random on each mount. Mirrors the old BirdMosaic shuffle.
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/**
+ * Pick up to `count` hero birds: filter `birds` to the curated allowlist,
+ * shuffle, and cap. Returns fewer than `count` (or an empty array) when the
+ * allowlist matches few/no birds — callers must tolerate a short pool.
+ */
+export function pickHeroBirds(birds: Bird[], count: number): Bird[] {
+  if (count <= 0) return []
+  const matches = birds.filter(b => HERO_SET.has(b.scientific_name))
+  return shuffle(matches).slice(0, count)
+}
+
+/**
+ * Pick up to `count` hero scientific names straight from the allowlist —
+ * for backdrops (e.g. /om, /resultater) that don't load the full `Bird[]`.
+ * BirdHero rotates over names and looks up credit from the manifest.
+ */
+export function pickHeroNames(count: number): string[] {
+  if (count <= 0) return []
+  return shuffle(HERO_BIRD_NAMES).slice(0, count)
+}

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { LogoSvg } from './Logo'
 import { BRAND } from '@/lib/brand'
 
@@ -32,33 +33,40 @@ export default function QuizHeader({
   hideLogo = false,
   alignToForm = false,
 }: QuizHeaderProps) {
-  const LogoElement = onLogoClick ? 'button' : 'a'
-  const logoProps = onLogoClick
-    ? { onClick: onLogoClick, type: 'button' as const }
-    : { href: '/' }
+  const logoInner = (
+    <>
+      <span className="app-header-logo">
+        <LogoSvg />
+      </span>
+      <span className="app-header-title">{BRAND.name}</span>
+    </>
+  )
 
   return (
     <div className="app-header" {...(alignToForm ? { 'data-align': 'form' } : {})}>
       <div className="app-header-inner">
-        {!hideLogo && (
-          <LogoElement
-            className="app-header-left"
-            aria-label={logoLabel}
-            {...logoProps}
-          >
-            <span className="app-header-logo">
-              <LogoSvg />
-            </span>
-            <span className="app-header-title">{BRAND.name}</span>
-          </LogoElement>
-        )}
+        {!hideLogo &&
+          (onLogoClick ? (
+            <button
+              type="button"
+              className="app-header-left"
+              aria-label={logoLabel}
+              onClick={onLogoClick}
+            >
+              {logoInner}
+            </button>
+          ) : (
+            <Link href="/" className="app-header-left" aria-label={logoLabel}>
+              {logoInner}
+            </Link>
+          ))}
 
         <div className="app-header-center">
           {centerContent ? (
             centerContent
           ) : (
             <div className="secondary-nav-tabs">
-              <a
+              <Link
                 href="/"
                 className={`secondary-nav-link ${activePage === 'quiz' ? 'active' : ''}`}
                 onClick={(e) => {
@@ -69,8 +77,8 @@ export default function QuizHeader({
                 }}
               >
                 Quiz
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/resultater"
                 className={`secondary-nav-link ${activePage === 'resultater' ? 'active' : ''}`}
                 onClick={(e) => {
@@ -81,8 +89,8 @@ export default function QuizHeader({
                 }}
               >
                 Resultater
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/om"
                 className={`secondary-nav-link ${activePage === 'om' ? 'active' : ''}`}
                 onClick={(e) => {
@@ -93,7 +101,7 @@ export default function QuizHeader({
                 }}
               >
                 Om
-              </a>
+              </Link>
             </div>
           )}
         </div>

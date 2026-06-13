@@ -79,12 +79,8 @@
   --quiz-bg-hover-faint: rgba(255, 255, 255, 0.03);
   --quiz-bg-card-translucent: rgba(26, 43, 34, 0.5);
 
-  /* Mosaic tokens */
-  --quiz-mosaic-gap: 6px;
+  /* Radius shared by the start→Q1 zoom transition overlay. */
   --quiz-mosaic-radius: 8px;
-  /* 4 columns × min(14vw, 120px) + 3 × 4px gaps. Used to align the start-screen
-     header nav with the form column (which sits to the right of the mosaic). */
-  --mosaic-width: calc(min(56vw, 480px) + 12px);
 
   /* Spacing scale */
   --quiz-gap-xs: 4px;
@@ -221,60 +217,151 @@ body:has(.screen.active) {
   }
 }
 
-/* --- Start screen --- */
+/* --- Start screen: full-bleed photo hero + centered glass card --- */
 #start-screen {
-  align-items: stretch;
-  padding: 0;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  padding: var(--quiz-padding-lg);
+  overflow: hidden;
 }
 
-/* Desktop start screen: lock the shell to the viewport so the mosaic side
-   gets a bounded height to fill and clip against. Without this the mosaic's
-   bleed defines the container height and the page grows unbounded (#19
-   incident). Below 1025px the mosaic is hidden and normal flow is fine. */
-@media (min-width: 1025px) {
-  .quiz-app-root:has(#start-screen.active) {
-    height: 100dvh;
-  }
-  #start-screen.active {
-    min-height: 0;
-    overflow: hidden;
-  }
+/* Lock the shell to the viewport on every size so the full-bleed photo fills
+   it and the page can't grow past the viewport — permanently retires the #19
+   runaway-growth bug class (BirdHero does no measurement). */
+.quiz-app-root:has(#start-screen.active) {
+  height: 100dvh;
 }
-
-/* Start screen layout: mosaic left, form right */
-.start-layout {
-  width: 100%;
-  flex: 1;
-  display: flex;
+#start-screen.active {
   min-height: 0;
+  overflow: hidden;
+}
+
+/* Full-bleed rotating photo backdrop (rendered by BirdHero). */
+.start-hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.start-hero-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  animation: heroDrift 24s ease-in-out infinite alternate;
+}
+
+.start-hero-layer--visible {
+  opacity: 1;
+}
+
+@keyframes heroDrift {
+  from { transform: scale(1.03); }
+  to   { transform: scale(1.13); }
+}
+
+/* Dim + radial vignette so the card stays legible over any photo. */
+.start-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at center,
+      color-mix(in srgb, var(--quiz-background) 30%, transparent) 0%,
+      color-mix(in srgb, var(--quiz-background) 80%, transparent) 100%);
+}
+
+/* Subtle photo credit — attribution + licence only, never a bird name. */
+.start-hero-credit {
+  position: absolute;
+  bottom: var(--quiz-padding-sm);
+  right: var(--quiz-padding-sm);
+  z-index: 2;
+  max-width: 70%;
+  padding: var(--quiz-gap-xs) var(--quiz-gap-sm);
+  background: color-mix(in srgb, var(--quiz-background) 60%, transparent);
+  backdrop-filter: blur(var(--quiz-gap-xs));
+  -webkit-backdrop-filter: blur(var(--quiz-gap-xs));
+  border-radius: var(--quiz-radius-sm);
+  color: var(--quiz-text-secondary);
+  font-size: var(--quiz-text-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+/* Centered frosted-glass card holding the quiz controls. Reuses the glass
+   language from .mobile-bottom-nav (color-mix bg + backdrop blur). */
+.start-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--quiz-gap-2xl);
+  padding: var(--quiz-padding-xl);
+  background: color-mix(in srgb, var(--quiz-bg-secondary) 80%, transparent);
+  backdrop-filter: blur(var(--quiz-gap-lg));
+  -webkit-backdrop-filter: blur(var(--quiz-gap-lg));
+  border: 1px solid var(--quiz-border);
+  border-radius: var(--quiz-radius-lg);
+  box-shadow: 0 var(--quiz-gap-md) var(--quiz-gap-3xl) color-mix(in srgb, var(--quiz-background) 55%, transparent);
   transition: opacity 0.4s ease;
 }
 
-.start-layout--fading {
+.start-card--fading {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Left: mosaic takes natural width */
-.start-mosaic-side {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+/* Landscape / very short viewports: scroll the card inside the locked
+   start-screen instead of clipping it. Matches the `.active` specificity so it
+   overrides the `overflow: hidden` lock above (the page itself never grows). */
+@media (max-height: 560px) {
+  #start-screen.active {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  .start-card {
+    margin: var(--quiz-padding-lg) auto;
+  }
 }
 
-/* Right: settings centered in remaining space */
-.start-settings-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--quiz-padding-xl) var(--quiz-gap-3xl);
-  gap: var(--quiz-gap-2xl);
-  flex: 1;
-  min-width: 0;
+/* --- Ambient backdrop (content pages: /om, /resultater) --- */
+/* The shared (site) layout renders BirdHero variant="ambient" as a fixed,
+   blurred, heavily-dimmed full-viewport photo. The root goes transparent so it
+   shows through, and the page content scrolls above it. Same component and
+   visual language as the start-screen hero — just calmer. */
+.quiz-app-root--ambient {
+  background: transparent;
+}
+
+.start-hero-bg[data-variant='ambient'] {
+  position: fixed;
+}
+
+.start-hero-bg[data-variant='ambient'] .start-hero-layer {
+  filter: blur(var(--quiz-gap-sm));
+}
+
+.start-hero-bg[data-variant='ambient'] .start-scrim {
+  background: color-mix(in srgb, var(--quiz-background) 86%, transparent);
+}
+
+/* Keep page chrome and content above the fixed backdrop. */
+.quiz-app-root--ambient > .app-header,
+.quiz-app-root--ambient > .screen,
+.quiz-app-root--ambient > .mobile-bottom-nav {
+  position: relative;
+  z-index: 1;
 }
 
 /* Floating nav removed - using header nav on all pages now */
@@ -427,65 +514,6 @@ body:has(.screen.active) {
   flex-direction: column;
   align-items: center;
   gap: var(--quiz-gap-md);
-}
-
-/* --- Bird mosaic — staggered columns, bleeds out of viewport --- */
-.mosaic-grid {
-  display: flex;
-  flex-direction: row;
-  gap: var(--quiz-gap-xs);
-  height: 100%;
-  justify-content: center;
-  position: relative;
-  z-index: 110;
-  position: relative;
-}
-
-.mosaic-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--quiz-gap-xs);
-  /* Each column is 1/6 of viewport width, capped */
-  width: min(14vw, 120px);
-  height: auto;
-  flex-shrink: 0;
-  opacity: 0;
-  animation: mosaicColumnFadeIn 0.6s ease forwards;
-}
-
-.mosaic-column:nth-child(1) { animation-delay: 0s; }
-.mosaic-column:nth-child(2) { animation-delay: 0.1s; }
-.mosaic-column:nth-child(3) { animation-delay: 0.2s; }
-.mosaic-column:nth-child(4) { animation-delay: 0.3s; }
-
-@keyframes mosaicColumnFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.mosaic-tile {
-  flex-shrink: 0;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: var(--quiz-bg-card);
-  border-radius: var(--quiz-gap-xs);
-}
-
-.mosaic-tile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.mosaic-tile-img.loaded {
-  opacity: 1;
 }
 
 /* --- Zoom transition overlay --- */
@@ -731,15 +759,6 @@ body:has(.screen.active) {
 .app-header-right {
   grid-column: 3;
   justify-self: end;
-}
-
-/* Start screen: shift the whole header grid to the right of the mosaic so
-   the centered nav pill aligns with the form column instead of the viewport.
-   Only above 1024px — below that, mosaic is hidden and form is viewport-centered. */
-@media (min-width: 1025px) {
-  .app-header[data-align="form"] .app-header-inner {
-    padding-left: var(--mosaic-width);
-  }
 }
 
 .app-header-left {
@@ -2227,10 +2246,14 @@ a.start-quiz-link {
   .mosaic-zoom-image {
     transition: none;
   }
-  .start-layout {
+  .start-hero-layer {
+    animation: none;
     transition: none;
   }
-  .start-layout--fading {
+  .start-card {
+    transition: none;
+  }
+  .start-card--fading {
     opacity: 0;
   }
 }
@@ -2253,23 +2276,11 @@ a.start-quiz-link {
   /* Floating nav removed */
 }
 
-/* Hide mosaic on tablets and mobile - only show on desktop */
-@media (max-width: 1024px) {
-  .start-mosaic-side {
-    display: none;
-  }
-}
-
-/* Mobile: stack start layout */
+/* Mobile: tighten the start card */
 @media (max-width: 640px) {
-  .start-layout {
-    flex-direction: column;
-  }
-  .start-settings-area {
-    flex: 1;
-    padding: var(--quiz-gap-lg) var(--quiz-gap-xl) var(--quiz-gap-md);
-    gap: 14px;
-    justify-content: center;
+  .start-card {
+    gap: var(--quiz-gap-lg);
+    padding: var(--quiz-padding-lg);
   }
   .version-label {
     display: none;

@@ -1,11 +1,10 @@
 'use client'
 
 import '../quiz/quiz.css'
+import Link from 'next/link'
 import { useState, useEffect, useMemo } from 'react'
 import { loadResults, clearResults, type QuizResult } from '@/lib/quiz/result-history'
 import { getBirdImageUrl } from '@/lib/images'
-import QuizHeader from './QuizHeader'
-import MobileBottomNav from './MobileBottomNav'
 import { ConfirmModal } from './ConfirmModal'
 import { MissedBirdsCarousel } from './MissedBirdsCarousel'
 
@@ -96,8 +95,6 @@ export default function MyResults() {
           onCancel={() => setShowClearConfirm(false)}
         />
       )}
-      <div className="quiz-app-root">
-      <QuizHeader activePage="resultater" />
       <div id="my-results-screen" className="screen active">
         <div className="secondary-page-content">
 
@@ -134,7 +131,7 @@ export default function MyResults() {
               Tag din første quiz for at følge din score, dine svage fugle og din historik.
             </p>
             <div className="my-results-empty-actions">
-              <a href="/" className="btn btn--accent start-quiz-link">Spil en quiz &rarr;</a>
+              <Link href="/" className="btn btn--accent start-quiz-link">Spil en quiz &rarr;</Link>
             </div>
           </div>
         ) : (
@@ -232,7 +229,7 @@ export default function MyResults() {
             </div>
 
             <div className="my-results-footer">
-              <a href="/" className="btn btn--accent start-quiz-link">Ny quiz &rarr;</a>
+              <Link href="/" className="btn btn--accent start-quiz-link">Ny quiz &rarr;</Link>
               <button className="btn btn--secondary btn--block" onClick={() => setShowClearConfirm(true)}>
                 Slet historik
               </button>
@@ -241,8 +238,6 @@ export default function MyResults() {
         )}
       </div>
     </div>
-      <MobileBottomNav activePage="resultater" />
-      </div>
     </>
   )
 }

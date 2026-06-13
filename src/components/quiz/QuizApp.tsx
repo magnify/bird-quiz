@@ -191,7 +191,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
       {/* Persistent header */}
       <QuizHeader
         hideLogo={isStart}
-        alignToForm={isStart}
+        alignToForm={false}
         showProgress={state.screen === 'quiz'}
         progress={progress}
         currentQuestion={state.currentQuestion + 1}
@@ -243,6 +243,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           onSetTotalQuestions={setTotalQuestions}
           onStart={startQuiz}
           birds={approvedBirds}
+          manifest={manifest}
           firstBirdId={firstBirdId}
           onTileRef={handleTileRef}
           isTransitioning={state.screen === 'transitioning'}
