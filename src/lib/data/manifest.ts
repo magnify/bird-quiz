@@ -9,6 +9,19 @@ export interface ManifestEntry {
 
 export type Manifest = Map<string, ManifestEntry>
 
+/**
+ * Build a display credit string from a manifest entry: "Attribution · LICENSE".
+ * Returns null when there's nothing to show. Deliberately omits the bird name —
+ * callers render this over photos where the name would be a quiz spoiler.
+ */
+export function formatAttribution(entry: ManifestEntry | undefined): string | null {
+  if (!entry) return null
+  const parts: string[] = []
+  if (entry.attribution) parts.push(entry.attribution)
+  if (entry.license) parts.push(entry.license.toUpperCase())
+  return parts.length ? parts.join(' · ') : null
+}
+
 const MANIFEST_URL = '/api/images/manifest.json'
 
 let cached: Manifest | null = null

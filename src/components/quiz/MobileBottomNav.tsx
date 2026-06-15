@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface MobileBottomNavProps {
   activePage?: 'home' | 'resultater' | 'om'
   isQuizActive?: boolean
@@ -9,7 +11,7 @@ interface MobileBottomNavProps {
 export default function MobileBottomNav({ activePage, isQuizActive = false, onNavClick }: MobileBottomNavProps) {
   return (
     <nav className="mobile-bottom-nav">
-      <a
+      <Link
         href="/"
         className={`mobile-nav-item ${activePage === 'home' ? 'active' : ''}`}
         onClick={(e) => {
@@ -24,8 +26,8 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M5 10v10a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V10"/>
         </svg>
         <span className="mobile-nav-label">Quiz</span>
-      </a>
-      <a
+      </Link>
+      <Link
         href="/resultater"
         className={`mobile-nav-item ${activePage === 'resultater' ? 'active' : ''}`}
         onClick={(e) => {
@@ -42,8 +44,8 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M8 17v-3"/>
         </svg>
         <span className="mobile-nav-label">Resultater</span>
-      </a>
-      <a
+      </Link>
+      <Link
         href="/om"
         className={`mobile-nav-item ${activePage === 'om' ? 'active' : ''}`}
         onClick={(e) => {
@@ -59,7 +61,7 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M12 8h.01"/>
         </svg>
         <span className="mobile-nav-label">Om</span>
-      </a>
+      </Link>
     </nav>
   )
 }
