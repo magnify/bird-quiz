@@ -21,8 +21,6 @@ interface QuizSetupProps {
   isTransitioning?: boolean
   birds: Bird[]
   manifest: Manifest
-  firstBirdId: string | null
-  onTileRef?: (birdId: string, el: HTMLElement | null) => void
 }
 
 function ToggleGroup<T extends string>({
@@ -68,8 +66,6 @@ export default function QuizSetup({
   isTransitioning,
   birds,
   manifest,
-  firstBirdId,
-  onTileRef,
 }: QuizSetupProps) {
   // Random pick; BirdHero defers rendering it to the client so the Math.random
   // here doesn't cause an SSR/client hydration mismatch.
@@ -77,21 +73,10 @@ export default function QuizSetup({
     () => pickHeroBirds(birds, HERO_POOL_SIZE).map(b => b.scientific_name),
     [birds],
   )
-  const firstBirdName = firstBirdId
-    ? birds.find(b => b.id === firstBirdId)?.scientific_name ?? null
-    : null
 
   return (
     <div id="start-screen" className="screen active">
-      <BirdHero
-        heroNames={heroNames}
-        manifest={manifest}
-        variant="hero"
-        firstBirdId={firstBirdId}
-        firstBirdName={firstBirdName}
-        isTransitioning={isTransitioning}
-        onTileRef={onTileRef}
-      />
+      <BirdHero heroNames={heroNames} manifest={manifest} />
 
       <div className={`start-card ${isTransitioning ? 'start-card--fading' : ''}`}>
         <div className="start-hero">

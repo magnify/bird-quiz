@@ -79,9 +79,6 @@
   --quiz-bg-hover-faint: rgba(255, 255, 255, 0.03);
   --quiz-bg-card-translucent: rgba(26, 43, 34, 0.5);
 
-  /* Radius shared by the start→Q1 zoom transition overlay. */
-  --quiz-mosaic-radius: 8px;
-
   /* Spacing scale */
   --quiz-gap-xs: 4px;
   --quiz-gap-sm: 8px;
@@ -501,25 +498,6 @@ body:has(.screen.active) {
   flex-direction: column;
   align-items: center;
   gap: var(--quiz-gap-md);
-}
-
-/* --- Zoom transition overlay --- */
-.mosaic-zoom-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 150;
-  pointer-events: none;
-}
-
-.mosaic-zoom-image {
-  position: absolute;
-  border-radius: var(--quiz-mosaic-radius);
-  object-fit: cover;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.mosaic-zoom-image.zoom-end {
-  border-radius: var(--quiz-radius-lg);
 }
 
 /* --- Settings area --- */
@@ -2255,9 +2233,6 @@ a.start-quiz-link {
   }
   .quiz-body.fade-out,
   .quiz-body.fade-in {
-    transition: none;
-  }
-  .mosaic-zoom-image {
     transition: none;
   }
   .start-hero-layer {

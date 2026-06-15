@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pickHeroBirds, pickHeroNames, HERO_BIRD_NAMES } from './hero-birds'
+import { pickHeroBirds, HERO_BIRD_NAMES } from './hero-birds'
 import type { Bird } from '@/lib/supabase/types'
 
 const makeBird = (id: string, scientificName: string): Bird => ({
@@ -46,22 +46,5 @@ describe('pickHeroBirds', () => {
   it('returns an empty array for a non-positive count', () => {
     expect(pickHeroBirds(birds, 0)).toEqual([])
     expect(pickHeroBirds(birds, -3)).toEqual([])
-  })
-})
-
-describe('pickHeroNames', () => {
-  it('returns only allowlisted names', () => {
-    const names = pickHeroNames(100)
-    expect(names.every(n => HERO_BIRD_NAMES.includes(n))).toBe(true)
-    expect(names).toHaveLength(HERO_BIRD_NAMES.length)
-  })
-
-  it('caps the result at count', () => {
-    expect(pickHeroNames(2)).toHaveLength(2)
-  })
-
-  it('returns an empty array for a non-positive count', () => {
-    expect(pickHeroNames(0)).toEqual([])
-    expect(pickHeroNames(-1)).toEqual([])
   })
 })

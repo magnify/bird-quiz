@@ -28,7 +28,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
   const {
     state,
     currentQ,
-    firstBirdId,
     setDifficulty,
     setMode,
     setTotalQuestions,
@@ -197,7 +196,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           onStart={startQuiz}
           birds={approvedBirds}
           manifest={manifest}
-          firstBirdId={firstBirdId}
           isTransitioning={state.screen === 'transitioning'}
         />
       )}

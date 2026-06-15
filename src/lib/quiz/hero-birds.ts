@@ -47,13 +47,3 @@ export function pickHeroBirds(birds: Bird[], count: number): Bird[] {
   const matches = birds.filter(b => HERO_SET.has(b.scientific_name))
   return shuffle(matches).slice(0, count)
 }
-
-/**
- * Pick up to `count` hero scientific names straight from the allowlist —
- * for backdrops (e.g. /om, /resultater) that don't load the full `Bird[]`.
- * BirdHero rotates over names and looks up credit from the manifest.
- */
-export function pickHeroNames(count: number): string[] {
-  if (count <= 0) return []
-  return shuffle(HERO_BIRD_NAMES).slice(0, count)
-}
