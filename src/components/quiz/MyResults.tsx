@@ -98,44 +98,43 @@ export default function MyResults() {
       <div id="my-results-screen" className="screen active">
         <div className="secondary-page-content">
 
-        <div>
-          <h1 className="page-title">Dine resultater</h1>
-          {loaded && totalGames > 0 && (
-            <p className="page-subtitle">
-              Baseret på {totalGames} {totalGames === 1 ? 'quiz' : 'quizzer'} på denne enhed.
-            </p>
-          )}
-        </div>
-
         {!loaded ? (
           <div className="leaderboard-loading">Indlæser...</div>
         ) : totalGames === 0 ? (
           <div className="my-results-empty">
-            <svg
-              className="my-results-empty-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3 3v18h18" />
-              <path d="M18 17V9" />
-              <path d="M13 17V5" />
-              <path d="M8 17v-3" />
-            </svg>
-            <h2 className="my-results-empty-title">Ingen resultater endnu</h2>
-            <p className="my-results-empty-text">
-              Tag din første quiz for at følge din score, dine svage fugle og din historik.
-            </p>
-            <div className="my-results-empty-actions">
-              <Link href="/" className="btn btn--accent start-quiz-link">Spil en quiz &rarr;</Link>
+            <div className="state-card">
+              <svg
+                className="my-results-empty-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 3v18h18" />
+                <path d="M18 17V9" />
+                <path d="M13 17V5" />
+                <path d="M8 17v-3" />
+              </svg>
+              <h2 className="my-results-empty-title">Ingen resultater endnu</h2>
+              <p className="my-results-empty-text">
+                Tag din første quiz for at følge din score, dine svage fugle og din historik.
+              </p>
+              <div className="my-results-empty-actions">
+                <Link href="/" className="btn btn--accent start-quiz-link">Spil en quiz &rarr;</Link>
+              </div>
             </div>
           </div>
         ) : (
           <>
+            <div>
+              <h1 className="page-title">Dine resultater</h1>
+              <p className="page-subtitle">
+                Baseret på {totalGames} {totalGames === 1 ? 'quiz' : 'quizzer'} på denne enhed.
+              </p>
+            </div>
             <div className="my-results-summary">
               <div className="summary-stat">
                 <span className="summary-value">{totalGames}</span>

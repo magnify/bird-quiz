@@ -2142,12 +2142,26 @@ a.start-quiz-link {
 
 .my-results-empty {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   flex: 1;
+  padding: var(--quiz-padding-md);
+}
+
+/* Centered "state" card — shared shape for empty / error screens, mirroring
+   the start card and confirm modal (card bg, border, rounded, centered
+   content) instead of free-floating elements. */
+.state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--quiz-gap-md);
-  padding: var(--quiz-gap-xl) var(--quiz-padding-md);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--quiz-padding-xl);
+  background: var(--quiz-bg-card-translucent);
+  border: 1px solid var(--quiz-border-subtle-md);
+  border-radius: var(--quiz-radius-lg);
   text-align: center;
 }
 
