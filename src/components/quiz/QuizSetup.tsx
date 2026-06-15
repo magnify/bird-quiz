@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 import type { Difficulty, QuizMode } from '@/lib/quiz/engine'
 import type { Bird } from '@/lib/supabase/types'
 import type { Manifest } from '@/lib/data/manifest'
-import { Logo } from './Logo'
 import { BirdHero } from './BirdHero'
 import { pickHeroBirds } from '@/lib/quiz/hero-birds'
 import { BRAND } from '@/lib/brand'
@@ -72,6 +71,8 @@ export default function QuizSetup({
   firstBirdId,
   onTileRef,
 }: QuizSetupProps) {
+  // Random pick; BirdHero defers rendering it to the client so the Math.random
+  // here doesn't cause an SSR/client hydration mismatch.
   const heroNames = useMemo(
     () => pickHeroBirds(birds, HERO_POOL_SIZE).map(b => b.scientific_name),
     [birds],
@@ -94,7 +95,6 @@ export default function QuizSetup({
 
       <div className={`start-card ${isTransitioning ? 'start-card--fading' : ''}`}>
         <div className="start-hero">
-          <Logo size="large" showText={false} />
           <h1 className="title">{BRAND.name}</h1>
           <p className="subtitle">Test din viden om Danmarks fugle</p>
         </div>
@@ -128,6 +128,7 @@ export default function QuizSetup({
               options={[
                 { value: '10', label: '10' },
                 { value: '20', label: '20' },
+                { value: '30', label: '30' },
                 { value: '40', label: '40' },
               ]}
               value={String(totalQuestions)}

@@ -229,10 +229,10 @@ export default function MyResults() {
             </div>
 
             <div className="my-results-footer">
-              <Link href="/" className="btn btn--accent start-quiz-link">Ny quiz &rarr;</Link>
-              <button className="btn btn--secondary btn--block" onClick={() => setShowClearConfirm(true)}>
+              <button className="btn btn--secondary" onClick={() => setShowClearConfirm(true)}>
                 Slet historik
               </button>
+              <Link href="/" className="btn btn--accent start-quiz-link">Ny quiz &rarr;</Link>
             </div>
           </>
         )}

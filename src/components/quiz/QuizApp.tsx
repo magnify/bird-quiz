@@ -1,14 +1,13 @@
 'use client'
 
 import './quiz.css'
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import type { Bird } from '@/lib/supabase/types'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useBirdImages } from '@/hooks/useBirdImages'
 import { AuthProvider, useAuth } from '@/lib/auth/AuthProvider'
 import { migrateGuestData } from '@/app/actions/auth'
 import { getGuestId } from '@/lib/identity/guest'
-import { getBirdImageUrl } from '@/lib/images'
 import { fetchManifest, type Manifest } from '@/lib/data/manifest'
 import QuizSetup from './QuizSetup'
 import QuizQuestion from './QuizQuestion'
@@ -50,22 +49,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     fetchManifest().then(setManifest)
   }, [])
 
-  // Zoom transition state
-  const tileRefs = useRef<Map<string, HTMLElement>>(new Map())
-  const [transitionData, setTransitionData] = useState<{
-    imageUrl: string
-    startRect: DOMRect
-  } | null>(null)
-  const [zoomPhase, setZoomPhase] = useState<'start' | 'end'>('start')
-
-  const handleTileRef = useCallback((birdId: string, el: HTMLElement | null) => {
-    if (el) {
-      tileRefs.current.set(birdId, el)
-    } else {
-      tileRefs.current.delete(birdId)
-    }
-  }, [])
-
   // Migrate guest data when user signs in
   useEffect(() => {
     if (user) {
@@ -93,48 +76,18 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
     }
   }, [state.screen, state.currentQuestion, state.questions, ensureImages])
 
-  // Handle transition: when entering transitioning state, start zoom animation
+  // On transition, warm the first two questions' images, then enter the quiz.
+  // The screen swap cross-fades via the .screen quizFadeIn animation — no
+  // separate zoom overlay (that was a leftover from the old mosaic).
   useEffect(() => {
-    if (state.screen === 'transitioning') {
-      const firstQ = state.questions[0]
-      if (!firstQ) {
-        completeTransition()
-        return
-      }
-
-      // Ensure images for first two questions
+    if (state.screen !== 'transitioning') return
+    const firstQ = state.questions[0]
+    if (firstQ) {
       ensureImages(firstQ.options)
       const secondQ = state.questions[1]
       if (secondQ) ensureImages(secondQ.options)
-
-      // Get the tile rect for the first bird
-      const tileEl = tileRefs.current.get(firstQ.bird.id)
-      if (tileEl) {
-        const rect = tileEl.getBoundingClientRect()
-        const imageUrl = getBirdImageUrl(firstQ.bird.scientific_name)
-        setTransitionData({ imageUrl, startRect: rect })
-        setZoomPhase('start')
-
-        // Start the zoom animation
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setZoomPhase('end')
-          })
-        })
-
-        // Complete transition after animation
-        const timer = setTimeout(() => {
-          completeTransition()
-          setTransitionData(null)
-          setZoomPhase('start')
-        }, 550)
-
-        return () => clearTimeout(timer)
-      } else {
-        // No tile ref — skip animation
-        completeTransition()
-      }
     }
+    completeTransition()
   }, [state.screen, state.questions, completeTransition, ensureImages])
 
   // Handle logo click
@@ -190,7 +143,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
       {/* Persistent header */}
       <QuizHeader
-        hideLogo={isStart}
+        hideLogo={false}
         alignToForm={false}
         showProgress={state.screen === 'quiz'}
         progress={progress}
@@ -211,14 +164,14 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                {state.score}
+                {state.score} <span className="score-display-label">rigtige</span>
               </span>
               <span className="header-dot">&middot;</span>
               <span className="score-display-item score-display-points">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
-                {state.points}
+                {state.points} <span className="score-display-label">point</span>
               </span>
             </>
           ) : state.screen === 'results' ? (
@@ -245,7 +198,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
           birds={approvedBirds}
           manifest={manifest}
           firstBirdId={firstBirdId}
-          onTileRef={handleTileRef}
           isTransitioning={state.screen === 'transitioning'}
         />
       )}
@@ -279,33 +231,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
       {/* Bottom nav is part of the shell, after the screen, so it sits in
           flow on every non-quiz screen (start, results) */}
       {state.screen !== 'quiz' && <MobileBottomNav activePage="home" />}
-
-      {/* Zoom transition overlay */}
-      {transitionData && (
-        <div className="mosaic-zoom-overlay">
-          <img
-            className={`mosaic-zoom-image ${zoomPhase === 'end' ? 'zoom-end' : ''}`}
-            src={transitionData.imageUrl}
-            alt=""
-            style={
-              zoomPhase === 'start'
-                ? {
-                    top: transitionData.startRect.top,
-                    left: transitionData.startRect.left,
-                    width: transitionData.startRect.width,
-                    height: transitionData.startRect.height,
-                  }
-                : {
-                    top: '50%',
-                    left: '50%',
-                    width: Math.min(window.innerWidth * 0.5, 600),
-                    height: Math.min(window.innerWidth * 0.5, 600) * 0.75,
-                    transform: 'translate(-50%, -50%)',
-                  }
-            }
-          />
-        </div>
-      )}
     </>
   )
 }

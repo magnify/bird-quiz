@@ -191,14 +191,21 @@
   color: inherit;
 }
 
+/* Any page that loads quiz.css (home + content pages, never admin) gets the
+   dark body unconditionally. This persists through client route changes — the
+   `body:has(.screen.active)` form below dropped to the white shadcn bg in the
+   instant between pages, which flashed as a "jump" on navigation. */
+html body {
+  background: var(--quiz-background);
+}
+
 /* Secondary pages (/resultater, /om) render `.screen` as a sibling of <body>,
-   not inside `.quiz-app-root`. Without this, shadcn's white body bg shows
-   through below the screen. Admin pages have no `.screen.active` so they
+   not inside `.quiz-app-root`. Admin pages don't load this stylesheet, so they
    keep their light bg. */
 body:has(.screen.active) {
   background: var(--quiz-background);
   /* The old fixed root clipped all overflow; keep horizontal bleed
-     (mosaic, shake animations) from causing sideways scroll. */
+     (shake animations) from causing sideways scroll. */
   overflow-x: hidden;
 }
 
@@ -237,9 +244,11 @@ body:has(.screen.active) {
   overflow: hidden;
 }
 
-/* Full-bleed rotating photo backdrop (rendered by BirdHero). */
+/* Full-bleed rotating photo backdrop (rendered by BirdHero). Fixed to the
+   viewport so it spans the full height *behind* the transparent header, not
+   just the start-screen body. */
 .start-hero-bg {
-  position: absolute;
+  position: fixed;
   inset: 0;
   overflow: hidden;
   z-index: 0;
@@ -335,34 +344,6 @@ body:has(.screen.active) {
   }
 }
 
-/* --- Ambient backdrop (content pages: /om, /resultater) --- */
-/* The shared (site) layout renders BirdHero variant="ambient" as a fixed,
-   blurred, heavily-dimmed full-viewport photo. The root goes transparent so it
-   shows through, and the page content scrolls above it. Same component and
-   visual language as the start-screen hero — just calmer. */
-.quiz-app-root--ambient {
-  background: transparent;
-}
-
-.start-hero-bg[data-variant='ambient'] {
-  position: fixed;
-}
-
-.start-hero-bg[data-variant='ambient'] .start-hero-layer {
-  filter: blur(var(--quiz-gap-sm));
-}
-
-.start-hero-bg[data-variant='ambient'] .start-scrim {
-  background: color-mix(in srgb, var(--quiz-background) 86%, transparent);
-}
-
-/* Keep page chrome and content above the fixed backdrop. */
-.quiz-app-root--ambient > .app-header,
-.quiz-app-root--ambient > .screen,
-.quiz-app-root--ambient > .mobile-bottom-nav {
-  position: relative;
-  z-index: 1;
-}
 
 /* Floating nav removed - using header nav on all pages now */
 
@@ -472,6 +453,12 @@ body:has(.screen.active) {
   .app-header:has(.progress-bar-container) .app-header-inner {
     padding: var(--quiz-gap-sm) var(--quiz-padding-md);
   }
+
+  /* In the slim mobile quiz bar, the logo glyph alone is the home control —
+     hide its text so the progress counter + score labels fit on one line. */
+  .app-header-title {
+    display: none;
+  }
 }
 
 .start-hero {
@@ -569,9 +556,11 @@ body:has(.screen.active) {
 
 .toggle-btn {
   position: relative;
-  flex: 1;
-  min-width: 0;
-  padding: var(--quiz-gap-md) 14px;
+  /* Grow to share the row, but never shrink narrower than the label —
+     a pill must always show its full text ("Almindelige"), never clip it. */
+  flex: 1 1 auto;
+  min-width: max-content;
+  padding: var(--quiz-gap-md) var(--quiz-gap-md);
   background: transparent;
   border: 1px solid var(--quiz-border-pill);
   border-radius: var(--quiz-radius-pill);
@@ -582,7 +571,8 @@ body:has(.screen.active) {
   cursor: pointer;
   transition: all var(--quiz-transition);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .toggle-btn:hover {
@@ -828,6 +818,14 @@ body:has(.screen.active) {
   color: var(--quiz-warning);
 }
 
+/* Word label after each number ("0 rigtige", "0 point") so the score/points
+   icons aren't left to interpretation. Muted + smaller than the number. */
+.score-display-label {
+  color: var(--quiz-text-muted);
+  font-weight: 500;
+  font-size: 0.78em;
+}
+
 .app-header-right {
   display: flex;
   align-items: center;
@@ -861,7 +859,10 @@ body:has(.screen.active) {
 }
 
 /* --- Confirm modal (used for leave-quiz, delete-history, etc.) --- */
-.confirm-modal-overlay {
+/* Shared modal backdrop — one rule for every dialog (confirm + auth) so they
+   dim/blur the page identically. */
+.confirm-modal-overlay,
+.auth-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -1919,16 +1920,7 @@ a.start-quiz-link {
 }
 
 /* --- Auth Modal --- */
-.auth-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: var(--quiz-padding-md);
-}
+/* .auth-modal-overlay backdrop is defined with .confirm-modal-overlay above (DRY). */
 
 .auth-modal {
   background: var(--quiz-bg-card);
@@ -2192,10 +2184,18 @@ a.start-quiz-link {
 
 .my-results-footer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: stretch;
   gap: var(--quiz-gap-md);
+}
+
+/* Both footer actions share the row, equal width, side by side. */
+.my-results-footer .btn {
+  flex: 1 1 0;
+}
+
+.my-results-footer .start-quiz-link {
+  width: auto;
+  max-width: none;
 }
 
 @media (max-width: 500px) {
@@ -2290,10 +2290,16 @@ a.start-quiz-link {
     grid-template-columns: 1fr 1fr;
     gap: var(--quiz-gap-sm);
   }
-  .setting-group:nth-child(2) .toggle-group,
-  .setting-group:nth-child(3) .toggle-group {
+  /* Quiz-type: 3 options across. */
+  .setting-group:nth-child(2) .toggle-group {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--quiz-gap-sm);
+  }
+  /* Antal spørgsmål: 4 options (10/20/30/40) → balanced 2×2, not 3+1. */
+  .setting-group:nth-child(3) .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: var(--quiz-gap-sm);
   }
   .toggle-btn {

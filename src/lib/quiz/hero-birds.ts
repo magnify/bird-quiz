@@ -3,16 +3,25 @@ import type { Bird } from '@/lib/supabase/types'
 /**
  * Curated allowlist of hero-quality bird photos (by scientific name) shown
  * full-bleed behind the start-screen card. Full-bleed exposes soft/low-res
- * photos that looked fine as small mosaic tiles, so this is a hand-picked
- * set of high-quality landscape shots — expanded collaboratively over time.
+ * photos that looked fine as small mosaic tiles, so this is the set of
+ * highest-resolution landscape shots in the library — expanded/curated over time.
  */
 export const HERO_BIRD_NAMES: string[] = [
+  'Ichthyaetus melanocephalus',
+  'Asio otus',
+  'Podiceps cristatus',
+  'Oenanthe oenanthe',
+  'Sterna paradisaea',
+  'Gulosus aristotelis',
+  'Calidris pugnax',
+  'Aythya ferina',
   'Alcedo atthis',
-  'Cyanistes caeruleus',
-  'Carduelis carduelis',
-  'Upupa epops',
-  'Pyrrhula pyrrhula',
-  'Erithacus rubecula',
+  'Pica pica',
+  'Arenaria interpres',
+  'Fulica atra',
+  'Regulus regulus',
+  'Anthus pratensis',
+  'Phylloscopus collybita',
 ]
 
 const HERO_SET = new Set(HERO_BIRD_NAMES)

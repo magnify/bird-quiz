@@ -16,16 +16,6 @@ export default function OmPage() {
           </div>
 
           <div className="result-card result-card--padded">
-            <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Kontakt</p>
-            <a
-              href={`mailto:${BRAND.contactEmail}`}
-              style={{ color: 'var(--quiz-accent)', fontSize: 'var(--quiz-text-base)' }}
-            >
-              {BRAND.contactEmail}
-            </a>
-          </div>
-
-          <div className="result-card result-card--padded">
             <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Støt projektet</p>
             <p style={{ color: 'var(--quiz-text-secondary)', fontSize: 'var(--quiz-text-base)', lineHeight: 1.6 }}>
               {BRAND.name} er et frivilligt projekt. Det er lavet af mig, Brian Jensen, der er hobby-fugleentusiast
@@ -41,6 +31,16 @@ export default function OmPage() {
               Jeg har flere idéer på tegnebrættet og forbedrer quizzen løbende, men har du forslag eller vil hjælpe
               med at teste, billeder eller andet, så skriv.
             </p>
+          </div>
+
+          <div className="result-card result-card--padded">
+            <p className="setting-label" style={{ marginBottom: 'var(--quiz-gap-sm)' }}>Kontakt</p>
+            <a
+              href={`mailto:${BRAND.contactEmail}`}
+              style={{ color: 'var(--quiz-accent)', fontSize: 'var(--quiz-text-base)' }}
+            >
+              {BRAND.contactEmail}
+            </a>
         </div>
       </div>
     </div>

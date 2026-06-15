@@ -33,6 +33,12 @@ function usePrefersReducedMotion(): boolean {
   )
 }
 
+// False during SSR and the first client render, true afterwards — lets us defer
+// the (random) photo to the client without a hydration mismatch or extra effect.
+function useIsClient(): boolean {
+  return useSyncExternalStore(() => () => {}, () => true, () => false)
+}
+
 /**
  * Full-bleed rotating bird photo backdrop. Two stacked <img> layers ping-pong
  * with a CSS opacity crossfade; positioning, drift and fade live in quiz.css.
@@ -53,6 +59,7 @@ export function BirdHero({
 }: BirdHeroProps) {
   const names = useMemo(() => heroNames.filter(Boolean), [heroNames])
   const reduced = usePrefersReducedMotion()
+  const isClient = useIsClient()
   const [step, setStep] = useState(0)
 
   useEffect(() => {
@@ -68,7 +75,9 @@ export function BirdHero({
     [firstBirdId, onTileRef],
   )
 
-  if (names.length === 0) {
+  // Render an empty backdrop on the server / first client render, then the
+  // photos once mounted — keeps the random pick off the server (no mismatch).
+  if (!isClient || names.length === 0) {
     return <div className="start-hero-bg" data-variant={variant} aria-hidden="true" />
   }
 
