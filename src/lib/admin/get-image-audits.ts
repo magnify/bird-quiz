@@ -129,6 +129,7 @@ export async function getImageAudits(): Promise<ImageAudit[]> {
       issues,
       severity: computeSeverity(issues),
       isPortrait,
+      updatedAt: entry?.updatedAt,
     }
   })
 }

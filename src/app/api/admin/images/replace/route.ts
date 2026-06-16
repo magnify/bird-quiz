@@ -14,6 +14,7 @@ interface ManifestEntry {
   needsReview?: boolean
   width?: number
   height?: number
+  updatedAt?: number
 }
 
 export async function POST(request: NextRequest) {
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
       file: `${slug}.jpg`,
       source,
       needsReview: true,
+      updatedAt: Date.now(),
       ...(attribution && { attribution }),
       ...(license && { license }),
       ...(sourceUrl && { source_url: sourceUrl }),

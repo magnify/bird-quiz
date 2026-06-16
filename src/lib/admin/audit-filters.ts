@@ -78,6 +78,9 @@ export function auditImageVersion(audit: ImageAudit): string {
     audit.flagReason ?? '',
     (audit.license ?? '').length,
     (audit.attribution ?? '').length,
+    // Bytes-only edits (crop/replace/restore) bump updatedAt but none of the
+    // flags above, so include it or the thumbnail never refetches (#41).
+    audit.updatedAt ?? '',
   ].join('-')
 }
 

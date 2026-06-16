@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       const manifest: Record<string, Record<string, unknown>> = JSON.parse(manifestData.toString())
       if (manifest[scientificName]) {
         manifest[scientificName].needsReview = true
+        manifest[scientificName].updatedAt = Date.now()
         if (dims) {
           manifest[scientificName].width = dims.width
           manifest[scientificName].height = dims.height

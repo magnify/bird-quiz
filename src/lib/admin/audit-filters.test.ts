@@ -3,6 +3,7 @@ import type { ImageAudit } from './image-status'
 import {
   AUDIT_FILTERS,
   auditCounts,
+  auditImageVersion,
   matchesAuditFilter,
   matchesSearch,
 } from './audit-filters'
@@ -77,6 +78,22 @@ describe('auditCounts', () => {
     for (const { key } of AUDIT_FILTERS) {
       expect(counts[key]).toBe(0)
     }
+  })
+})
+
+describe('auditImageVersion', () => {
+  it('changes when only the image bytes change (updatedAt), so the thumbnail refetches (#41)', () => {
+    const before = audit({ needsReview: true, updatedAt: 1000 })
+    const after = audit({ needsReview: true, updatedAt: 2000 })
+    expect(auditImageVersion(after)).not.toBe(auditImageVersion(before))
+  })
+
+  it('is stable when nothing changed', () => {
+    expect(auditImageVersion(audit({ updatedAt: 1000 }))).toBe(auditImageVersion(audit({ updatedAt: 1000 })))
+  })
+
+  it('still reflects metadata-flag changes', () => {
+    expect(auditImageVersion(audit({ flagged: true }))).not.toBe(auditImageVersion(audit({ flagged: false })))
   })
 })
 

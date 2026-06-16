@@ -19,6 +19,9 @@ export interface ManifestEntry {
   needsReview?: boolean
   width?: number
   height?: number
+  /** Epoch ms of the last image-bytes change (crop/replace/restore). Used as a
+   *  cache-bust so the admin thumbnail refetches when only the bytes change. */
+  updatedAt?: number
 }
 
 export type BirdImageStatus =
@@ -41,6 +44,7 @@ export interface ImageAudit {
   issues: string[]
   severity: AuditSeverity
   isPortrait: boolean
+  updatedAt?: number
 }
 
 export function labelFor(reason: FlagReason): string {
