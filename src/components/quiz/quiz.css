@@ -695,6 +695,15 @@ body:has(.screen.active) {
   letter-spacing: 0.05em;
 }
 
+/* Build stamp on /om — always visible (incl. mobile) so a deploy is verifiable. */
+.build-stamp {
+  font-size: var(--quiz-version);
+  color: var(--quiz-text-muted);
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
 /* --- Persistent app header — in normal flow, content sits below it --- */
 .app-header {
   position: relative;

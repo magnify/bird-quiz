@@ -1,4 +1,22 @@
 import type { NextConfig } from "next";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
+// Build stamp so a deploy is verifiable (via /api/version + the UI) instead of
+// guessing whether new code is actually live. Prefer Netlify's COMMIT_REF, fall
+// back to the local git SHA, then 'dev'.
+function resolveBuildId(): string {
+  if (process.env.COMMIT_REF) return process.env.COMMIT_REF.slice(0, 7);
+  try {
+    return execSync("git rev-parse --short HEAD").toString().trim();
+  } catch {
+    return "dev";
+  }
+}
+
+const APP_VERSION = JSON.parse(readFileSync("./package.json", "utf8")).version as string;
+const BUILD_ID = resolveBuildId();
+const BUILD_TIME = new Date().toISOString();
 
 const securityHeaders = [
   {
@@ -21,6 +39,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  env: {
+    NEXT_PUBLIC_APP_VERSION: APP_VERSION,
+    NEXT_PUBLIC_BUILD_ID: BUILD_ID,
+    NEXT_PUBLIC_BUILD_TIME: BUILD_TIME,
+  },
   images: {
     remotePatterns: [
       {

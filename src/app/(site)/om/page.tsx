@@ -1,4 +1,5 @@
 import { BRAND } from '@/lib/brand'
+import { VERSION_LABEL } from '@/lib/version'
 
 export default function OmPage() {
   return (
@@ -42,6 +43,8 @@ export default function OmPage() {
               {BRAND.contactEmail}
             </a>
         </div>
+
+        <p className="build-stamp">{VERSION_LABEL}</p>
       </div>
     </div>
   )

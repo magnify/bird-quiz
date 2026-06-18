@@ -7,6 +7,7 @@ import type { Manifest } from '@/lib/data/manifest'
 import { BirdHero } from './BirdHero'
 import { pickHeroBirds } from '@/lib/quiz/hero-birds'
 import { BRAND } from '@/lib/brand'
+import { VERSION_LABEL } from '@/lib/version'
 
 const HERO_POOL_SIZE = 6
 
@@ -128,7 +129,7 @@ export default function QuizSetup({
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
-            <div className="version-label">v0.6.1</div>
+            <div className="version-label">{VERSION_LABEL}</div>
           </div>
       </div>
     </div>
