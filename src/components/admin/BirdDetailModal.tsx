@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import type { Bird } from '@/lib/supabase/types'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
+import { getAdminImageUrl } from '@/lib/images'
 import {
   Dialog,
   DialogContent,
@@ -112,9 +113,15 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
   }, [actions, bird.scientific_name, onClose])
 
   // After a replace/crop the modal returns to the summary so the new image can be
-  // reviewed and approved; the server is the source of truth, so refresh from it.
-  const handleReplaceSuccess = (newPath: string) => {
-    setImageUrl(newPath)
+  // reviewed and approved. Always preview via the no-store admin URL with a fresh
+  // nonce — the public URL the routes return is CDN-cached (keyed by path,
+  // ignoring ?t), which is why the preview showed the old image (#41).
+  const showFreshImage = useCallback(() => {
+    setImageUrl(getAdminImageUrl(bird.scientific_name, Date.now()))
+  }, [bird.scientific_name])
+
+  const handleReplaceSuccess = () => {
+    showFreshImage()
     toast.success('Billede erstattet — afventer godkendelse')
     actions.refresh()
     setView('summary')
@@ -131,8 +138,8 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
       const data = await res.json()
       throw new Error(data.error || 'Upload fejlede')
     }
-    const data = await res.json()
-    handleReplaceSuccess(data.path)
+    await res.json()
+    handleReplaceSuccess()
   }
 
   const handleRemoteReplace = async (opts: {
@@ -158,8 +165,8 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
       const data = await res.json()
       throw new Error(data.error || 'Erstatning fejlede')
     }
-    const data = await res.json()
-    handleReplaceSuccess(data.path)
+    await res.json()
+    handleReplaceSuccess()
   }
 
   const handleINatReplace = (url: string, attribution: string, license: string) =>
@@ -189,8 +196,8 @@ export default function BirdDetailModal({ bird, audit, imageUrl: initialImageUrl
             <ImageCropEditor
               scientificName={bird.scientific_name}
               imageUrl={imageUrl}
-              onCropped={(newUrl) => {
-                setImageUrl(newUrl)
+              onCropped={() => {
+                showFreshImage()
                 toast.success('Billede beskåret — afventer godkendelse')
                 actions.refresh()
                 setView('summary')
