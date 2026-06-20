@@ -3,6 +3,7 @@ import { verifyAdminRequest } from '@/lib/admin/auth'
 import { r2Get, r2Put } from '@/lib/r2'
 import { toSlug, getBirdImageUrl } from '@/lib/images'
 import { jpegSize } from '@/lib/admin/image-dimensions'
+import { purgeBirdImage } from '@/lib/admin/purge-image'
 
 export async function POST(request: NextRequest) {
   const auth = verifyAdminRequest(request)
@@ -51,6 +52,8 @@ export async function POST(request: NextRequest) {
         await r2Put('manifest.json', manifestBuffer, 'application/json')
       }
     }
+
+    await purgeBirdImage(scientificName)
 
     return NextResponse.json({ ok: true, path: getBirdImageUrl(scientificName) })
   } catch (err) {

@@ -29,15 +29,19 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const cacheControl = noCache
       ? 'no-store, max-age=0'
       : `public, max-age=${ONE_YEAR}`
-    return new NextResponse(new Uint8Array(buffer), {
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': cacheControl,
-        'Netlify-CDN-Cache-Control': cacheControl,
-        'Access-Control-Allow-Origin': '*',
-        'X-Source': 'r2',
-      },
-    })
+    const headers: Record<string, string> = {
+      'Content-Type': contentType,
+      'Cache-Control': cacheControl,
+      'Netlify-CDN-Cache-Control': cacheControl,
+      'Access-Control-Allow-Origin': '*',
+      'X-Source': 'r2',
+    }
+    // Tag cached public images so crop/replace/restore can purge just this one
+    // from the CDN (admin requests are no-store, so they need no tag).
+    if (!noCache && !isManifest) {
+      headers['Cache-Tag'] = `bird-${key.replace(/\.jpg$/, '')}`
+    }
+    return new NextResponse(new Uint8Array(buffer), { headers })
   } catch (error) {
     console.error(`Error fetching ${key}:`, error)
     return NextResponse.json({ error: 'Failed to fetch', file: key }, { status: 500 })

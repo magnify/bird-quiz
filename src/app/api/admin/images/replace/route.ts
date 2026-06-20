@@ -3,6 +3,7 @@ import { verifyAdminRequest } from '@/lib/admin/auth'
 import { r2Get, r2Put } from '@/lib/r2'
 import { toSlug, getBirdImageUrl } from '@/lib/images'
 import { jpegSize } from '@/lib/admin/image-dimensions'
+import { purgeBirdImage } from '@/lib/admin/purge-image'
 import { BRAND } from '@/lib/brand'
 
 interface ManifestEntry {
@@ -101,6 +102,8 @@ export async function POST(request: NextRequest) {
 
     const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 2) + '\n')
     await r2Put('manifest.json', manifestBuffer, 'application/json')
+
+    await purgeBirdImage(scientificName)
 
     const directUrl = getBirdImageUrl(scientificName)
     const cacheBustedUrl = `${directUrl}?t=${Date.now()}`
