@@ -94,6 +94,9 @@
   --quiz-padding-lg: 24px;
   --quiz-padding-xl: 32px;
 
+  /* Max readable column width for content pages / centered cards. */
+  --quiz-content-max: 640px;
+
   /* Additional color tokens */
   --quiz-text-light: #ffffff;
   --quiz-accent-dark: #16a34a;
@@ -1706,7 +1709,12 @@ details.results-missed[open] .missed-summary {
 /* --- Secondary pages (Leaderboard + My Results) --- */
 
 .secondary-page-content {
-  max-width: 640px;
+  width: 100%;
+  max-width: var(--quiz-content-max);
+  /* min-width:0 lets this flex item shrink to the viewport. Without it, the
+     multi-slide missed-birds carousel's min-content forces the column wider than
+     the phone, causing horizontal overflow on /resultater. */
+  min-width: 0;
   margin: 0 auto;
   padding: var(--quiz-padding-lg) var(--quiz-padding-md) var(--quiz-padding-xl);
   display: flex;
