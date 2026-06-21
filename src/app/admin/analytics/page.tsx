@@ -5,6 +5,8 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { StatCard } from '@/components/admin/StatCard'
+import { BreakdownBars } from '@/components/admin/BreakdownBars'
 import { cn } from '@/lib/utils'
 
 const DIFF_COLOR: Record<string, string> = { easy: 'bg-emerald-500', common: 'bg-sky-500', hard: 'bg-amber-500', all: 'bg-slate-400' }
@@ -27,40 +29,6 @@ function playerLabel(s: SessionRow): string {
 }
 function accuracyColor(pct: number): string {
   return pct < 30 ? 'text-red-600' : pct < 50 ? 'text-amber-600' : 'text-muted-foreground'
-}
-
-function StatCard({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
-  return (
-    <Card className={accent ? 'ring-1 ring-emerald-500/40' : undefined}>
-      <CardHeader>
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className={cn('text-2xl tabular-nums', accent && 'text-emerald-600')}>{value}</CardTitle>
-      </CardHeader>
-      {sub && <CardContent className="text-xs text-muted-foreground">{sub}</CardContent>}
-    </Card>
-  )
-}
-
-function BreakdownBars({ rows, total, label, colors }: {
-  rows: { key: string; count: number }[]; total: number; label: (k: string) => string; colors: Record<string, string>
-}) {
-  return (
-    <div className="space-y-2">
-      {rows.map(r => (
-        <div key={r.key} className="text-sm">
-          <div className="flex justify-between mb-0.5">
-            <span>{label(r.key)}</span>
-            <span className="tabular-nums text-muted-foreground">
-              {r.count} ({total ? Math.round((r.count / total) * 100) : 0}%)
-            </span>
-          </div>
-          <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div className={cn('h-full rounded-full', colors[r.key] ?? 'bg-primary')} style={{ width: `${total ? (r.count / total) * 100 : 0}%` }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
 }
 
 function PlayerList({ rows, metric }: { rows: SessionRow[]; metric: (s: SessionRow) => React.ReactNode }) {
