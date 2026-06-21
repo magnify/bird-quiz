@@ -113,16 +113,23 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
         <Card>
           <CardHeader>
             <CardTitle>Sessioner pr. dag</CardTitle>
-            <CardDescription>Valgt periode</CardDescription>
+            <CardDescription>{rangeKey === 'all' ? 'Seneste 30 dage' : 'Valgt periode'}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-end gap-1 h-24">
+          <CardContent className="space-y-2">
+            <div className="flex items-end gap-1 h-28">
               {stats.sessionsPerDay.map(d => (
-                <div key={d.date} className="flex-1 flex flex-col items-center justify-end gap-1" title={`${d.date}: ${d.count}`}>
-                  <div className="w-full rounded-t bg-sky-500/80 min-h-px" style={{ height: `${(d.count / maxDay) * 100}%` }} />
-                  <span className="text-[10px] text-muted-foreground tabular-nums">{d.count}</span>
-                </div>
+                <div
+                  key={d.date}
+                  className="flex-1 rounded-t bg-sky-500/80 hover:bg-sky-500 transition-colors min-h-px"
+                  style={{ height: `${maxDay ? (d.count / maxDay) * 100 : 0}%` }}
+                  title={`${d.date}: ${d.count}`}
+                />
               ))}
+            </div>
+            <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
+              <span>{stats.sessionsPerDay[0]?.date.slice(5)}</span>
+              <span>Maks {maxDay}/dag</span>
+              <span>{stats.sessionsPerDay.at(-1)?.date.slice(5)}</span>
             </div>
           </CardContent>
         </Card>
