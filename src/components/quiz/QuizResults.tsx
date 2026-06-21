@@ -72,9 +72,16 @@ export default function QuizResults({
     }
   }, [pct, circumference, ringColor])
 
-  const uniqueMissed = [
-    ...new Map(missed.map(b => [b.id, b])).values(),
-  ]
+  const missedCounts = new Map<string, { bird: Bird; count: number }>()
+  for (const b of missed) {
+    const entry = missedCounts.get(b.id)
+    if (entry) {
+      entry.count++
+    } else {
+      missedCounts.set(b.id, { bird: b, count: 1 })
+    }
+  }
+  const uniqueMissed = [...missedCounts.values()]
 
   const handleShare = async () => {
     const text = `${BRAND.name}: ${score}/${totalQuestions} (${pct}%) — ${points.toLocaleString('da-DK')} point! Kan du slå mig? ${BRAND.domain}`
@@ -161,11 +168,12 @@ export default function QuizResults({
               Fugle du missede ({uniqueMissed.length})
             </p>
             <MissedBirdsCarousel
-              items={uniqueMissed.map(b => ({
-                key: b.id,
-                nameDa: b.name_da,
-                nameEn: b.name_en,
-                imageUrl: imageUrls.get(b.id) ?? getBirdImageUrl(b.scientific_name),
+              items={uniqueMissed.map(({ bird, count }) => ({
+                key: bird.id,
+                nameDa: bird.name_da,
+                nameEn: bird.name_en,
+                imageUrl: imageUrls.get(bird.id) ?? getBirdImageUrl(bird.scientific_name),
+                count,
               }))}
             />
           </div>

@@ -13,6 +13,7 @@
       "dependencies": [
         "npm:@aws-sdk/client-s3@^3.1045.0",
         "npm:@base-ui/react@^1.2.0",
+        "npm:@netlify/functions@^5.3.0",
         "npm:@playwright/test@^1.60.0",
         "npm:@supabase/ssr@0.9",
         "npm:@supabase/supabase-js@^2.98.0",
@@ -37,6 +38,7 @@
         "npm:react-image-crop@^11.0.10",
         "npm:react@19.2.3",
         "npm:shadcn@4",
+        "npm:sonner@^2.0.7",
         "npm:tailwind-merge@^3.5.0",
         "npm:tailwindcss@4",
         "npm:tsx@^4.21.0",

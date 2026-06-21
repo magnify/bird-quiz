@@ -119,7 +119,9 @@ export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
             disabled={index === 0}
             aria-label="Forrige fugl"
           >
-            ‹
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
           <span className="missed-carousel-counter" aria-live="polite">
             {index + 1} / {items.length}
@@ -131,7 +133,9 @@ export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
             disabled={index === items.length - 1}
             aria-label="Næste fugl"
           >
-            ›
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </button>
         </div>
       )}

@@ -67,9 +67,45 @@ export function useQuiz(
     setState(prev => ({ ...prev, weights: loadWeights() }))
   }, [])
 
+  // Save result when screen transitions to 'results' (handles both completion and quit)
+  const prevScreenRef = useRef(state.screen)
+  const saveDoneRef = useRef(false)
+  useEffect(() => {
+    if (state.screen === 'results' && prevScreenRef.current === 'quiz' && !saveDoneRef.current) {
+      saveDoneRef.current = true
+      const durationMs = Date.now() - quizStartTime.current
+      if (state.sessionId) {
+        completeQuizSession({
+          sessionId: state.sessionId,
+          score: state.score,
+          points: state.points,
+          durationMs,
+          guestName: getGuestName(),
+        })
+      }
+      saveResult({
+        score: state.score,
+        totalQuestions: state.questions.length,
+        points: state.points,
+        bestStreak: state.bestStreak,
+        difficulty: state.difficulty,
+        mode: state.mode,
+        durationMs,
+        missed: state.missed.map(b => ({
+          nameDa: b.name_da,
+          nameEn: b.name_en,
+          scientificName: b.scientific_name,
+        })),
+      })
+      setQuizActive(false)
+    }
+    prevScreenRef.current = state.screen
+  }, [state.screen, state.score, state.points, state.bestStreak, state.missed, state.difficulty, state.mode, state.sessionId, state.questions.length])
+
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const questionStartTime = useRef<number>(0)
   const quizStartTime = useRef<number>(0)
+  const answering = useRef(false)
 
   const setDifficulty = useCallback((d: Difficulty) => {
     setState(prev => ({ ...prev, difficulty: d }))
@@ -102,6 +138,8 @@ export function useQuiz(
   }, [birds, memberships, state.difficulty, state.mode, state.totalQuestions, state.weights])
 
   const startQuiz = useCallback(() => {
+    answering.current = false
+    saveDoneRef.current = false
     setState(prev => {
       // Use pre-generated questions or generate fresh ones
       const questions = pendingQuestions.current.length > 0
@@ -172,6 +210,9 @@ export function useQuiz(
   }, [birds, memberships, state.difficulty, state.mode, state.totalQuestions, state.weights])
 
   const handleAnswer = useCallback((chosen: Bird) => {
+    if (answering.current) return
+    answering.current = true
+
     const responseTimeMs = Date.now() - questionStartTime.current
 
     setState(prev => {
@@ -233,35 +274,9 @@ export function useQuiz(
       setState(prev => {
         const nextQ = prev.currentQuestion + 1
         if (nextQ >= prev.questions.length) {
-          const durationMs = Date.now() - quizStartTime.current
-          // Complete session in DB
-          if (prev.sessionId) {
-            completeQuizSession({
-              sessionId: prev.sessionId,
-              score: prev.score,
-              points: prev.points,
-              durationMs,
-              guestName: getGuestName(),
-            })
-          }
-          // Save to local history
-          saveResult({
-            score: prev.score,
-            totalQuestions: prev.questions.length,
-            points: prev.points,
-            bestStreak: prev.bestStreak,
-            difficulty: prev.difficulty,
-            mode: prev.mode,
-            durationMs,
-            missed: prev.missed.map(b => ({
-              nameDa: b.name_da,
-              nameEn: b.name_en,
-              scientificName: b.scientific_name,
-            })),
-          })
-          setQuizActive(false)
           return { ...prev, screen: 'results' }
         }
+        answering.current = false
         return {
           ...prev,
           currentQuestion: nextQ,
@@ -277,32 +292,6 @@ export function useQuiz(
     setQuizActive(false)
     setState(prev => {
       if (prev.currentQuestion > 0) {
-        const durationMs = Date.now() - quizStartTime.current
-        // Complete the session with current score
-        if (prev.sessionId) {
-          completeQuizSession({
-            sessionId: prev.sessionId,
-            score: prev.score,
-            points: prev.points,
-            durationMs,
-            guestName: getGuestName(),
-          })
-        }
-        // Save to local history
-        saveResult({
-          score: prev.score,
-          totalQuestions: prev.questions.length,
-          points: prev.points,
-          bestStreak: prev.bestStreak,
-          difficulty: prev.difficulty,
-          mode: prev.mode,
-          durationMs,
-          missed: prev.missed.map(b => ({
-            nameDa: b.name_da,
-            nameEn: b.name_en,
-            scientificName: b.scientific_name,
-          })),
-        })
         return { ...prev, screen: 'results' }
       }
       return { ...prev, screen: 'start' }
@@ -311,6 +300,7 @@ export function useQuiz(
 
   const goHome = useCallback(() => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    answering.current = false
     setQuizActive(false)
     setState(prev => ({
       ...prev,

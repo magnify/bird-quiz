@@ -39,6 +39,21 @@ function formatTime(iso: string): string {
   return d.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })
 }
 
+function dedupeWithCount(
+  missed: { nameDa: string; nameEn: string; scientificName: string }[]
+): { nameDa: string; nameEn: string; scientificName: string; count: number }[] {
+  const counts = new Map<string, { nameDa: string; nameEn: string; scientificName: string; count: number }>()
+  for (const b of missed) {
+    const entry = counts.get(b.scientificName)
+    if (entry) {
+      entry.count++
+    } else {
+      counts.set(b.scientificName, { ...b, count: 1 })
+    }
+  }
+  return [...counts.values()]
+}
+
 export default function MyResults() {
   const [results, setResults] = useState<QuizResult[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -81,6 +96,13 @@ export default function MyResults() {
       .filter(b => b.count >= 2)
       .sort((a, b) => b.count - a.count)
       .slice(0, 6)
+  }, [results])
+
+  const [missedTab, setMissedTab] = useState<'most-missed' | 'latest'>('latest')
+
+  const latestMissed = useMemo(() => {
+    if (results.length === 0) return []
+    return dedupeWithCount(results[0].missed)
   }, [results])
 
   return (
@@ -154,20 +176,56 @@ export default function MyResults() {
               </div>
             </div>
 
-            {weakBirds.length > 0 && (
+            {results.length > 0 && (
               <div className="result-card result-card--padded">
-                <p className="setting-label setting-label--spaced">
-                  Fugle du missede
-                </p>
-                <MissedBirdsCarousel
-                  items={weakBirds.map(b => ({
-                    key: b.scientificName,
-                    nameDa: b.nameDa,
-                    nameEn: b.nameEn,
-                    imageUrl: getBirdImageUrl(b.scientificName),
-                    count: b.count,
-                  }))}
-                />
+                <div className="my-results-missed-tabs">
+                  <button
+                    className={`my-results-missed-tab ${missedTab === 'latest' ? 'active' : ''}`}
+                    onClick={() => setMissedTab('latest')}
+                  >
+                    Seneste quiz
+                  </button>
+                  <button
+                    className={`my-results-missed-tab ${missedTab === 'most-missed' ? 'active' : ''}`}
+                    onClick={() => setMissedTab('most-missed')}
+                  >
+                    Mest missede
+                  </button>
+                </div>
+
+                {missedTab === 'most-missed' && weakBirds.length > 0 && (
+                  <>
+                    <p className="setting-label setting-label--spaced">
+                      Fugle du missede
+                    </p>
+                    <MissedBirdsCarousel
+                      items={weakBirds.map(b => ({
+                        key: b.scientificName,
+                        nameDa: b.nameDa,
+                        nameEn: b.nameEn,
+                        imageUrl: getBirdImageUrl(b.scientificName),
+                        count: b.count,
+                      }))}
+                    />
+                  </>
+                )}
+
+                {missedTab === 'latest' && latestMissed.length > 0 && (
+                  <>
+                    <p className="setting-label setting-label--spaced">
+                      Fugle du missede i seneste quiz ({latestMissed.length})
+                    </p>
+                    <MissedBirdsCarousel
+                      items={latestMissed.map(b => ({
+                        key: b.scientificName,
+                        nameDa: b.nameDa,
+                        nameEn: b.nameEn,
+                        imageUrl: getBirdImageUrl(b.scientificName),
+                        count: b.count,
+                      }))}
+                    />
+                  </>
+                )}
               </div>
             )}
 
@@ -211,13 +269,15 @@ export default function MyResults() {
                             <span className="result-detail-missed-title">
                               Forkerte ({r.missed.length})
                             </span>
-                            <div className="result-detail-missed-list">
-                              {r.missed.map((m, i) => (
-                                <span key={i} className="result-missed-bird">
-                                  {m.nameDa}
-                                </span>
-                              ))}
-                            </div>
+                            <MissedBirdsCarousel
+                              items={dedupeWithCount(r.missed).map(b => ({
+                                key: b.scientificName,
+                                nameDa: b.nameDa,
+                                nameEn: b.nameEn,
+                                imageUrl: getBirdImageUrl(b.scientificName),
+                                count: b.count,
+                              }))}
+                            />
                           </div>
                         )}
                       </div>

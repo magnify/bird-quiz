@@ -1684,8 +1684,6 @@ details.results-missed[open] .missed-summary {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.4rem;
-  line-height: 1;
   padding: 0;
   transition: background var(--quiz-transition), border-color var(--quiz-transition);
 }
@@ -2032,12 +2030,42 @@ a.start-quiz-link {
   padding: var(--quiz-padding-md);
 }
 
+.my-results-missed-tabs {
+  display: inline-flex;
+  gap: 0;
+  background: var(--quiz-bg-secondary);
+  border-radius: var(--quiz-radius-md);
+  padding: 3px;
+  margin-bottom: var(--quiz-gap-sm);
+}
+
+.my-results-missed-tab {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  border-radius: calc(var(--quiz-radius-md) - 2px);
+  background: transparent;
+  color: var(--quiz-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.my-results-missed-tab.active {
+  background: var(--quiz-bg-card);
+  color: var(--quiz-text);
+}
+
+.my-results-missed-tab:hover:not(.active) {
+  color: var(--quiz-text);
+}
+
 .result-card-header {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--quiz-gap-xs);
-  padding: var(--quiz-gap-md) 14px;
+  padding: var(--quiz-gap-md) 44px var(--quiz-gap-md) 14px;
   background: none;
   border: none;
   color: var(--quiz-text);
@@ -2091,11 +2119,13 @@ a.start-quiz-link {
 .result-card-chevron {
   position: absolute;
   right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 26px;
   font-size: 0.6rem;
   color: var(--quiz-text-muted);
+  line-height: 1;
 }
+
+
 
 .result-card-details {
   padding: 0 14px var(--quiz-gap-md);
