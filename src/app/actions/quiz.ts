@@ -54,8 +54,10 @@ export async function recordQuizAnswer(params: {
       response_time_ms: params.responseTimeMs,
       mode: params.mode,
     })
-  } catch {
-    // Non-blocking: quiz continues even if write fails
+  } catch (e) {
+    // Non-blocking: quiz continues even if write fails, but log so a broken/
+    // paused DB is traceable instead of silently dropping data.
+    console.error('Failed to record quiz answer:', e)
   }
 }
 
@@ -66,8 +68,8 @@ export async function updateSessionName(sessionId: string, guestName: string): P
       .from('quiz_sessions')
       .update({ guest_name: guestName })
       .eq('id', sessionId)
-  } catch {
-    // Non-blocking
+  } catch (e) {
+    console.error('Failed to update session name:', e)
   }
 }
 
@@ -91,7 +93,7 @@ export async function completeQuizSession(params: {
         guest_name: params.guestName,
       })
       .eq('id', params.sessionId)
-  } catch {
-    // Non-blocking
+  } catch (e) {
+    console.error('Failed to complete quiz session:', e)
   }
 }

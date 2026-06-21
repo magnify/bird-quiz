@@ -60,6 +60,14 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="px-4 lg:px-6 space-y-8">
+      {!stats.healthy && (
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          ⚠ Sporing offline — databasen kan ikke nås
+          {stats.error ? ` (${stats.error})` : ''}. Tjek Supabase-projektet (måske sat på pause).
+          Ingen quizdata gemmes, så længe den er nede.
+        </div>
+      )}
+
       {/* 1 · Brug & vækst */}
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Brug & vækst</h2>

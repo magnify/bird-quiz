@@ -24,6 +24,8 @@ export interface SessionRow {
 }
 
 export interface AdminStats {
+  healthy: boolean
+  error?: string
   totalSessions: number
   completedSessions: number
   activeSessions: number
@@ -58,13 +60,29 @@ function breakdown(rows: { key: string }[]): { key: string; count: number }[] {
   return [...counts.entries()].map(([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count)
 }
 
+function offlineStats(error: string): AdminStats {
+  return {
+    healthy: false, error,
+    totalSessions: 0, completedSessions: 0, activeSessions: 0, completionRate: 0,
+    totalPlayers: 0, returningPlayers: 0,
+    avgScore: null, avgPoints: null, avgQuestions: null, avgDurationMs: null,
+    sessionsPerDay: [], difficultyBreakdown: [], modeBreakdown: [],
+    recentSessions: [], topSessions: [], hardestBirds: [], confusions: [],
+  }
+}
+
 export async function getAdminStats(): Promise<AdminStats> {
   const supabase = createServiceClient()
   const activeSince = new Date(Date.now() - ACTIVE_WINDOW_MIN * 60_000).toISOString()
 
-  // --- Headline totals (exact counts, unaffected by the row cap) ---
-  const [{ count: totalSessions }, { count: completedSessions }, { count: activeSessions }] =
-    await Promise.all([
+  // --- Headline totals + health probe. If the DB is unreachable (e.g. the
+  // free-tier project is paused), bail with healthy:false so admin shows a
+  // "tracking offline" banner instead of silently-empty stats. ---
+  let totalSessions: number | null = 0
+  let completedSessions: number | null = 0
+  let activeSessions: number | null = 0
+  try {
+    const [t, c, a] = await Promise.all([
       supabase.from('quiz_sessions').select('*', { count: 'exact', head: true }),
       supabase.from('quiz_sessions').select('*', { count: 'exact', head: true }).eq('completed', true),
       supabase
@@ -73,6 +91,13 @@ export async function getAdminStats(): Promise<AdminStats> {
         .eq('completed', false)
         .gt('created_at', activeSince),
     ])
+    if (t.error) return offlineStats(t.error.message)
+    totalSessions = t.count
+    completedSessions = c.count
+    activeSessions = a.count
+  } catch (e) {
+    return offlineStats(e instanceof Error ? e.message : 'Databasen kan ikke nås')
+  }
 
   // --- Recent sessions sample for the JS aggregates ---
   const { data: sample } = await supabase
@@ -190,6 +215,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     .slice(0, 10)
 
   return {
+    healthy: true,
     totalSessions: totalSessions ?? 0,
     completedSessions: completedSessions ?? 0,
     activeSessions: activeSessions ?? 0,
