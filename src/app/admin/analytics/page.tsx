@@ -7,6 +7,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { StatCard } from '@/components/admin/StatCard'
 import { BreakdownBars } from '@/components/admin/BreakdownBars'
+import { SessionsAreaChart } from '@/components/admin/SessionsAreaChart'
 import { cn } from '@/lib/utils'
 
 const DIFF_COLOR: Record<string, string> = { easy: 'bg-emerald-500', common: 'bg-sky-500', hard: 'bg-amber-500', all: 'bg-slate-400' }
@@ -52,7 +53,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const rangeKey = range ?? DEFAULT_RANGE
   const stats = await getAdminStats(rangeDaysFor(rangeKey))
   const sampleTotal = stats.difficultyBreakdown.reduce((a, b) => a + b.count, 0)
-  const maxDay = Math.max(1, ...stats.sessionsPerDay.map(d => d.count))
 
   return (
     <div className="px-4 lg:px-6 space-y-8">
@@ -83,22 +83,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
             <CardTitle>Sessioner pr. dag</CardTitle>
             <CardDescription>{rangeKey === 'all' ? 'Seneste 30 dage' : 'Valgt periode'}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-end gap-1 h-28">
-              {stats.sessionsPerDay.map(d => (
-                <div
-                  key={d.date}
-                  className="flex-1 rounded-t bg-sky-500/80 hover:bg-sky-500 transition-colors min-h-px"
-                  style={{ height: `${maxDay ? (d.count / maxDay) * 100 : 0}%` }}
-                  title={`${d.date}: ${d.count}`}
-                />
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
-              <span>{stats.sessionsPerDay[0]?.date.slice(5)}</span>
-              <span>Maks {maxDay}/dag</span>
-              <span>{stats.sessionsPerDay.at(-1)?.date.slice(5)}</span>
-            </div>
+          <CardContent>
+            <SessionsAreaChart data={stats.sessionsPerDay} />
           </CardContent>
         </Card>
       </section>
