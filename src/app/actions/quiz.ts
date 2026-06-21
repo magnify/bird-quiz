@@ -1,6 +1,42 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { createServiceClient } from '@/lib/supabase/server'
+
+/** Coarse, privacy-safe player context for analytics: country (country-level
+ *  only, never the IP) from Netlify's geo headers, and device class from the
+ *  user-agent. Best-effort — returns nulls if headers are unavailable. */
+async function sessionContext(): Promise<{ country: string | null; device_type: string | null }> {
+  try {
+    const h = await headers()
+    return { country: countryFromHeaders(h), device_type: deviceFromUA(h.get('user-agent')) }
+  } catch {
+    return { country: null, device_type: null }
+  }
+}
+
+function countryFromHeaders(h: Headers): string | null {
+  // Netlify edge sets `x-nf-geo` (base64 JSON) and a simpler `x-country`.
+  const geo = h.get('x-nf-geo')
+  if (geo) {
+    try {
+      const parsed = JSON.parse(Buffer.from(geo, 'base64').toString('utf8'))
+      const code = parsed?.country?.code
+      if (typeof code === 'string' && code) return code.toUpperCase()
+    } catch {
+      // fall through to x-country
+    }
+  }
+  const code = h.get('x-country')
+  return code ? code.toUpperCase() : null
+}
+
+function deviceFromUA(ua: string | null): string | null {
+  if (!ua) return null
+  if (/iPad|Tablet|PlayBook|Silk|Android(?!.*Mobile)/i.test(ua)) return 'tablet'
+  if (/Mobi|iPhone|iPod|Android|Windows Phone|BlackBerry/i.test(ua)) return 'mobile'
+  return 'desktop'
+}
 
 export async function createQuizSession(params: {
   guestId: string
@@ -11,23 +47,32 @@ export async function createQuizSession(params: {
 }): Promise<string | null> {
   try {
     const supabase = createServiceClient()
+    const ctx = await sessionContext()
+    const base = {
+      guest_id: params.guestId,
+      guest_name: params.guestName,
+      difficulty: params.difficulty,
+      mode: params.mode,
+      question_count: params.questionCount,
+    }
+
     const { data, error } = await supabase
       .from('quiz_sessions')
-      .insert({
-        guest_id: params.guestId,
-        guest_name: params.guestName,
-        difficulty: params.difficulty,
-        mode: params.mode,
-        question_count: params.questionCount,
-      })
+      .insert({ ...base, country: ctx.country, device_type: ctx.device_type })
       .select('id')
       .single()
 
-    if (error) {
-      console.error('Failed to create quiz session:', error.message)
+    if (!error) return data.id
+
+    // The geo/device columns may not be migrated yet — retry without them so
+    // tracking never breaks on the critical path.
+    console.error('Create session (with context) failed, retrying base:', error.message)
+    const retry = await supabase.from('quiz_sessions').insert(base).select('id').single()
+    if (retry.error) {
+      console.error('Failed to create quiz session:', retry.error.message)
       return null
     }
-    return data.id
+    return retry.data.id
   } catch (e) {
     console.error('Failed to create quiz session:', e)
     return null

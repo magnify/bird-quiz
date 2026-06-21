@@ -45,6 +45,9 @@ export interface AdminStats {
   sessionsPerDay: { date: string; count: number }[]
   difficultyBreakdown: { key: string; count: number }[]
   modeBreakdown: { key: string; count: number }[]
+  topCountries: { country: string; count: number }[]
+  deviceBreakdown: { key: string; count: number }[]
+  hourly: { hour: number; count: number }[]
   recentSessions: SessionRow[]
   topSessions: SessionRow[]
   hardestBirds: {

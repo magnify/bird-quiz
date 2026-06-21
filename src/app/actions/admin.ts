@@ -27,6 +27,7 @@ function offlineStats(error: string): AdminStats {
     totalPlayers: 0, returningPlayers: 0,
     avgScore: null, avgPoints: null, avgQuestions: null, avgDurationMs: null,
     sessionsPerDay: [], difficultyBreakdown: [], modeBreakdown: [],
+    topCountries: [], deviceBreakdown: [], hourly: [],
     recentSessions: [], topSessions: [], hardestBirds: [], confusions: [],
   }
 }
@@ -59,11 +60,12 @@ export async function getAdminStats(rangeDays: number | null = rangeDaysFor(DEFA
   // --- Session sample for JS aggregates ---
   let sampleQ = supabase
     .from('quiz_sessions')
-    .select('id, guest_id, guest_name, difficulty, mode, question_count, duration_ms, score, points, completed, created_at, completed_at')
+    .select('id, guest_id, guest_name, difficulty, mode, question_count, duration_ms, score, points, completed, created_at, completed_at, country, device_type')
     .order('created_at', { ascending: false })
     .limit(SESSION_SAMPLE)
   if (since) sampleQ = sampleQ.gte('created_at', since)
-  const { data: sample } = await sampleQ
+  const { data: sample, error: sampleErr } = await sampleQ
+  if (sampleErr) console.error('Session sample query failed:', sampleErr.message)
   const rows = sample ?? []
   const completed = rows.filter(r => r.completed)
 
@@ -92,6 +94,20 @@ export async function getAdminStats(rangeDays: number | null = rangeDaysFor(DEFA
 
   const difficultyBreakdown = breakdown(rows.map(r => ({ key: r.difficulty })))
   const modeBreakdown = breakdown(rows.map(r => ({ key: r.mode })))
+
+  const topCountries = breakdown(rows.filter(r => r.country).map(r => ({ key: r.country as string })))
+    .map(({ key, count }) => ({ country: key, count }))
+    .slice(0, 8)
+  const deviceBreakdown = breakdown(rows.filter(r => r.device_type).map(r => ({ key: r.device_type as string })))
+
+  // Hour-of-day histogram in Europe/Copenhagen (audience is Danish; created_at is UTC)
+  const hourFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Copenhagen', hour: '2-digit', hour12: false })
+  const hourCounts = new Array(24).fill(0)
+  for (const r of rows) {
+    const h = Number(hourFmt.format(new Date(r.created_at))) % 24
+    if (!Number.isNaN(h)) hourCounts[h]++
+  }
+  const hourly = hourCounts.map((count, hour) => ({ hour, count }))
 
   const toRow = (s: typeof rows[number]): SessionRow => ({
     id: s.id, guest_name: s.guest_name, guest_id: s.guest_id, difficulty: s.difficulty, mode: s.mode,
@@ -163,6 +179,7 @@ export async function getAdminStats(rangeDays: number | null = rangeDaysFor(DEFA
     returningPlayers,
     avgScore, avgPoints, avgQuestions, avgDurationMs,
     sessionsPerDay, difficultyBreakdown, modeBreakdown,
+    topCountries, deviceBreakdown, hourly,
     recentSessions, topSessions, hardestBirds, confusions,
   }
 }

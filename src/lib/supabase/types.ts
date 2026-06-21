@@ -211,6 +211,8 @@ export interface Database {
           completed: boolean
           created_at: string
           completed_at: string | null
+          country: string | null
+          device_type: string | null
         }
         Insert: {
           id?: string
@@ -226,6 +228,8 @@ export interface Database {
           completed?: boolean
           created_at?: string
           completed_at?: string | null
+          country?: string | null
+          device_type?: string | null
         }
         Update: {
           user_id?: string | null
@@ -235,6 +239,8 @@ export interface Database {
           duration_ms?: number | null
           completed?: boolean
           completed_at?: string | null
+          country?: string | null
+          device_type?: string | null
         }
         Relationships: []
       }

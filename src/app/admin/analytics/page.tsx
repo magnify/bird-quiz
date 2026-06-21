@@ -8,16 +8,22 @@ import { Badge } from '@/components/ui/badge'
 import { StatCard } from '@/components/admin/StatCard'
 import { BreakdownBars } from '@/components/admin/BreakdownBars'
 import { SessionsAreaChart } from '@/components/admin/SessionsAreaChart'
+import { HourlyChart } from '@/components/admin/HourlyChart'
+import { countryNameDa, flagEmoji } from '@/lib/admin/countries'
 import { cn } from '@/lib/utils'
 
 const DIFF_COLOR: Record<string, string> = { easy: 'bg-emerald-500', common: 'bg-sky-500', hard: 'bg-amber-500', all: 'bg-slate-400' }
 const MODE_COLOR: Record<string, string> = { photo: 'bg-violet-500', name: 'bg-rose-500', mixed: 'bg-teal-500' }
+const DEVICE_COLOR: Record<string, string> = { mobile: 'bg-sky-500', desktop: 'bg-violet-500', tablet: 'bg-amber-500' }
 
 function difficultyLabel(d: string): string {
   return { easy: 'Lette', common: 'Almindelige', hard: 'Svære', all: 'Alle' }[d] ?? d
 }
 function modeLabel(m: string): string {
   return { photo: 'Foto', name: 'Navn', mixed: 'Blandet' }[m] ?? m
+}
+function deviceLabel(d: string): string {
+  return { mobile: 'Mobil', desktop: 'Computer', tablet: 'Tablet' }[d] ?? d
 }
 function formatDuration(ms: number | null): string {
   if (ms === null) return '—'
@@ -53,6 +59,10 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const rangeKey = range ?? DEFAULT_RANGE
   const stats = await getAdminStats(rangeDaysFor(rangeKey))
   const sampleTotal = stats.difficultyBreakdown.reduce((a, b) => a + b.count, 0)
+  const countryTotal = stats.topCountries.reduce((a, b) => a + b.count, 0)
+  const deviceTotal = stats.deviceBreakdown.reduce((a, b) => a + b.count, 0)
+  const topCountry = stats.topCountries[0]
+  const countryRows = stats.topCountries.map(c => ({ key: c.country, count: c.count }))
 
   return (
     <div className="px-4 lg:px-6 space-y-8">
@@ -85,6 +95,50 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           </CardHeader>
           <CardContent>
             <SessionsAreaChart data={stats.sessionsPerDay} />
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* 1b · Hvem spiller */}
+      <section className="space-y-4">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Hvem spiller</h2>
+        <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Lande</CardTitle>
+              <CardDescription>
+                {topCountry
+                  ? `Mest fra ${flagEmoji(topCountry.country)} ${countryNameDa(topCountry.country)} (${Math.round((topCountry.count / countryTotal) * 100)}%)`
+                  : 'Hvor spillerne er fra'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {countryTotal === 0
+                ? <p className="text-sm text-muted-foreground">Ingen lokationsdata endnu</p>
+                : <BreakdownBars rows={countryRows} total={countryTotal} label={c => `${flagEmoji(c)} ${countryNameDa(c)}`} colors={{}} />}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Enheder</CardTitle>
+              <CardDescription>Mobil, computer eller tablet</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {deviceTotal === 0
+                ? <p className="text-sm text-muted-foreground">Ingen enhedsdata endnu</p>
+                : <BreakdownBars rows={stats.deviceBreakdown} total={deviceTotal} label={deviceLabel} colors={DEVICE_COLOR} />}
+            </CardContent>
+          </Card>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Tidspunkt på dagen</CardTitle>
+            <CardDescription>Sessioner pr. time (dansk tid)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats.hourly.every(h => h.count === 0)
+              ? <p className="text-sm text-muted-foreground">Ingen data i perioden</p>
+              : <HourlyChart data={stats.hourly} />}
           </CardContent>
         </Card>
       </section>
