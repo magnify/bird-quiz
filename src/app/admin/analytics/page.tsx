@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getAdminStats } from '@/app/actions/admin'
 import { DEFAULT_RANGE, rangeDaysFor, type SessionRow } from '@/lib/admin/analytics'
 import { IntervalPicker } from '@/components/admin/IntervalPicker'
@@ -9,42 +10,24 @@ import { StatCard } from '@/components/admin/StatCard'
 import { BreakdownBars } from '@/components/admin/BreakdownBars'
 import { SessionsAreaChart } from '@/components/admin/SessionsAreaChart'
 import { HourlyChart } from '@/components/admin/HourlyChart'
+import { SectionHeading } from '@/components/admin/SectionHeading'
+import { HardestBirdsList } from '@/components/admin/HardestBirdsList'
+import { ConfusionsList } from '@/components/admin/ConfusionsList'
 import { countryNameDa, flagEmoji } from '@/lib/admin/countries'
-import { cn } from '@/lib/utils'
-
-const DIFF_COLOR: Record<string, string> = { easy: 'bg-emerald-500', common: 'bg-sky-500', hard: 'bg-amber-500', all: 'bg-slate-400' }
-const MODE_COLOR: Record<string, string> = { photo: 'bg-violet-500', name: 'bg-rose-500', mixed: 'bg-teal-500' }
-const DEVICE_COLOR: Record<string, string> = { mobile: 'bg-sky-500', desktop: 'bg-violet-500', tablet: 'bg-amber-500' }
-
-function difficultyLabel(d: string): string {
-  return { easy: 'Lette', common: 'Almindelige', hard: 'Svære', all: 'Alle' }[d] ?? d
-}
-function modeLabel(m: string): string {
-  return { photo: 'Foto', name: 'Navn', mixed: 'Blandet' }[m] ?? m
-}
-function deviceLabel(d: string): string {
-  return { mobile: 'Mobil', desktop: 'Computer', tablet: 'Tablet' }[d] ?? d
-}
-function formatDuration(ms: number | null): string {
-  if (ms === null) return '—'
-  const s = Math.round(ms / 1000)
-  const m = Math.floor(s / 60)
-  return m === 0 ? `${s}s` : `${m}m ${s % 60}s`
-}
-function playerLabel(s: SessionRow): string {
-  return s.guest_name || (s.guest_id ? `Gæst ${s.guest_id.slice(0, 6)}` : 'Anonym')
-}
-function accuracyColor(pct: number): string {
-  return pct < 30 ? 'text-red-600' : pct < 50 ? 'text-amber-600' : 'text-muted-foreground'
-}
+import {
+  DIFF_COLOR, MODE_COLOR, DEVICE_COLOR,
+  difficultyLabel, modeLabel, deviceLabel, formatDuration, playerLabel,
+} from '@/lib/admin/labels'
 
 function PlayerList({ rows, metric }: { rows: SessionRow[]; metric: (s: SessionRow) => React.ReactNode }) {
   return (
     <div className="space-y-2">
       {rows.map(s => (
-        <div key={s.id} className="flex items-center justify-between text-sm">
-          <span className="truncate max-w-[140px]">{playerLabel(s)}</span>
-          <div className="flex items-center gap-2">
+        <div key={s.id} className="flex items-center justify-between gap-2 text-sm">
+          {s.guest_id
+            ? <Link href={`/admin/players/${s.guest_id}`} className="truncate min-w-0 hover:underline">{playerLabel(s.guest_name, s.guest_id)}</Link>
+            : <span className="truncate min-w-0">{playerLabel(s.guest_name, s.guest_id)}</span>}
+          <div className="flex items-center gap-2 shrink-0">
             <Badge variant="secondary">{difficultyLabel(s.difficulty)}</Badge>
             {metric(s)}
           </div>
@@ -81,7 +64,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {/* 1 · Brug & vækst */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Brug & vækst</h2>
+        <SectionHeading>Brug & vækst</SectionHeading>
         <div className="grid grid-cols-2 gap-4 @5xl/main:grid-cols-4">
           <StatCard label="Fuldførte" value={String(stats.completedSessions)} sub={`${stats.totalSessions} startet · ${stats.completionRate}% fuldført`} />
           <StatCard label="Aktive nu" value={String(stats.activeSessions)} sub="Startet, ikke fuldført (15 min)" accent={stats.activeSessions > 0} />
@@ -101,7 +84,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {/* 1b · Hvem spiller */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Hvem spiller</h2>
+        <SectionHeading>Hvem spiller</SectionHeading>
         <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
           <Card>
             <CardHeader>
@@ -145,7 +128,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {/* 2 · Sådan spilles der */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Sådan spilles der</h2>
+        <SectionHeading>Sådan spilles der</SectionHeading>
         <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
           <Card>
             <CardHeader><CardTitle>Sværhedsgrad</CardTitle></CardHeader>
@@ -166,7 +149,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {/* 3 · Fugle: sværhed & forvekslinger */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Fugle: sværhed & forvekslinger</h2>
+        <SectionHeading>Fugle: sværhed & forvekslinger</SectionHeading>
         <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
           <Card>
             <CardHeader>
@@ -174,16 +157,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
               <CardDescription>Laveste rigtig-procent (min. 5 visninger)</CardDescription>
             </CardHeader>
             <CardContent>
-              {stats.hardestBirds.length === 0 ? <p className="text-sm text-muted-foreground">Ikke nok data i perioden</p> : (
-                <div className="space-y-2">
-                  {stats.hardestBirds.map(b => (
-                    <div key={b.bird_id} className="flex items-center justify-between text-sm">
-                      <span className="font-medium truncate">{b.bird_name_da}</span>
-                      <span className={cn('tabular-nums', accuracyColor(b.accuracy))}>{b.accuracy}% ({b.times_correct}/{b.times_shown})</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {stats.hardestBirds.length === 0
+                ? <p className="text-sm text-muted-foreground">Ikke nok data i perioden</p>
+                : <HardestBirdsList birds={stats.hardestBirds} />}
             </CardContent>
           </Card>
           <Card>
@@ -192,16 +168,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
               <CardDescription>Hvad blev valgt i stedet (rigtig → valgt)</CardDescription>
             </CardHeader>
             <CardContent>
-              {stats.confusions.length === 0 ? <p className="text-sm text-muted-foreground">Ikke nok data i perioden</p> : (
-                <div className="space-y-2">
-                  {stats.confusions.map((c, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm">
-                      <span className="truncate">{c.actualName} <span className="text-muted-foreground">→ {c.chosenName}</span></span>
-                      <span className="tabular-nums text-muted-foreground">{c.count}×</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {stats.confusions.length === 0
+                ? <p className="text-sm text-muted-foreground">Ikke nok data i perioden</p>
+                : <ConfusionsList confusions={stats.confusions} />}
             </CardContent>
           </Card>
         </div>
@@ -209,7 +178,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {/* 4 · Scores & topspillere */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Scores & topspillere</h2>
+        <SectionHeading>Scores & topspillere</SectionHeading>
         <div className="grid grid-cols-2 gap-4 @5xl/main:grid-cols-2">
           <StatCard label="Gns. score" value={stats.avgScore !== null ? `${stats.avgScore}%` : '—'} sub="Af fuldførte quizzer" />
           <StatCard label="Gns. point" value={stats.avgPoints !== null ? stats.avgPoints.toLocaleString('da-DK') : '—'} sub="Per fuldført quiz" />

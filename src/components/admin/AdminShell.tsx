@@ -10,6 +10,7 @@ import {
   Image,
   Layers,
   BarChart3,
+  Users,
   ClipboardList,
   ArrowLeft,
   LogOut,
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
   { href: '/admin/images', label: 'Billeder', icon: Image },
   { href: '/admin/groups', label: 'Grupper', icon: Layers },
   { href: '/admin/analytics', label: 'Analyse', icon: BarChart3 },
+  { href: '/admin/players', label: 'Spillere', icon: Users },
   { href: '/admin/audit', label: 'Logbog', icon: ClipboardList },
 ]
 

@@ -1,8 +1,8 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { STATIC_BIRDS } from '@/lib/data/birds-static'
 import { DEFAULT_RANGE, rangeDaysFor, type AdminStats, type SessionRow } from '@/lib/admin/analytics'
+import { breakdown, sessionsPerDay as dailyCounts, hourly as hourlyCounts, birdStatsFromAnswers } from '@/lib/admin/aggregate'
 
 const ACTIVE_WINDOW_MIN = 15
 const MAX_TREND_DAYS = 30
@@ -11,14 +11,6 @@ const MAX_TREND_DAYS = 30
 // view/RPC if the tables grow past this.
 const SESSION_SAMPLE = 1000
 const ANSWER_SAMPLE = 10000
-
-const birdById = new Map(STATIC_BIRDS.map(b => [b.id, b]))
-
-function breakdown(rows: { key: string }[]): { key: string; count: number }[] {
-  const counts = new Map<string, number>()
-  for (const r of rows) counts.set(r.key, (counts.get(r.key) ?? 0) + 1)
-  return [...counts.entries()].map(([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count)
-}
 
 function offlineStats(error: string): AdminStats {
   return {
@@ -84,30 +76,16 @@ export async function getAdminStats(rangeDays: number | null = rangeDaysFor(DEFA
 
   // Sessions per day, length scaled to the range (capped)
   const trendDays = Math.min(rangeDays ?? MAX_TREND_DAYS, MAX_TREND_DAYS)
-  const dayCounts = new Map<string, number>()
-  for (const r of rows) dayCounts.set(r.created_at.slice(0, 10), (dayCounts.get(r.created_at.slice(0, 10)) ?? 0) + 1)
-  const sessionsPerDay: { date: string; count: number }[] = []
-  for (let i = trendDays - 1; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86_400_000).toISOString().slice(0, 10)
-    sessionsPerDay.push({ date: d, count: dayCounts.get(d) ?? 0 })
-  }
+  const sessionsPerDay = dailyCounts(rows.map(r => r.created_at), trendDays)
+  const hourly = hourlyCounts(rows.map(r => r.created_at))
 
-  const difficultyBreakdown = breakdown(rows.map(r => ({ key: r.difficulty })))
-  const modeBreakdown = breakdown(rows.map(r => ({ key: r.mode })))
+  const difficultyBreakdown = breakdown(rows.map(r => r.difficulty))
+  const modeBreakdown = breakdown(rows.map(r => r.mode))
 
-  const topCountries = breakdown(rows.filter(r => r.country).map(r => ({ key: r.country as string })))
+  const topCountries = breakdown(rows.filter(r => r.country).map(r => r.country as string))
     .map(({ key, count }) => ({ country: key, count }))
     .slice(0, 8)
-  const deviceBreakdown = breakdown(rows.filter(r => r.device_type).map(r => ({ key: r.device_type as string })))
-
-  // Hour-of-day histogram in Europe/Copenhagen (audience is Danish; created_at is UTC)
-  const hourFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Copenhagen', hour: '2-digit', hour12: false })
-  const hourCounts = new Array(24).fill(0)
-  for (const r of rows) {
-    const h = Number(hourFmt.format(new Date(r.created_at))) % 24
-    if (!Number.isNaN(h)) hourCounts[h]++
-  }
-  const hourly = hourCounts.map((count, hour) => ({ hour, count }))
+  const deviceBreakdown = breakdown(rows.filter(r => r.device_type).map(r => r.device_type as string))
 
   const toRow = (s: typeof rows[number]): SessionRow => ({
     id: s.id, guest_name: s.guest_name, guest_id: s.guest_id, difficulty: s.difficulty, mode: s.mode,
@@ -129,45 +107,7 @@ export async function getAdminStats(rangeDays: number | null = rangeDaysFor(DEFA
   if (since) answersQ = answersQ.gte('created_at', since)
   const { data: answers } = await answersQ
 
-  const perBird = new Map<string, { shown: number; correct: number }>()
-  const pairCounts = new Map<string, number>()
-  for (const a of answers ?? []) {
-    const stat = perBird.get(a.bird_id) ?? { shown: 0, correct: 0 }
-    stat.shown++
-    if (a.is_correct) stat.correct++
-    perBird.set(a.bird_id, stat)
-    if (!a.is_correct && a.chosen_bird_id) {
-      const k = `${a.bird_id}|${a.chosen_bird_id}`
-      pairCounts.set(k, (pairCounts.get(k) ?? 0) + 1)
-    }
-  }
-
-  const hardestBirds = [...perBird.entries()]
-    .filter(([, s]) => s.shown >= 5)
-    .map(([bird_id, s]) => {
-      const bird = birdById.get(bird_id)
-      if (!bird) return null
-      return {
-        bird_id, bird_name_da: bird.name_da, scientific_name: bird.scientific_name,
-        times_shown: s.shown, times_correct: s.correct,
-        accuracy: Math.round((s.correct / s.shown) * 100),
-      }
-    })
-    .filter((b): b is NonNullable<typeof b> => b !== null)
-    .sort((a, b) => a.accuracy - b.accuracy)
-    .slice(0, 10)
-
-  const confusions = [...pairCounts.entries()]
-    .map(([k, count]) => {
-      const [actualId, chosenId] = k.split('|')
-      const actual = birdById.get(actualId)
-      const chosen = birdById.get(chosenId)
-      if (!actual || !chosen) return null
-      return { actualName: actual.name_da, chosenName: chosen.name_da, count }
-    })
-    .filter((c): c is NonNullable<typeof c> => c !== null)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10)
+  const { hardestBirds, confusions } = birdStatsFromAnswers(answers ?? [], { minShown: 5, limit: 10 })
 
   return {
     healthy: true,
