@@ -14,6 +14,7 @@ import {
   ClipboardList,
   ArrowLeft,
   LogOut,
+  type LucideIcon,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -23,6 +24,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
@@ -30,22 +34,33 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { logoutAction } from '@/app/admin/actions'
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string
+  label: string
+  icon: LucideIcon
+  children?: NavItem[]
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: '/admin', label: 'Oversigt', icon: Home },
   { href: '/admin/birds', label: 'Fugle', icon: Bird },
   { href: '/admin/images', label: 'Billeder', icon: Image },
   { href: '/admin/groups', label: 'Grupper', icon: Layers },
-  { href: '/admin/analytics', label: 'Analyse', icon: BarChart3 },
-  { href: '/admin/players', label: 'Spillere', icon: Users },
+  {
+    href: '/admin/analytics', label: 'Analyse', icon: BarChart3,
+    children: [{ href: '/admin/players', label: 'Spillere', icon: Users }],
+  },
   { href: '/admin/audit', label: 'Logbog', icon: ClipboardList },
 ]
 
+function isItemActive(pathname: string, href: string) {
+  return href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
+}
+
 function usePageTitle(pathname: string) {
-  const match = NAV_ITEMS.find(item =>
-    item.href === '/admin'
-      ? pathname === '/admin'
-      : pathname.startsWith(item.href)
-  )
+  const flat = NAV_ITEMS.flatMap(item => (item.children ? [item, ...item.children] : [item]))
+  // Children first so a sub-page wins over its parent's prefix match.
+  const match = [...flat].reverse().find(item => isItemActive(pathname, item.href))
   return match?.label ?? 'Admin'
 }
 
@@ -66,24 +81,33 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
         <SidebarContent className="px-2 py-2">
           <SidebarMenu>
-            {NAV_ITEMS.map(item => {
-              const isActive = item.href === '/admin'
-                ? pathname === '/admin'
-                : pathname.startsWith(item.href)
-
-              return (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    render={<Link href={item.href} />}
-                    isActive={isActive}
-                    tooltip={item.label}
-                  >
-                    <item.icon className="size-4" />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )
-            })}
+            {NAV_ITEMS.map(item => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  render={<Link href={item.href} />}
+                  isActive={isItemActive(pathname, item.href)}
+                  tooltip={item.label}
+                >
+                  <item.icon className="size-4" />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+                {item.children && (
+                  <SidebarMenuSub>
+                    {item.children.map(sub => (
+                      <SidebarMenuSubItem key={sub.href}>
+                        <SidebarMenuSubButton
+                          render={<Link href={sub.href} />}
+                          isActive={isItemActive(pathname, sub.href)}
+                        >
+                          <sub.icon className="size-4" />
+                          <span>{sub.label}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarContent>
 
