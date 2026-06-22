@@ -50,7 +50,7 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
                         </Link>
                       </td>
                       <td className="py-2 px-3 text-right tabular-nums">
-                        {p.sessions}<span className="text-muted-foreground"> / {p.completed}</span>
+                        {p.completed}<span className="text-muted-foreground"> / {p.sessions}</span>
                       </td>
                       <td className="py-2 px-3 text-right tabular-nums">{p.totalPoints.toLocaleString('da-DK')}</td>
                       <td className="py-2 px-3 text-right tabular-nums">{p.bestScorePct !== null ? `${p.bestScorePct}%` : '—'}</td>
