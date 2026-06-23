@@ -12,6 +12,8 @@ CREATE INDEX IF NOT EXISTS idx_qs_leaderboard_time
   ON quiz_sessions (completed_at DESC NULLS LAST)
   WHERE completed = true;
 
--- Public leaderboard read access (completed sessions only)
+-- Public leaderboard read access (completed sessions only).
+-- Idempotent so re-running migrations (e.g. supabase db push) doesn't error.
+DROP POLICY IF EXISTS qs_public_leaderboard ON quiz_sessions;
 CREATE POLICY qs_public_leaderboard ON quiz_sessions
   FOR SELECT USING (completed = true);
