@@ -17,7 +17,8 @@
     "audit:copyright:csv": "tsx scripts/audit-image-copyright.ts --format=csv",
     "audit:copyright:html": "tsx scripts/audit-image-copyright.ts --format=html",
     "audit:copyright:all": "tsx scripts/audit-image-copyright.ts --format=all",
-    "test:api:images": "tsx scripts/test-api-images.ts"
+    "test:api:images": "tsx scripts/test-api-images.ts",
+    "backup": "tsx --env-file=.env.local scripts/backup-data.ts && tsx --env-file=.env.local scripts/backup-storage.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",

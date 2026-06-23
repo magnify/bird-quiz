@@ -7,8 +7,9 @@ Date: see archive filename.
 - `data/*.ndjson` — one file per public table, one JSON record per line.
   Schema is *not* included; restore against a fresh DB by replaying
   `supabase/migrations/*.sql` first, then loading these files.
-- `storage/` — full mirror of the `bird-images` Supabase Storage bucket,
-  including `originals/` and `manifest.json`.
+- `storage/` — full mirror of the Cloudflare **R2** `bird-images` bucket,
+  including `originals/` and `manifest.json`. (Not Supabase Storage — the
+  images live in R2.)
 
 ## Restore (data)
 
@@ -36,10 +37,5 @@ done
 
 ## Restore (storage)
 
-Re-upload the whole `storage/` directory tree to the `bird-images` bucket
-via the Supabase dashboard (drag-and-drop) or the existing tooling:
-
-```bash
-SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
-  pnpm tsx scripts/upload-images-to-supabase.ts ./storage
-```
+Re-upload the whole `storage/` tree to the Cloudflare R2 `bird-images` bucket
+(e.g. `rclone copy backups/storage/ r2:bird-images/`). See `RESTORE.md`.

@@ -1,62 +1,43 @@
 # Restore from backup
 
-Backups are produced weekly by `.github/workflows/backup.yml`.
+Backups are produced by running `pnpm backup` from the repo root (loads
+`.env.local`). It writes:
 
-## What's stored where
+- `backups/data/*.ndjson` — one file per public table, one JSON record per line
+  (via PostgREST). Schema is **not** included — it lives in `supabase/migrations/`.
+- `backups/storage/` — full mirror of the Cloudflare **R2** `bird-images` bucket
+  (all images, `originals/`, and `manifest.json`). R2 egress is free.
 
-- **DB dumps**: `backups/db/YYYY-MM-DD.sql` (committed to this repo, last 12 retained).
-- **Storage bucket** (`bird-images` + `originals/` + `manifest.json`): GitHub Release named `backup-YYYY-MM-DD`, asset `storage-YYYY-MM-DD.tar.gz`.
+Backups are gitignored (they contain PII: `profiles`, `payment_events`). Off-site
+durability goes to a second R2 bucket (planned). Weekly automation
+(`.github/workflows/backup.yml`) is being reworked — do not rely on it yet.
 
 ## Restore the database
 
-The dump is `pg_dump --schema=public --no-owner --no-acl`. Restore against the live Supabase project (or a fresh one):
-
 ```bash
-# Get connection string from Supabase Dashboard → Settings → Database → Connection string (URI)
-export DB_URL="postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres"
+# 1. Apply schema to the target Supabase project
+supabase db push            # or: psql "$DB_URL" -f supabase/migrations/*.sql
 
-# WARNING: this drops/recreates objects in `public` schema. Snapshot first.
-psql "$DB_URL" -f backups/db/YYYY-MM-DD.sql
+# 2. Import each table from NDJSON (one INSERT per row)
+for f in backups/data/*.ndjson; do
+  table=$(basename "$f" .ndjson)
+  while IFS= read -r row; do
+    jq -nr --arg t "$table" --argjson r "$row" '
+      "INSERT INTO " + $t + " (" + ([$r | keys_unsorted | join(",")]|join("")) +
+      ") VALUES (" + ([$r | to_entries | map(.value|@json) | join(",")]|join("")) +
+      ") ON CONFLICT DO NOTHING;"
+    '
+  done < "$f" | psql "$DB_URL"
+done
 ```
 
-For a partial restore (single table), grep the dump:
+## Restore storage (R2)
+
+Re-upload `backups/storage/` to the R2 `bird-images` bucket. Use `rclone` (an
+R2/S3 remote) or extend the repo's R2 tooling (`src/lib/r2.ts` `r2Put`):
 
 ```bash
-# Extract just `quiz_sessions`
-sed -n '/^COPY public.quiz_sessions/,/^\\\.$/p' backups/db/YYYY-MM-DD.sql > sessions.sql
+rclone copy backups/storage/ r2:bird-images/
 ```
 
-## Restore storage
-
-```bash
-# Download the release asset
-gh release download backup-YYYY-MM-DD -p 'storage-*.tar.gz'
-tar -xzf storage-YYYY-MM-DD.tar.gz   # extracts to ./storage/
-
-# Re-upload to Supabase Storage. Easiest path: Supabase CLI with S3 protocol,
-# or this repo's existing tooling:
-SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
-  pnpm tsx scripts/upload-images-to-supabase.ts ./storage
-```
-
-If only `manifest.json` is corrupt, restore that file alone via the Supabase
-dashboard (Storage → bird-images → upload, overwrite).
-
-## Test the workflow
-
-Trigger a backup manually to verify creds and end-to-end flow:
-
-```bash
-gh workflow run backup.yml
-gh run watch
-```
-
-## Required GitHub secrets
-
-| Secret | Where it goes |
-| --- | --- |
-| `SUPABASE_DB_URL` | postgres connection string (Dashboard → Settings → Database → URI) |
-| `NEXT_PUBLIC_SUPABASE_URL` | already in `.env.local` |
-| `SUPABASE_SERVICE_ROLE_KEY` | already in `.env.local` and on Netlify |
-
-Set them with `gh secret set NAME` from the repo root.
+If only `manifest.json` is corrupt, re-upload that single object.

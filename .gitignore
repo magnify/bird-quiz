@@ -48,8 +48,10 @@ next-env.d.ts
 # Git worktrees
 /.worktrees/
 
-# Backup intermediate artifacts (DB dumps in backups/db/ ARE committed,
-# storage download is huge and gets uploaded as a Release asset instead)
+# Backups stay out of git (data contains PII: profiles/payments). Off-site
+# durability lives in a second R2 bucket. Only README/RESTORE docs are tracked.
+/backups/data/
+/backups/db/
 /backups/storage/
 /storage-*.tar.gz
 

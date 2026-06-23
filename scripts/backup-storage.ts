@@ -1,92 +1,53 @@
 #!/usr/bin/env tsx
 
 /**
- * Storage bucket backup
+ * R2 storage backup
  *
- * Downloads every object in the `bird-images` Supabase Storage bucket
- * (including the `originals/` subfolder and `manifest.json`) into
- * `backups/storage/`. Run from the repo root.
+ * Mirrors the Cloudflare R2 `bird-images` bucket (all images, the `originals/`
+ * subfolder, and `manifest.json`) into `backups/storage/`. Run from repo root.
  *
- * Used by .github/workflows/backup.yml — the resulting directory is
- * tarred and uploaded as a GitHub Release asset.
+ * R2 egress is free, so this costs no bandwidth fees. The images live in R2 —
+ * NOT Supabase Storage (which is empty post-migration), so this is the only
+ * complete copy of the cropped/replaced images + their attribution manifest.
  *
- * Required env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ * Required env: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY,
+ *               R2_BUCKET_NAME (defaults to `bird-images`)
  */
 
-import { createClient } from '@supabase/supabase-js'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
+import { r2List, r2Get } from '../src/lib/r2'
 
-const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
-}
-
-const BUCKET = 'bird-images'
 const OUT_DIR = join(process.cwd(), 'backups', 'storage')
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-
-async function listAll(prefix = ''): Promise<string[]> {
-  const out: string[] = []
-  const PAGE = 1000
-  let offset = 0
-  while (true) {
-    const { data, error } = await supabase.storage.from(BUCKET).list(prefix, {
-      limit: PAGE,
-      offset,
-      sortBy: { column: 'name', order: 'asc' },
-    })
-    if (error) throw error
-    if (!data || data.length === 0) break
-    for (const item of data) {
-      const path = prefix ? `${prefix}/${item.name}` : item.name
-      // Folders have a null id in the Supabase API
-      if (item.id === null) {
-        out.push(...(await listAll(path)))
-      } else {
-        out.push(path)
-      }
-    }
-    if (data.length < PAGE) break
-    offset += PAGE
-  }
-  return out
-}
-
-async function downloadOne(path: string): Promise<void> {
-  const { data, error } = await supabase.storage.from(BUCKET).download(path)
-  if (error) throw new Error(`download ${path}: ${error.message}`)
-  const dest = join(OUT_DIR, path)
-  await mkdir(dirname(dest), { recursive: true })
-  const buf = Buffer.from(await data.arrayBuffer())
-  await writeFile(dest, buf)
-}
+const CONC = 8
 
 async function main() {
-  console.log(`Listing ${BUCKET}…`)
-  const paths = await listAll()
-  console.log(`Found ${paths.length} objects. Downloading to ${OUT_DIR}`)
+  console.log('Listing R2 bucket…')
+  const keys = await r2List()
+  console.log(`Found ${keys.length} objects. Downloading to ${OUT_DIR}`)
 
   let done = 0
   let failed = 0
-  // Modest concurrency to avoid hammering the API
-  const CONC = 8
-  const queue = [...paths]
+  const queue = [...keys]
   await Promise.all(
     Array.from({ length: CONC }, async () => {
       while (queue.length > 0) {
-        const path = queue.shift()!
+        const key = queue.shift()!
         try {
-          await downloadOne(path)
+          const buf = await r2Get(key)
+          if (!buf) {
+            console.error(`  MISSING ${key}`)
+            failed++
+            continue
+          }
+          const dest = join(OUT_DIR, key)
+          await mkdir(dirname(dest), { recursive: true })
+          await writeFile(dest, buf)
           done++
-          if (done % 25 === 0) console.log(`  ${done}/${paths.length}`)
+          if (done % 25 === 0) console.log(`  ${done}/${keys.length}`)
         } catch (err) {
           failed++
-          console.error(`  FAIL ${path}: ${(err as Error).message}`)
+          console.error(`  FAIL ${key}: ${(err as Error).message}`)
         }
       }
     }),
