@@ -4,6 +4,7 @@
  */
 export const BRAND = {
   name: 'Fugle Quiz',
+  tagline: 'Test din viden om Danmarks fugle',
   domain: 'www.fuglequiz.dk',
   url: 'https://www.fuglequiz.dk',
   contactEmail: 'hallo@magnify.dk',

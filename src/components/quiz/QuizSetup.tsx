@@ -82,7 +82,7 @@ export default function QuizSetup({
       <div className={`start-card ${isTransitioning ? 'start-card--fading' : ''}`}>
         <div className="start-hero">
           <h1 className="title">{BRAND.name}</h1>
-          <p className="subtitle">Test din viden om Danmarks fugle</p>
+          <p className="subtitle">{BRAND.tagline}</p>
         </div>
 
         <div className="start-settings">
