@@ -7,6 +7,7 @@
     "src/components/admin/ImageAuditGrid.tsx": 15,
     "src/components/admin/ImageCropEditor.tsx": 2,
     "src/components/admin/ImageUploader.tsx": 2,
+    "src/components/admin/MetadataTable.tsx": 10,
     "src/components/admin/StatCard.tsx": 2
   },
   "inline-style": {
