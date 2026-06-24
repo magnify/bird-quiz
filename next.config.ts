@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import createNextIntlPlugin from "next-intl/plugin";
 
 // Build stamp so a deploy is verifiable (via /api/version + the UI) instead of
 // guessing whether new code is actually live. Prefer Netlify's COMMIT_REF, fall
@@ -66,4 +67,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+export default withNextIntl(nextConfig);

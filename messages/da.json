@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "play": "Spil",
+    "results": "Resultater",
+    "leaderboard": "Rangliste",
+    "about": "Om",
+    "support": "Støt"
+  },
+  "start": {
+    "tagline": "Test din viden om Danmarks fugle",
+    "start": "Start quiz",
+    "difficulty": "Sværhedsgrad",
+    "mode": "Quiz-type",
+    "questions": "Antal spørgsmål"
+  },
+  "difficulty": {
+    "easy": "Lette",
+    "common": "Almindelige",
+    "hard": "Svære",
+    "all": "Alle"
+  },
+  "mode": {
+    "photo": "Foto",
+    "name": "Navn",
+    "mixed": "Blandet"
+  }
+}

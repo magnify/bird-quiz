@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "play": "Play",
+    "results": "Results",
+    "leaderboard": "Leaderboard",
+    "about": "About",
+    "support": "Support"
+  },
+  "start": {
+    "tagline": "Test your knowledge of Denmark's birds",
+    "start": "Start quiz",
+    "difficulty": "Difficulty",
+    "mode": "Quiz type",
+    "questions": "Number of questions"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "common": "Common",
+    "hard": "Hard",
+    "all": "All"
+  },
+  "mode": {
+    "photo": "Photo",
+    "name": "Name",
+    "mixed": "Mixed"
+  }
+}
