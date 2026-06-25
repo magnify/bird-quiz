@@ -1,16 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server'
+import createMiddleware from 'next-intl/middleware'
+import { routing } from '@/i18n/routing'
 
-export function middleware(request: NextRequest) {
-  // Admin route protection — will be implemented in Phase 3/4
-  // For now, just pass through
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // TODO: Check auth + admin role via Supabase session
-    // For now, allow access for development
-  }
-
-  return NextResponse.next()
-}
+// Locale routing for the public site. Danish stays unprefixed (as-needed);
+// English is served under /en. Admin, API, the OG image and static files are
+// excluded so they're untouched. (Admin auth is enforced in app/admin/layout.tsx,
+// not here, so dropping the old no-op admin passthrough loses nothing.)
+export default createMiddleware(routing)
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/((?!api|_next|_vercel|admin|opengraph-image|.*\\..*).*)'],
 }

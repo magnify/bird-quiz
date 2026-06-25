@@ -1,6 +1,8 @@
 'use client'
 
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
+import { LanguageSwitcher } from '@/components/i18n/LanguageSwitcher'
 
 interface MobileBottomNavProps {
   activePage?: 'home' | 'resultater' | 'om'
@@ -9,6 +11,7 @@ interface MobileBottomNavProps {
 }
 
 export default function MobileBottomNav({ activePage, isQuizActive = false, onNavClick }: MobileBottomNavProps) {
+  const t = useTranslations('nav')
   return (
     <nav className="mobile-bottom-nav">
       <Link
@@ -25,7 +28,7 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M3 12l9-9 9 9"/>
           <path d="M5 10v10a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V10"/>
         </svg>
-        <span className="mobile-nav-label">Quiz</span>
+        <span className="mobile-nav-label">{t('quiz')}</span>
       </Link>
       <Link
         href="/resultater"
@@ -43,7 +46,7 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M13 17V5"/>
           <path d="M8 17v-3"/>
         </svg>
-        <span className="mobile-nav-label">Resultater</span>
+        <span className="mobile-nav-label">{t('results')}</span>
       </Link>
       <Link
         href="/om"
@@ -60,8 +63,9 @@ export default function MobileBottomNav({ activePage, isQuizActive = false, onNa
           <path d="M12 16v-4"/>
           <path d="M12 8h.01"/>
         </svg>
-        <span className="mobile-nav-label">Om</span>
+        <span className="mobile-nav-label">{t('about')}</span>
       </Link>
+      <LanguageSwitcher />
     </nav>
   )
 }

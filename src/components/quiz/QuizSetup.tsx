@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import type { Difficulty, QuizMode } from '@/lib/quiz/engine'
 import type { Bird } from '@/lib/supabase/types'
 import type { Manifest } from '@/lib/data/manifest'
@@ -68,6 +69,7 @@ export default function QuizSetup({
   birds,
   manifest,
 }: QuizSetupProps) {
+  const t = useTranslations()
   // Random pick; BirdHero defers rendering it to the client so the Math.random
   // here doesn't cause an SSR/client hydration mismatch.
   const heroNames = useMemo(
@@ -82,35 +84,35 @@ export default function QuizSetup({
       <div className={`start-card ${isTransitioning ? 'start-card--fading' : ''}`}>
         <div className="start-hero">
           <h1 className="title">{BRAND.name}</h1>
-          <p className="subtitle">{BRAND.tagline}</p>
+          <p className="subtitle">{t('start.tagline')}</p>
         </div>
 
         <div className="start-settings">
             <ToggleGroup
-              label="Sværhedsgrad"
+              label={t('start.difficulty')}
               options={[
-                { value: 'easy' as Difficulty, label: 'Lette' },
-                { value: 'common' as Difficulty, label: 'Almindelige' },
-                { value: 'hard' as Difficulty, label: 'Svære' },
-                { value: 'all' as Difficulty, label: 'Alle' },
+                { value: 'easy' as Difficulty, label: t('difficulty.easy') },
+                { value: 'common' as Difficulty, label: t('difficulty.common') },
+                { value: 'hard' as Difficulty, label: t('difficulty.hard') },
+                { value: 'all' as Difficulty, label: t('difficulty.all') },
               ]}
               value={difficulty}
               onChange={onSetDifficulty}
             />
 
             <ToggleGroup
-              label="Quiz-type"
+              label={t('start.mode')}
               options={[
-                { value: 'photo' as QuizMode, label: 'Gæt fra foto', desc: 'Se et foto, vælg det rigtige navn' },
-                { value: 'name' as QuizMode, label: 'Gæt fra navn', desc: 'Se et navn, vælg det rigtige foto' },
-                { value: 'mixed' as QuizMode, label: 'Blandet', desc: 'Begge typer tilfældigt blandet' },
+                { value: 'photo' as QuizMode, label: t('mode.photo'), desc: t('start.modePhotoDesc') },
+                { value: 'name' as QuizMode, label: t('mode.name'), desc: t('start.modeNameDesc') },
+                { value: 'mixed' as QuizMode, label: t('mode.mixed'), desc: t('start.modeMixedDesc') },
               ]}
               value={mode}
               onChange={onSetMode}
             />
 
             <ToggleGroup
-              label="Antal spørgsmål"
+              label={t('start.questions')}
               options={[
                 { value: '10', label: '10' },
                 { value: '20', label: '20' },
@@ -124,7 +126,7 @@ export default function QuizSetup({
 
           <div className="start-actions">
             <button className="btn btn--primary btn--block" onClick={onStart}>
-              <span>Start Quiz</span>
+              <span>{t('start.start')}</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>

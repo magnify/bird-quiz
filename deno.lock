@@ -33,6 +33,7 @@
         "npm:eslint@9",
         "npm:jsdom@^29.0.1",
         "npm:lucide-react@0.577",
+        "npm:next-intl@^4.13.0",
         "npm:next@16.1.6",
         "npm:react-dom@19.2.3",
         "npm:react-image-crop@^11.0.10",

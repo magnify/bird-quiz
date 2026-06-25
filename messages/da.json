@@ -1,17 +1,25 @@
 {
   "nav": {
-    "play": "Spil",
+    "quiz": "Quiz",
     "results": "Resultater",
     "leaderboard": "Rangliste",
     "about": "Om",
     "support": "Støt"
   },
+  "common": {
+    "loading": "Henter billede...",
+    "imageUnavailable": "Billede ikke tilgængeligt",
+    "noPhoto": "Intet foto"
+  },
   "start": {
     "tagline": "Test din viden om Danmarks fugle",
-    "start": "Start quiz",
+    "start": "Start Quiz",
     "difficulty": "Sværhedsgrad",
     "mode": "Quiz-type",
-    "questions": "Antal spørgsmål"
+    "questions": "Antal spørgsmål",
+    "modePhotoDesc": "Se et foto, vælg det rigtige navn",
+    "modeNameDesc": "Se et navn, vælg det rigtige foto",
+    "modeMixedDesc": "Begge typer tilfældigt blandet"
   },
   "difficulty": {
     "easy": "Lette",
@@ -19,9 +27,79 @@
     "hard": "Svære",
     "all": "Alle"
   },
-  "mode": {
-    "photo": "Foto",
-    "name": "Navn",
-    "mixed": "Blandet"
+  "question": {
+    "photoPrompt": "Hvilken fugl ser du her?",
+    "namePrompt": "Find billede af en",
+    "imageAlt": "Fuglebillede"
+  },
+  "results": {
+    "expertTitle": "Fantastisk!",
+    "expertSubtitle": "Du er en sand fugleekspert!",
+    "greatTitle": "Flot klaret!",
+    "greatSubtitle": "Du kender dine fugle godt.",
+    "goodTitle": "Godt gået!",
+    "goodSubtitle": "Der er stadig lidt at lære.",
+    "practiceTitle": "Øvelse gør mester",
+    "practiceSubtitle": "Prøv igen og bliv bedre!",
+    "correct": "Rigtige",
+    "wrong": "Forkerte",
+    "bestStreak": "Bedste stime",
+    "points": "point",
+    "newQuiz": "Ny quiz",
+    "retry": "Prøv igen",
+    "share": "Del",
+    "missed": "Fugle du missede ({count})",
+    "shareText": "{name}: {score}/{total} ({pct}%) — {points} point! Kan du slå mig? {domain}"
+  },
+  "carousel": {
+    "missedAria": "Fugle du missede",
+    "missedTimes": "Misset {count} gange",
+    "prev": "Forrige fugl",
+    "next": "Næste fugl"
+  },
+  "about": {
+    "title": "Om {name}",
+    "intro": "{name} er en gratis dansk fuglequiz, der hjælper dig med at lære de danske fugle at kende. Gæt fuglen ud fra billeder og test din viden.",
+    "supportHeading": "Støt projektet",
+    "supportBody1": "{name} er et frivilligt projekt. Det er lavet af mig, Brian Jensen, der er hobby-fugleentusiast og gerne vil lære mere om danske fugle og øve mig i at genkende de forskellige arter. Kan du lide projektet? Så kan du støtte det via MobilePay: <strong>{mobilePay}</strong>",
+    "supportBody2": "Det overskud, der er tilbage efter driftsomkostninger (lidt server der skal hostes), går til at støtte dansk natur.",
+    "supportBody3": "Jeg har flere idéer på tegnebrættet og forbedrer quizzen løbende, men har du forslag eller vil hjælpe med at teste, billeder eller andet, så skriv.",
+    "contactHeading": "Kontakt"
+  },
+  "myResults": {
+    "clearTitle": "Slet al historik?",
+    "clearText": "Dine quizresultater fjernes permanent fra denne enhed.",
+    "clearConfirm": "Slet",
+    "loading": "Indlæser...",
+    "emptyTitle": "Ingen resultater endnu",
+    "emptyText": "Tag din første quiz for at følge din score, dine svage fugle og din historik.",
+    "playOne": "Spil en quiz",
+    "title": "Dine resultater",
+    "subtitle": "Baseret på {count, plural, one {# quiz} other {# quizzer}} på denne enhed.",
+    "games": "Spil",
+    "avgScore": "Gns. score",
+    "totalPoints": "Point i alt",
+    "bestStreak": "Bedste stime",
+    "tabLatest": "Seneste quiz",
+    "tabMostMissed": "Mest missede",
+    "missed": "Fugle du missede",
+    "missedLatest": "Fugle du missede i seneste quiz ({count})",
+    "wrong": "Forkerte ({count})",
+    "clearHistory": "Slet historik",
+    "newQuiz": "Ny quiz",
+    "diffEasy": "Lette",
+    "diffCommon": "Alm.",
+    "diffHard": "Svære",
+    "diffAll": "Alle",
+    "modePhoto": "Foto",
+    "modeName": "Navn",
+    "modeMixed": "Blandet"
+  },
+  "quizApp": {
+    "leaveTitle": "Afslut quiz?",
+    "leaveText": "Din fremgang gemmes ikke.",
+    "leaveConfirm": "Afslut",
+    "leaveCancel": "Fortsæt",
+    "leaveLabel": "Afslut quiz"
   }
 }

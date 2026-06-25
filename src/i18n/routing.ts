@@ -7,6 +7,9 @@ export const routing = defineRouting({
   locales: ['da', 'en'],
   defaultLocale: 'da',
   localePrefix: 'as-needed',
+  // Danish is always the default; English is opt-in via the switcher. Without
+  // this, next-intl redirects '/' to '/en' based on the browser's language.
+  localeDetection: false,
 })
 
 export type Locale = (typeof routing.locales)[number]

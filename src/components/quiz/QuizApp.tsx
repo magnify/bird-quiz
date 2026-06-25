@@ -2,6 +2,7 @@
 
 import './quiz.css'
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import type { Bird } from '@/lib/supabase/types'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useBirdImages } from '@/hooks/useBirdImages'
@@ -40,6 +41,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
   const { imageUrls, ensureImages } = useBirdImages()
   const { user } = useAuth()
+  const t = useTranslations('quizApp')
   const [showAuth, setShowAuth] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [manifest, setManifest] = useState<Manifest>(new Map())
@@ -130,10 +132,10 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
       {showLeaveModal && (
         <ConfirmModal
-          title="Afslut quiz?"
-          text="Din fremgang gemmes ikke."
-          confirmLabel="Afslut"
-          cancelLabel="Fortsæt"
+          title={t('leaveTitle')}
+          text={t('leaveText')}
+          confirmLabel={t('leaveConfirm')}
+          cancelLabel={t('leaveCancel')}
           variant="danger"
           onConfirm={handleLeaveConfirm}
           onCancel={() => setShowLeaveModal(false)}
@@ -149,7 +151,7 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
         currentQuestion={state.currentQuestion + 1}
         totalQuestions={state.questions.length}
         onLogoClick={isStart ? undefined : handleLogoClick}
-        logoLabel={state.screen === 'quiz' ? 'Afslut quiz' : BRAND.name}
+        logoLabel={state.screen === 'quiz' ? t('leaveLabel') : BRAND.name}
         isQuizActive={state.screen === 'quiz'}
         onNavClick={handleNavClick}
         centerContent={

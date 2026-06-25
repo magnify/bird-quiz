@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Fredoka } from "next/font/google";
+import { getLocale } from 'next-intl/server'
 import { cn } from "@/lib/utils";
 import { BRAND } from '@/lib/brand'
 
@@ -37,13 +38,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getLocale()
   return (
-    <html lang="da" className={cn("font-sans", fredoka.variable)}>
+    <html lang={locale} className={cn("font-sans", fredoka.variable)}>
       <head />
       <body>{children}</body>
     </html>

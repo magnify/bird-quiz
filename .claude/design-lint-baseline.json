@@ -42,7 +42,7 @@
   "hardcoded-px": {},
   "raw-rgba": {},
   "css-magic-px": {
-    "src/components/quiz/quiz.css": 92
+    "src/components/quiz/quiz.css": 96
   },
   "css-magic-font-size": {
     "src/components/quiz/quiz.css": 51

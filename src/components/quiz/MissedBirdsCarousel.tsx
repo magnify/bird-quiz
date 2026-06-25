@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 
 export interface MissedBirdItem {
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
+  const t = useTranslations('carousel')
   const [index, setIndex] = useState(0)
   const startXRef = useRef<number | null>(null)
   const deltaXRef = useRef(0)
@@ -68,7 +70,7 @@ export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
       className="missed-carousel"
       role="region"
       aria-roledescription="carousel"
-      aria-label={ariaLabel ?? 'Fugle du missede'}
+      aria-label={ariaLabel ?? t('missedAria')}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
@@ -95,7 +97,7 @@ export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
                 {item.count != null && item.count > 1 && (
                   <span
                     className="missed-carousel-count"
-                    aria-label={`Misset ${item.count} gange`}
+                    aria-label={t('missedTimes', { count: item.count })}
                   >
                     ×{item.count}
                   </span>
@@ -117,7 +119,7 @@ export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
             className="missed-carousel-arrow"
             onClick={() => go(index - 1)}
             disabled={index === 0}
-            aria-label="Forrige fugl"
+            aria-label={t('prev')}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
@@ -131,7 +133,7 @@ export function MissedBirdsCarousel({ items, ariaLabel }: Props) {
             className="missed-carousel-arrow"
             onClick={() => go(index + 1)}
             disabled={index === items.length - 1}
-            aria-label="Næste fugl"
+            aria-label={t('next')}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />

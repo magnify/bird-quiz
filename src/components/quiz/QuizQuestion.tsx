@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import type { Bird } from '@/lib/supabase/types'
 import type { QuizQuestion as QuizQuestionType } from '@/lib/quiz/engine'
 import type { Manifest } from '@/lib/data/manifest'
 import { formatAttribution } from '@/lib/data/manifest'
+import { localizedBirdName } from '@/lib/i18n/bird-name'
+import type { Locale } from '@/i18n/routing'
 import { useImageErrorHandler } from '@/lib/error-tracking/image-error-handler'
 import { PLACEHOLDER_SVG } from '@/lib/placeholder'
 
@@ -41,6 +44,9 @@ function PhotoOptionCard({
   attribution: string | null
   onClick: () => void
 }) {
+  const t = useTranslations('common')
+  const locale = useLocale() as Locale
+  const name = localizedBirdName(bird, locale)
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(false)
   const loadedRef = useRef(false)
@@ -83,24 +89,24 @@ function PhotoOptionCard({
       onKeyDown={answered ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
       role="button"
       tabIndex={answered ? -1 : 0}
-      aria-label={bird.name_da}
+      aria-label={name}
       aria-disabled={answered}
     >
       <div className="photo-option-frame">
         <div className={`photo-option-loading ${loaded ? 'hidden' : ''}`}>
           {failed ? (
-            <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Billede ikke tilgængeligt</span>
+            <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>{t('imageUnavailable')}</span>
           ) : imageUrl ? (
             <div className="spinner" />
           ) : (
-            <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>Intet foto</span>
+            <span style={{ color: 'var(--quiz-text-muted)', fontSize: '0.75rem' }}>{t('noPhoto')}</span>
           )}
         </div>
         {imageUrl && (
           <img
             ref={imgRef}
             src={imageUrl}
-            alt={bird.name_da}
+            alt={name}
             className={loaded ? 'loaded' : ''}
             onLoad={() => { loadedRef.current = true; setLoaded(true) }}
             onError={(e) => {
@@ -113,7 +119,7 @@ function PhotoOptionCard({
         {(isCorrect || (isSelected && !isCorrect)) && (
           <div className="photo-option-badge">{isCorrect ? '✓' : '✗'}</div>
         )}
-        <div className="photo-option-label">{bird.name_da}</div>
+        <div className="photo-option-label">{name}</div>
       </div>
       <div className="photo-option-credit" title={attribution ?? undefined}>
         {attribution ?? '\u00A0' /* keeps all four tiles equal height */}
@@ -135,6 +141,8 @@ export default function QuizQuestion({
   manifest,
   onAnswer,
 }: QuizQuestionProps) {
+  const t = useTranslations()
+  const locale = useLocale() as Locale
   const isPhotoMode = question.mode === 'photo'
   const isCorrectAnswer = selectedOption?.id === question.bird.id
   const photoAttribution = formatAttribution(manifest.get(question.bird.scientific_name))
@@ -192,7 +200,7 @@ export default function QuizQuestion({
           // PHOTO MODE: Text options (left) | Bird image (right)
           <>
             <div className="options-area">
-              <div className="question-text">Hvilken fugl ser du her?</div>
+              <div className="question-text">{t('question.photoPrompt')}</div>
               <div className="options-grid">
                 {question.options.map(opt => {
                   const { className, icon } = getButtonState(opt)
@@ -204,7 +212,7 @@ export default function QuizQuestion({
                       disabled={answered}
                     >
                       <span className="option-indicator">{icon || ''}</span>
-                      <span>{opt.name_da}</span>
+                      <span>{localizedBirdName(opt, locale)}</span>
                     </button>
                   )
                 })}
@@ -215,11 +223,11 @@ export default function QuizQuestion({
               <div className="photo-stage-inner">
                 <div className={`photo-loading ${imageLoaded ? 'hidden' : ''}`}>
                   {imageFailed ? (
-                    <span style={{ color: 'var(--quiz-text-muted)' }}>Billede ikke tilgængeligt</span>
+                    <span style={{ color: 'var(--quiz-text-muted)' }}>{t('common.imageUnavailable')}</span>
                   ) : (
                     <>
                       <div className="spinner" />
-                      <span>Henter billede...</span>
+                      <span>{t('common.loading')}</span>
                     </>
                   )}
                 </div>
@@ -229,7 +237,7 @@ export default function QuizQuestion({
                       ref={imgRef}
                       className={`bird-photo ${imageLoaded ? 'loaded' : ''} ${answered ? (isCorrectAnswer ? 'correct' : 'wrong') : ''}`}
                       src={imageUrls.get(question.bird.id)!}
-                      alt="Fuglebillede"
+                      alt={t('question.imageAlt')}
                       onLoad={() => { loadedRef.current = true; setImageLoaded(true) }}
                       onError={(e) => {
                         setImageFailed(true)
@@ -251,9 +259,9 @@ export default function QuizQuestion({
           // NAME MODE: Bird name question (left) | Photo grid (right)
           <>
             <div className="options-area">
-              <div className="question-text">Find billede af en</div>
+              <div className="question-text">{t('question.namePrompt')}</div>
               <div className="name-display">
-                <h2 className="bird-name-text">{question.bird.name_da}</h2>
+                <h2 className="bird-name-text">{localizedBirdName(question.bird, locale)}</h2>
                 <p className="bird-sci-text">{question.bird.scientific_name}</p>
               </div>
             </div>

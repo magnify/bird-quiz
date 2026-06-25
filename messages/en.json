@@ -1,17 +1,25 @@
 {
   "nav": {
-    "play": "Play",
+    "quiz": "Quiz",
     "results": "Results",
     "leaderboard": "Leaderboard",
     "about": "About",
     "support": "Support"
+  },
+  "common": {
+    "loading": "Loading image…",
+    "imageUnavailable": "Image unavailable",
+    "noPhoto": "No photo"
   },
   "start": {
     "tagline": "Test your knowledge of Denmark's birds",
     "start": "Start quiz",
     "difficulty": "Difficulty",
     "mode": "Quiz type",
-    "questions": "Number of questions"
+    "questions": "Number of questions",
+    "modePhotoDesc": "See a photo, pick the right name",
+    "modeNameDesc": "See a name, pick the right photo",
+    "modeMixedDesc": "Both types randomly mixed"
   },
   "difficulty": {
     "easy": "Easy",
@@ -19,9 +27,79 @@
     "hard": "Hard",
     "all": "All"
   },
-  "mode": {
-    "photo": "Photo",
-    "name": "Name",
-    "mixed": "Mixed"
+  "question": {
+    "photoPrompt": "Which bird do you see?",
+    "namePrompt": "Find a photo of",
+    "imageAlt": "Bird photo"
+  },
+  "results": {
+    "expertTitle": "Amazing!",
+    "expertSubtitle": "You're a true bird expert!",
+    "greatTitle": "Well done!",
+    "greatSubtitle": "You know your birds well.",
+    "goodTitle": "Nice work!",
+    "goodSubtitle": "Still a bit to learn.",
+    "practiceTitle": "Practice makes perfect",
+    "practiceSubtitle": "Try again and improve!",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "bestStreak": "Best streak",
+    "points": "points",
+    "newQuiz": "New quiz",
+    "retry": "Try again",
+    "share": "Share",
+    "missed": "Birds you missed ({count})",
+    "shareText": "{name}: {score}/{total} ({pct}%) — {points} points! Can you beat me? {domain}"
+  },
+  "carousel": {
+    "missedAria": "Birds you missed",
+    "missedTimes": "Missed {count} times",
+    "prev": "Previous bird",
+    "next": "Next bird"
+  },
+  "about": {
+    "title": "About {name}",
+    "intro": "{name} is a free Danish bird quiz that helps you get to know the birds of Denmark. Guess the bird from photos and test your knowledge.",
+    "supportHeading": "Support the project",
+    "supportBody1": "{name} is a volunteer project. It's made by me, Brian Jensen, a hobby bird enthusiast who wants to learn more about Danish birds and practise recognising the different species. Like the project? You can support it via MobilePay: <strong>{mobilePay}</strong>",
+    "supportBody2": "Any surplus left after running costs (a bit of server hosting) goes to supporting Danish nature.",
+    "supportBody3": "I have more ideas in the works and keep improving the quiz, but if you have suggestions or want to help with testing, photos or anything else, get in touch.",
+    "contactHeading": "Contact"
+  },
+  "myResults": {
+    "clearTitle": "Clear all history?",
+    "clearText": "Your quiz results will be permanently removed from this device.",
+    "clearConfirm": "Delete",
+    "loading": "Loading…",
+    "emptyTitle": "No results yet",
+    "emptyText": "Take your first quiz to track your score, your weak birds and your history.",
+    "playOne": "Play a quiz",
+    "title": "Your results",
+    "subtitle": "Based on {count, plural, one {# quiz} other {# quizzes}} on this device.",
+    "games": "Games",
+    "avgScore": "Avg. score",
+    "totalPoints": "Total points",
+    "bestStreak": "Best streak",
+    "tabLatest": "Latest quiz",
+    "tabMostMissed": "Most missed",
+    "missed": "Birds you missed",
+    "missedLatest": "Birds you missed in the latest quiz ({count})",
+    "wrong": "Wrong ({count})",
+    "clearHistory": "Clear history",
+    "newQuiz": "New quiz",
+    "diffEasy": "Easy",
+    "diffCommon": "Com.",
+    "diffHard": "Hard",
+    "diffAll": "All",
+    "modePhoto": "Photo",
+    "modeName": "Name",
+    "modeMixed": "Mixed"
+  },
+  "quizApp": {
+    "leaveTitle": "Quit quiz?",
+    "leaveText": "Your progress won't be saved.",
+    "leaveConfirm": "Quit",
+    "leaveCancel": "Continue",
+    "leaveLabel": "Quit quiz"
   }
 }

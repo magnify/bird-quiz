@@ -1,25 +1,13 @@
 'use client'
 
 import '../quiz/quiz.css'
-import Link from 'next/link'
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link, type Locale } from '@/i18n/routing'
 import { loadResults, clearResults, type QuizResult } from '@/lib/quiz/result-history'
 import { getBirdImageUrl } from '@/lib/images'
 import { ConfirmModal } from './ConfirmModal'
 import { MissedBirdsCarousel } from './MissedBirdsCarousel'
-
-function difficultyLabel(d: string): string {
-  if (d === 'easy') return 'Lette'
-  if (d === 'common') return 'Alm.'
-  if (d === 'hard') return 'Svære'
-  return 'Alle'
-}
-
-function modeLabel(m: string): string {
-  if (m === 'photo') return 'Foto'
-  if (m === 'name') return 'Navn'
-  return 'Blandet'
-}
 
 function formatDuration(ms: number): string {
   const totalSec = Math.round(ms / 1000)
@@ -29,14 +17,16 @@ function formatDuration(ms: number): string {
   return `${min}m ${sec}s`
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })
+function dateLocale(locale: Locale): string {
+  return locale === 'en' ? 'en-GB' : 'da-DK'
 }
 
-function formatTime(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })
+function formatDate(iso: string, locale: Locale): string {
+  return new Date(iso).toLocaleDateString(dateLocale(locale), { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function formatTime(iso: string, locale: Locale): string {
+  return new Date(iso).toLocaleTimeString(dateLocale(locale), { hour: '2-digit', minute: '2-digit' })
 }
 
 function dedupeWithCount(
@@ -55,6 +45,11 @@ function dedupeWithCount(
 }
 
 export default function MyResults() {
+  const t = useTranslations('myResults')
+  const locale = useLocale() as Locale
+  const diffLabel = (d: string) => t(d === 'easy' ? 'diffEasy' : d === 'common' ? 'diffCommon' : d === 'hard' ? 'diffHard' : 'diffAll')
+  const modeLabel = (m: string) => t(m === 'photo' ? 'modePhoto' : m === 'name' ? 'modeName' : 'modeMixed')
+
   const [results, setResults] = useState<QuizResult[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -109,9 +104,9 @@ export default function MyResults() {
     <>
       {showClearConfirm && (
         <ConfirmModal
-          title="Slet al historik?"
-          text="Dine quizresultater fjernes permanent fra denne enhed."
-          confirmLabel="Slet"
+          title={t('clearTitle')}
+          text={t('clearText')}
+          confirmLabel={t('clearConfirm')}
           variant="danger"
           onConfirm={handleClearConfirm}
           onCancel={() => setShowClearConfirm(false)}
@@ -121,7 +116,7 @@ export default function MyResults() {
         <div className="secondary-page-content">
 
         {!loaded ? (
-          <div className="leaderboard-loading">Indlæser...</div>
+          <div className="leaderboard-loading">{t('loading')}</div>
         ) : totalGames === 0 ? (
           <div className="my-results-empty">
             <div className="state-card">
@@ -140,39 +135,39 @@ export default function MyResults() {
                 <path d="M13 17V5" />
                 <path d="M8 17v-3" />
               </svg>
-              <h2 className="my-results-empty-title">Ingen resultater endnu</h2>
+              <h2 className="my-results-empty-title">{t('emptyTitle')}</h2>
               <p className="my-results-empty-text">
-                Tag din første quiz for at følge din score, dine svage fugle og din historik.
+                {t('emptyText')}
               </p>
               <div className="my-results-empty-actions">
-                <Link href="/" className="btn btn--accent start-quiz-link">Spil en quiz &rarr;</Link>
+                <Link href="/" className="btn btn--accent start-quiz-link">{t('playOne')} &rarr;</Link>
               </div>
             </div>
           </div>
         ) : (
           <>
             <div>
-              <h1 className="page-title">Dine resultater</h1>
+              <h1 className="page-title">{t('title')}</h1>
               <p className="page-subtitle">
-                Baseret på {totalGames} {totalGames === 1 ? 'quiz' : 'quizzer'} på denne enhed.
+                {t('subtitle', { count: totalGames })}
               </p>
             </div>
             <div className="my-results-summary">
               <div className="summary-stat">
                 <span className="summary-value">{totalGames}</span>
-                <span className="summary-label">Spil</span>
+                <span className="summary-label">{t('games')}</span>
               </div>
               <div className="summary-stat">
                 <span className="summary-value">{avgPct}%</span>
-                <span className="summary-label">Gns. score</span>
+                <span className="summary-label">{t('avgScore')}</span>
               </div>
               <div className="summary-stat">
                 <span className="summary-value">{totalPoints.toLocaleString('da-DK')}</span>
-                <span className="summary-label">Point i alt</span>
+                <span className="summary-label">{t('totalPoints')}</span>
               </div>
               <div className="summary-stat">
                 <span className="summary-value">{bestStreak}</span>
-                <span className="summary-label">Bedste stime</span>
+                <span className="summary-label">{t('bestStreak')}</span>
               </div>
             </div>
 
@@ -183,20 +178,20 @@ export default function MyResults() {
                     className={`my-results-missed-tab ${missedTab === 'latest' ? 'active' : ''}`}
                     onClick={() => setMissedTab('latest')}
                   >
-                    Seneste quiz
+                    {t('tabLatest')}
                   </button>
                   <button
                     className={`my-results-missed-tab ${missedTab === 'most-missed' ? 'active' : ''}`}
                     onClick={() => setMissedTab('most-missed')}
                   >
-                    Mest missede
+                    {t('tabMostMissed')}
                   </button>
                 </div>
 
                 {missedTab === 'most-missed' && weakBirds.length > 0 && (
                   <>
                     <p className="setting-label setting-label--spaced">
-                      Fugle du missede
+                      {t('missed')}
                     </p>
                     <MissedBirdsCarousel
                       items={weakBirds.map(b => ({
@@ -213,7 +208,7 @@ export default function MyResults() {
                 {missedTab === 'latest' && latestMissed.length > 0 && (
                   <>
                     <p className="setting-label setting-label--spaced">
-                      Fugle du missede i seneste quiz ({latestMissed.length})
+                      {t('missedLatest', { count: latestMissed.length })}
                     </p>
                     <MissedBirdsCarousel
                       items={latestMissed.map(b => ({
@@ -241,14 +236,14 @@ export default function MyResults() {
                     >
                       <div className="result-card-main">
                         <span className="result-card-date">
-                          {formatDate(r.date)} {formatTime(r.date)}
+                          {formatDate(r.date, locale)} {formatTime(r.date, locale)}
                         </span>
                         <span className="result-card-score">
                           {r.score}/{r.totalQuestions} ({pct}%)
                         </span>
                       </div>
                       <div className="result-card-meta">
-                        <span className="result-card-tag">{difficultyLabel(r.difficulty)}</span>
+                        <span className="result-card-tag">{diffLabel(r.difficulty)}</span>
                         <span className="result-card-tag">{modeLabel(r.mode)}</span>
                         <span className="result-card-tag">{formatDuration(r.durationMs)}</span>
                         <span className="result-card-points">
@@ -261,13 +256,13 @@ export default function MyResults() {
                     {isExpanded && (
                       <div className="result-card-details">
                         <div className="result-detail-row">
-                          <span>Bedste stime</span>
+                          <span>{t('bestStreak')}</span>
                           <span>{r.bestStreak}</span>
                         </div>
                         {r.missed.length > 0 && (
                           <div className="result-detail-missed">
                             <span className="result-detail-missed-title">
-                              Forkerte ({r.missed.length})
+                              {t('wrong', { count: r.missed.length })}
                             </span>
                             <MissedBirdsCarousel
                               items={dedupeWithCount(r.missed).map(b => ({
@@ -289,9 +284,9 @@ export default function MyResults() {
 
             <div className="my-results-footer">
               <button className="btn btn--secondary" onClick={() => setShowClearConfirm(true)}>
-                Slet historik
+                {t('clearHistory')}
               </button>
-              <Link href="/" className="btn btn--accent start-quiz-link">Ny quiz &rarr;</Link>
+              <Link href="/" className="btn btn--accent start-quiz-link">{t('newQuiz')} &rarr;</Link>
             </div>
           </>
         )}

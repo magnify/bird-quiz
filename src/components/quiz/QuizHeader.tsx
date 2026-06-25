@@ -1,7 +1,9 @@
 'use client'
 
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import { LogoSvg } from './Logo'
+import { LanguageSwitcher } from '@/components/i18n/LanguageSwitcher'
 import { BRAND } from '@/lib/brand'
 
 interface QuizHeaderProps {
@@ -33,6 +35,7 @@ export default function QuizHeader({
   hideLogo = false,
   alignToForm = false,
 }: QuizHeaderProps) {
+  const t = useTranslations('nav')
   const logoInner = (
     <>
       <span className="app-header-logo">
@@ -76,7 +79,7 @@ export default function QuizHeader({
                   }
                 }}
               >
-                Quiz
+                {t('quiz')}
               </Link>
               <Link
                 href="/resultater"
@@ -88,7 +91,7 @@ export default function QuizHeader({
                   }
                 }}
               >
-                Resultater
+                {t('results')}
               </Link>
               <Link
                 href="/om"
@@ -100,13 +103,15 @@ export default function QuizHeader({
                   }
                 }}
               >
-                Om
+                {t('about')}
               </Link>
             </div>
           )}
         </div>
 
-        <div className="app-header-right" aria-hidden="true" />
+        <div className="app-header-right">
+          <LanguageSwitcher />
+        </div>
 
       </div>
       {showProgress && (

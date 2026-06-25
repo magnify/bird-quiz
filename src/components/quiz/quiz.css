@@ -431,6 +431,30 @@ body:has(.screen.active) {
     text-transform: none;
     letter-spacing: 0;
   }
+
+  /* The shared language switcher, rendered in the bottom nav, takes the same
+     icon-over-label shape as the nav items. */
+  .mobile-bottom-nav .lang-switch {
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--quiz-gap-xs) var(--quiz-gap-sm);
+    color: var(--quiz-text-muted);
+  }
+
+  .mobile-bottom-nav .lang-switch:hover {
+    color: var(--quiz-accent);
+  }
+
+  .mobile-bottom-nav .lang-switch-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mobile-bottom-nav .lang-switch-label {
+    font-size: var(--quiz-text-xs);
+    font-weight: 500;
+  }
 }
 
 /* Hide header on mobile — the bottom nav covers navigation and branding
@@ -820,6 +844,37 @@ body:has(.screen.active) {
   display: flex;
   align-items: center;
   gap: var(--quiz-gap-md);
+}
+
+/* Shared language switcher (globe + current language). Inline in the desktop
+   header; CSS above re-shapes it into a nav cell inside .mobile-bottom-nav. */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--quiz-gap-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--quiz-text-secondary);
+  font-size: var(--quiz-text-sm);
+  transition: color var(--quiz-transition);
+}
+
+.lang-switch:hover {
+  color: var(--quiz-foreground);
+}
+
+.lang-switch-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Desktop header: nudge the switcher up slightly so it sits level with the
+   logo/nav rather than low in the bar. (Scoped — the mobile cell is unaffected.) */
+.app-header-right .lang-switch {
+  transform: translateY(-0.15rem);
 }
 
 .question-counter {
