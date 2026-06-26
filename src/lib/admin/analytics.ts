@@ -47,6 +47,7 @@ export interface AdminStats {
   modeBreakdown: { key: string; count: number }[]
   topCountries: { country: string; count: number }[]
   deviceBreakdown: { key: string; count: number }[]
+  languageBreakdown: { key: string; count: number }[]
   hourly: { hour: number; count: number }[]
   recentSessions: SessionRow[]
   topSessions: SessionRow[]

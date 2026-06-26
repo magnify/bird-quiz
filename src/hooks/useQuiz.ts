@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useLocale } from 'next-intl'
 import type { Bird } from '@/lib/supabase/types'
 import {
   generateQuestions,
@@ -43,6 +44,7 @@ export function useQuiz(
   birds: Bird[],
   memberships: { bird_id: string; group_id: string }[]
 ) {
+  const locale = useLocale()
   const [state, setState] = useState<QuizState>({
     screen: 'start',
     difficulty: 'common',
@@ -188,6 +190,7 @@ export function useQuiz(
         difficulty: prev.difficulty,
         mode: prev.mode,
         questionCount: prev.totalQuestions,
+        language: locale,
       }).then(id => {
         if (id) {
           setState(p => ({ ...p, sessionId: id }))
@@ -207,7 +210,7 @@ export function useQuiz(
     )
     pendingQuestions.current = nextQuestions
     setFirstBirdId(nextQuestions[0]?.bird.id ?? null)
-  }, [birds, memberships, state.difficulty, state.mode, state.totalQuestions, state.weights])
+  }, [birds, memberships, state.difficulty, state.mode, state.totalQuestions, state.weights, locale])
 
   const handleAnswer = useCallback((chosen: Bird) => {
     if (answering.current) return

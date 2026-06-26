@@ -4,6 +4,7 @@
 export const DIFF_COLOR: Record<string, string> = { easy: 'bg-emerald-500', common: 'bg-sky-500', hard: 'bg-amber-500', all: 'bg-slate-400' }
 export const MODE_COLOR: Record<string, string> = { photo: 'bg-violet-500', name: 'bg-rose-500', mixed: 'bg-teal-500' }
 export const DEVICE_COLOR: Record<string, string> = { mobile: 'bg-sky-500', desktop: 'bg-violet-500', tablet: 'bg-amber-500' }
+export const LANG_COLOR: Record<string, string> = { da: 'bg-rose-500', en: 'bg-sky-500' }
 
 export function difficultyLabel(d: string): string {
   return { easy: 'Lette', common: 'Almindelige', hard: 'Svære', all: 'Alle' }[d] ?? d
@@ -15,6 +16,10 @@ export function modeLabel(m: string): string {
 
 export function deviceLabel(d: string): string {
   return { mobile: 'Mobil', desktop: 'Computer', tablet: 'Tablet' }[d] ?? d
+}
+
+export function languageLabel(l: string): string {
+  return { da: 'Dansk', en: 'English' }[l] ?? l
 }
 
 export function formatDuration(ms: number | null): string {

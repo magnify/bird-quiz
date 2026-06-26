@@ -213,6 +213,7 @@ export interface Database {
           completed_at: string | null
           country: string | null
           device_type: string | null
+          language: string | null
         }
         Insert: {
           id?: string
@@ -230,6 +231,7 @@ export interface Database {
           completed_at?: string | null
           country?: string | null
           device_type?: string | null
+          language?: string | null
         }
         Update: {
           user_id?: string | null

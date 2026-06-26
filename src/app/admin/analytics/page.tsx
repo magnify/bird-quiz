@@ -15,8 +15,8 @@ import { HardestBirdsList } from '@/components/admin/HardestBirdsList'
 import { ConfusionsList } from '@/components/admin/ConfusionsList'
 import { countryNameDa, flagEmoji } from '@/lib/admin/countries'
 import {
-  DIFF_COLOR, MODE_COLOR, DEVICE_COLOR,
-  difficultyLabel, modeLabel, deviceLabel, formatDuration, playerLabel,
+  DIFF_COLOR, MODE_COLOR, DEVICE_COLOR, LANG_COLOR,
+  difficultyLabel, modeLabel, deviceLabel, languageLabel, formatDuration, playerLabel,
 } from '@/lib/admin/labels'
 
 function PlayerList({ rows, metric }: { rows: SessionRow[]; metric: (s: SessionRow) => React.ReactNode }) {
@@ -44,6 +44,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const sampleTotal = stats.difficultyBreakdown.reduce((a, b) => a + b.count, 0)
   const countryTotal = stats.topCountries.reduce((a, b) => a + b.count, 0)
   const deviceTotal = stats.deviceBreakdown.reduce((a, b) => a + b.count, 0)
+  const languageTotal = stats.languageBreakdown.reduce((a, b) => a + b.count, 0)
   const topCountry = stats.topCountries[0]
   const countryRows = stats.topCountries.map(c => ({ key: c.country, count: c.count }))
 
@@ -110,6 +111,17 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
               {deviceTotal === 0
                 ? <p className="text-sm text-muted-foreground">Ingen enhedsdata endnu</p>
                 : <BreakdownBars rows={stats.deviceBreakdown} total={deviceTotal} label={deviceLabel} colors={DEVICE_COLOR} />}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Sprog</CardTitle>
+              <CardDescription>Dansk eller engelsk</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {languageTotal === 0
+                ? <p className="text-sm text-muted-foreground">Ingen sprogdata endnu</p>
+                : <BreakdownBars rows={stats.languageBreakdown} total={languageTotal} label={languageLabel} colors={LANG_COLOR} />}
             </CardContent>
           </Card>
         </div>

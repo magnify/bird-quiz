@@ -44,6 +44,7 @@ export async function createQuizSession(params: {
   difficulty: string
   mode: string
   questionCount: number
+  language?: string | null
 }): Promise<string | null> {
   try {
     const supabase = createServiceClient()
@@ -58,7 +59,7 @@ export async function createQuizSession(params: {
 
     const { data, error } = await supabase
       .from('quiz_sessions')
-      .insert({ ...base, country: ctx.country, device_type: ctx.device_type })
+      .insert({ ...base, country: ctx.country, device_type: ctx.device_type, language: params.language ?? null })
       .select('id')
       .single()
 
