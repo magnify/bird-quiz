@@ -86,7 +86,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       {/* 1b · Hvem spiller */}
       <section className="space-y-4">
         <SectionHeading>Hvem spiller</SectionHeading>
-        <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle>Lande</CardTitle>
