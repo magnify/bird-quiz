@@ -24,6 +24,25 @@ function offlineStats(error: string): AdminStats {
   }
 }
 
+/** Lightweight live poll for the admin "Aktive nu" card: one count-only query
+ *  (head: true → no rows transferred). Kept separate from the heavy
+ *  getAdminStats so polling stays cheap on free-tier Supabase. */
+export async function getLiveStats(): Promise<{ activeSessions: number; healthy: boolean }> {
+  try {
+    const supabase = createServiceClient()
+    const activeSince = new Date(Date.now() - ACTIVE_WINDOW_MIN * 60_000).toISOString()
+    const { count, error } = await supabase
+      .from('quiz_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('completed', false)
+      .gt('created_at', activeSince)
+    if (error) return { activeSessions: 0, healthy: false }
+    return { activeSessions: count ?? 0, healthy: true }
+  } catch {
+    return { activeSessions: 0, healthy: false }
+  }
+}
+
 export async function getAdminStats(rangeDays: number | null = rangeDaysFor(DEFAULT_RANGE)): Promise<AdminStats> {
   const supabase = createServiceClient()
   const since = rangeDays ? new Date(Date.now() - rangeDays * 86_400_000).toISOString() : null

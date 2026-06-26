@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { StatCard } from '@/components/admin/StatCard'
+import { LiveActiveCard } from '@/components/admin/LiveActiveCard'
 import { BreakdownBars } from '@/components/admin/BreakdownBars'
 import { SessionsAreaChart } from '@/components/admin/SessionsAreaChart'
 import { HourlyChart } from '@/components/admin/HourlyChart'
@@ -68,7 +69,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
         <SectionHeading>Brug & vækst</SectionHeading>
         <div className="grid grid-cols-2 gap-4 @5xl/main:grid-cols-4">
           <StatCard label="Fuldførte" value={String(stats.completedSessions)} sub={`${stats.totalSessions} startet · ${stats.completionRate}% fuldført`} />
-          <StatCard label="Aktive nu" value={String(stats.activeSessions)} sub="Startet, ikke fuldført (15 min)" accent={stats.activeSessions > 0} />
+          <LiveActiveCard initialActive={stats.activeSessions} />
           <StatCard label="Spillere" value={String(stats.totalPlayers)} sub={`${stats.returningPlayers} tilbagevendende`} />
           <StatCard label="Spørgsmål/quiz" value={stats.avgQuestions !== null ? String(stats.avgQuestions) : '—'} sub={`Gns. varighed ${formatDuration(stats.avgDurationMs)}`} />
         </div>
