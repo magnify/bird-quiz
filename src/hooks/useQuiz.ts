@@ -17,7 +17,7 @@ import {
 } from '@/lib/quiz/spaced-repetition'
 import { calculateQuestionScore } from '@/lib/quiz/scoring'
 import { saveResult, setQuizActive } from '@/lib/quiz/result-history'
-import { getGuestId, getGuestName } from '@/lib/identity/guest'
+import { getGuestId } from '@/lib/identity/guest'
 import { createQuizSession, recordQuizAnswer, completeQuizSession } from '@/app/actions/quiz'
 
 export type Screen = 'start' | 'transitioning' | 'quiz' | 'results'
@@ -82,7 +82,6 @@ export function useQuiz(
           score: state.score,
           points: state.points,
           durationMs,
-          guestName: getGuestName(),
         })
       }
       saveResult({
@@ -186,7 +185,6 @@ export function useQuiz(
     setState(prev => {
       createQuizSession({
         guestId: getGuestId(),
-        guestName: getGuestName(),
         difficulty: prev.difficulty,
         mode: prev.mode,
         questionCount: prev.totalQuestions,

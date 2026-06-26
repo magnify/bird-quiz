@@ -27,6 +27,11 @@
     "hard": "Svære",
     "all": "Alle"
   },
+  "mode": {
+    "photo": "Foto",
+    "name": "Navn",
+    "mixed": "Blandet"
+  },
   "question": {
     "photoPrompt": "Hvilken fugl ser du her?",
     "namePrompt": "Find billede af en",

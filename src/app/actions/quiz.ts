@@ -40,7 +40,6 @@ function deviceFromUA(ua: string | null): string | null {
 
 export async function createQuizSession(params: {
   guestId: string
-  guestName: string | null
   difficulty: string
   mode: string
   questionCount: number
@@ -51,7 +50,6 @@ export async function createQuizSession(params: {
     const ctx = await sessionContext()
     const base = {
       guest_id: params.guestId,
-      guest_name: params.guestName,
       difficulty: params.difficulty,
       mode: params.mode,
       question_count: params.questionCount,
@@ -107,24 +105,11 @@ export async function recordQuizAnswer(params: {
   }
 }
 
-export async function updateSessionName(sessionId: string, guestName: string): Promise<void> {
-  try {
-    const supabase = createServiceClient()
-    await supabase
-      .from('quiz_sessions')
-      .update({ guest_name: guestName })
-      .eq('id', sessionId)
-  } catch (e) {
-    console.error('Failed to update session name:', e)
-  }
-}
-
 export async function completeQuizSession(params: {
   sessionId: string
   score: number
   points: number
   durationMs: number
-  guestName: string | null
 }): Promise<void> {
   try {
     const supabase = createServiceClient()
@@ -136,7 +121,6 @@ export async function completeQuizSession(params: {
         duration_ms: params.durationMs,
         completed: true,
         completed_at: new Date().toISOString(),
-        guest_name: params.guestName,
       })
       .eq('id', params.sessionId)
   } catch (e) {

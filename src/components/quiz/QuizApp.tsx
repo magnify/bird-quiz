@@ -6,14 +6,10 @@ import { useTranslations } from 'next-intl'
 import type { Bird } from '@/lib/supabase/types'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useBirdImages } from '@/hooks/useBirdImages'
-import { AuthProvider, useAuth } from '@/lib/auth/AuthProvider'
-import { migrateGuestData } from '@/app/actions/auth'
-import { getGuestId } from '@/lib/identity/guest'
 import { fetchManifest, type Manifest } from '@/lib/data/manifest'
 import QuizSetup from './QuizSetup'
 import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
-import AuthModal from './AuthModal'
 import QuizHeader from './QuizHeader'
 import MobileBottomNav from './MobileBottomNav'
 import { ConfirmModal } from './ConfirmModal'
@@ -40,25 +36,13 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
   } = useQuiz(birds, memberships)
 
   const { imageUrls, ensureImages } = useBirdImages()
-  const { user } = useAuth()
   const t = useTranslations('quizApp')
-  const [showAuth, setShowAuth] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [manifest, setManifest] = useState<Manifest>(new Map())
 
   useEffect(() => {
     fetchManifest().then(setManifest)
   }, [])
-
-  // Migrate guest data when user signs in
-  useEffect(() => {
-    if (user) {
-      const guestId = getGuestId()
-      if (guestId) {
-        migrateGuestData(guestId, user.id)
-      }
-    }
-  }, [user])
 
   // When a question is displayed, ensure images are loaded for all options
   useEffect(() => {
@@ -128,8 +112,6 @@ function QuizAppInner({ birds, memberships }: QuizAppProps) {
 
   return (
     <>
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
-
       {showLeaveModal && (
         <ConfirmModal
           title={t('leaveTitle')}
@@ -239,9 +221,7 @@ export default function QuizApp({ birds, memberships }: QuizAppProps) {
   return (
     <div className="quiz-app-root">
       <ErrorBoundary>
-        <AuthProvider>
-          <QuizAppInner birds={birds} memberships={memberships} />
-        </AuthProvider>
+        <QuizAppInner birds={birds} memberships={memberships} />
       </ErrorBoundary>
     </div>
   )

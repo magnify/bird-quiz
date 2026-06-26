@@ -27,6 +27,11 @@
     "hard": "Hard",
     "all": "All"
   },
+  "mode": {
+    "photo": "Photo",
+    "name": "Name",
+    "mixed": "Mixed"
+  },
   "question": {
     "photoPrompt": "Which bird do you see?",
     "namePrompt": "Find a photo of",
