@@ -3,7 +3,7 @@
  * Never hardcode these in components or routes — import from here.
  */
 export const BRAND = {
-  name: 'Fugle Quiz',
+  name: 'Fuglequiz',
   tagline: 'Test din viden om Danmarks fugle',
   domain: 'www.fuglequiz.dk',
   url: 'https://www.fuglequiz.dk',
